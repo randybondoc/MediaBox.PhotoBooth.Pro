@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Web Photobooth</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 0; background: #f5f5f5; }
+    #camera { width: 100%; max-width: 500px; border: 4px solid #333; border-radius: 10px; margin: 10px auto; display: block; }
+    #controls { margin: 15px; }
+    #canvas, #result { border: 2px solid #666; margin-top: 15px; max-width: 100%; }
+    button { padding: 10px 15px; margin: 5px; font-size: 16px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>📸 Web Photobooth</h1>
+
+  <!-- Camera preview -->
+  <video id="camera" autoplay playsinline muted></video>
+
+  <!-- Controls -->
+  <div id="controls">
+    <button onclick="takePhoto()">Take Photo</button>
+    <button onclick="downloadResult()">Download</button>
+    <select id="facingMode">
+      <option value="user">Front Camera</option>
+      <option value="environment">Back Camera</option>
+    </select>
+    <button onclick="switchCamera()">Switch Camera</button>
+  </div>
+
+  <!-- Canvas preview -->
+  <canvas id="canvas" width="1200" height="1800"></canvas>
+  <div>
+    <h3>Result Preview (4x6)</h3>
+    <img id="result" alt="Final photo will appear here">
+  </div>
+
+<script>
+let currentStream = null;
+let currentFacingMode = "user"; // default: front cam
+
+async function startCamera(facingMode = "user") {
+  try {
+    if (currentStream) {
+      // Stop previous stream
+      currentStream.getTracks().forEach(track => track.stop());
+    }
+
+    const constraints = {
+      video: { facingMode: facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false
+    };
+
+    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+    currentStream = stream;
+
+    const video = document.getElementById("camera");
+    video.srcObject = stream;
+    await video.play();
+  } catch (err) {
+    alert("Camera access failed: " + err.message);
+    console.error(err);
+  }
+}
+
+function takePhoto() {
+  const video = document.getElementById("camera");
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+
+  // Draw video frame onto canvas
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  // Update preview image
+  const dataURL = canvas.toDataURL("image/jpeg", 0.9);
+  document.getElementById("result").src = dataURL;
+}
+
+function downloadResult() {
+  const canvas = document.getElementById("canvas");
+  const link = document.createElement("a");
+  link.download = "photobooth_4x6.jpg";
+  link.href = canvas.toDataURL("image/jpeg", 0.9);
+  link.click();
+}
+
+function switchCamera() {
+  currentFacingMode = document.getElementById("facingMode").value;
+  startCamera(currentFacingMode);
+}
+
+// Start camera on load
+document.addEventListener("DOMContentLoaded", () => startCamera());
+</script>
+</body>
+</html>
