@@ -6,7 +6,7 @@
   <title>MediaBox.PhotoBooth.Pro — Demo</title>
   <style>
     :root{--accent:#1f6feb}
-    html,body{height:100%;}
+    html,body{height:100%}
     body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial; margin:0; background:#f4f6fb; color:#0b1220}
     header{padding:12px 16px;background:white;border-bottom:1px solid #e6e9ef;display:flex;gap:12px;align-items:center;justify-content:space-between}
     header h1{font-size:16px;margin:0}
@@ -22,7 +22,7 @@
     .small{padding:6px 8px;font-size:13px}
     .flex{display:flex;gap:8px;align-items:center}
     .template-list{display:flex;gap:8px}
-    .template{border:1px dashed #ccd4e0;padding:6px;border-radius:6px;cursor:pointer}
+    .template{border:1px dashed #ccd4e0;padding:6px;border-radius:6px;cursor:pointer;user-select:none}
     .template.active{border-style:solid;background:linear-gradient(180deg,#f8fbff,#fff)}
     .overlay-preview, .result-preview{width:100%;height:220px;object-fit:contain;background:#eef2f7;border-radius:6px}
     .stage{position:relative;display:inline-block}
@@ -32,7 +32,7 @@
     .note{font-size:13px;color:#5b6770}
     .thumb{width:80px;height:60px;object-fit:cover;border:1px solid #e3e8f0;border-radius:6px}
     .controls-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .countdown-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:72px;color:white;background:rgba(0,0,0,0.35);border-radius:8px}
+    .countdown-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:72px;color:white;background:rgba(0,0,0,0.35);border-radius:8px;pointer-events:none}
     @media(max-width:880px){ .wrap{padding:8px} .right{width:100%} }
   </style>
 </head>
@@ -40,7 +40,7 @@
   <header>
     <div style="display:flex;gap:12px;align-items:center">
       <h1>MediaBox.PhotoBooth.Pro — Demo</h1>
-      <div class="note">Exports 4x6 (1200×1800 px). Works on desktop & mobile (HTTPS required).</div>
+      <div class="note">Exports 4×6 (1200×1800 px). Works on desktop & mobile (HTTPS required).</div>
     </div>
     <div style="display:flex;gap:8px;align-items:center">
       <button id="startCameraBtn" class="small">Start Camera</button>
@@ -51,9 +51,11 @@
   <div class="wrap">
     <div class="left">
       <div style="position:relative">
+        <!-- video preview must include playsinline, muted, autoplay attributes -->
         <video id="preview" autoplay playsinline muted class="stage-canvas" style="width:100%;height:310px;object-fit:cover;border-radius:8px"></video>
         <div id="countdown" class="countdown-overlay" style="display:none">3</div>
       </div>
+
       <canvas id="hiddenCanvas" width="640" height="480" style="display:none"></canvas>
 
       <div class="controls">
@@ -61,6 +63,7 @@
         <div class="flex"><label for="facingMode">Facing</label>
           <select id="facingMode"><option value="user">Front</option><option value="environment" selected>Back</option></select>
         </div>
+
         <div class="flex"><label for="count">Photos</label><select id="count"><option>1</option><option>2</option><option>3</option><option selected>4</option></select></div>
         <div class="flex"><label for="layout">Layout</label>
           <div style="flex:1">
@@ -129,8 +132,15 @@
   </div>
 
 <script>
+/*
+  MediaBox.PhotoBooth.Pro — single-file photobooth app
+  - Full features: multi-shot, layouts, overlays, chroma, draggable text, countdown, thumbnails, export 4x6
+  - IMPORTANT: To avoid Android autoplay/permission issues, camera only starts after user clicks Start Camera.
+  - Host on HTTPS (GitHub Pages / localhost).
+*/
+
 (async function(){
-  // elements
+  // ELEMENTS
   const preview = document.getElementById('preview');
   const deviceSelect = document.getElementById('deviceSelect');
   const startBtn = document.getElementById('start');
@@ -162,16 +172,20 @@
   const countdownEl = document.getElementById('countdown');
   const facingSelect = document.getElementById('facingMode');
 
-  // state
+  // STATE
   let stream = null;
   let devices = [];
-  let captures = [];
+  let captures = []; // image objects
   let overlayImg = null;
   let bgImg = null;
   let template = 'grid2x2';
-  let texts = []; // {text,x,y,font}
+  let texts = []; // {text,x,y,font,size,color}
 
-  // enumerate devices (video inputs)
+  // Helpers
+  function hexToRgb(hex){ const m = hex.replace('#',''); return {r:parseInt(m.substring(0,2),16), g:parseInt(m.substring(2,4),16), b:parseInt(m.substring(4,6),16)} }
+  function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+  // Enumerate devices
   async function getDevices(){
     try{
       const list = await navigator.mediaDevices.enumerateDevices();
@@ -185,14 +199,16 @@
         deviceSelect.appendChild(opt);
       });
       if(cur) deviceSelect.value = cur;
-    }catch(e){ console.warn('enumerate devices failed', e); }
+    }catch(e){
+      console.warn('enumerateDevices failed', e);
+    }
   }
 
-  // start camera with either deviceId or facingMode
+  // Start camera - only after user gesture
   async function startCamera({deviceId=null, facingMode=null} = {}){
     try{
+      // stop previous
       if(stream){ stream.getTracks().forEach(t=>t.stop()); stream = null; }
-      // prefer deviceId when available
       let constraintsVideo = {};
       if(deviceId){ constraintsVideo.deviceId = { exact: deviceId }; }
       else if(facingMode){ constraintsVideo.facingMode = { ideal: facingMode }; }
@@ -200,63 +216,93 @@
       constraintsVideo.width = { ideal: 1280 }; constraintsVideo.height = { ideal: 720 };
       const constraints = { video: constraintsVideo, audio: false };
 
+      // ask permission
       const s = await navigator.mediaDevices.getUserMedia(constraints);
       stream = s;
       preview.srcObject = s;
+      // Must call play to start video in some mobile browsers
       await preview.play();
-      // update devices (labels often appear after permission)
+      // update devices (labels known after permission)
       await getDevices();
-      // preselect the actual track deviceId if available
+      // preselect actual device if available
       try{
         const track = s.getVideoTracks()[0];
         const settings = track.getSettings();
-        if(settings.deviceId){ deviceSelect.value = settings.deviceId; }
-      }catch(e){/* ignore */}
+        if(settings.deviceId) deviceSelect.value = settings.deviceId;
+      }catch(e){}
       hiddenCanvas.width = preview.videoWidth || 640; hiddenCanvas.height = preview.videoHeight || 480;
       renderStage();
     }catch(err){
       console.error('startCamera error', err);
-      alert('Camera access failed: '+ err.message + '
-Make sure site is served over HTTPS and camera permission is allowed.');
+      alert('Camera access failed: ' + (err && err.message ? err.message : err) + '\nMake sure site is HTTPS and camera permission is allowed.');
     }
   }
 
-  // device selection change
-  deviceSelect.addEventListener('change', ()=> startCamera({deviceId: deviceSelect.value}));
-  facingSelect.addEventListener('change', ()=> startCamera({facingMode: facingSelect.value}));
+  // Wire start camera button (explicit user gesture)
+  startCameraBtn.addEventListener('click', ()=> startCamera({ deviceId: deviceSelect.value || null, facingMode: facingSelect.value }));
 
-  // try auto-start but wrapped in try/catch. If blocked, user can click Start Camera.
-  try{ await startCamera({facingMode: facingSelect.value}); }catch(e){ /* ignore */ }
+  // Listen to device/facing selection
+  deviceSelect.addEventListener('change', ()=> startCamera({ deviceId: deviceSelect.value }));
+  facingSelect.addEventListener('change', ()=> startCamera({ facingMode: facingSelect.value }));
 
-  startCameraBtn.addEventListener('click', ()=> startCamera({deviceId: deviceSelect.value || null, facingMode: facingSelect.value}));
-
-  // overlay and bg
+  // Load overlay & background images
   overlayFile.addEventListener('change', e=>{
-    const f = e.target.files[0]; if(!f) return; const url = URL.createObjectURL(f); overlayPreview.src = url; overlayImg = new Image(); overlayImg.onload = ()=> renderStage(); overlayImg.src = url;
+    const f = e.target.files[0]; if(!f) return;
+    const url = URL.createObjectURL(f);
+    overlayPreview.src = url;
+    overlayImg = new Image(); overlayImg.onload = ()=> renderStage(); overlayImg.src = url;
   });
-  bgFile.addEventListener('change', e=>{ const f = e.target.files[0]; if(!f) return; const url = URL.createObjectURL(f); bgPreview.src = url; bgImg = new Image(); bgImg.onload = ()=> renderStage(); bgImg.src = url; });
+  bgFile.addEventListener('change', e=>{
+    const f = e.target.files[0]; if(!f) return;
+    const url = URL.createObjectURL(f);
+    bgPreview.src = url;
+    bgImg = new Image(); bgImg.onload = ()=> renderStage(); bgImg.src = url;
+  });
 
-  // capture with chroma support
+  // Chroma capture: draw preview, replace keyed pixels with bg
   function captureFrameToCanvas(){
-    if(!preview.videoWidth || !preview.videoHeight){ hiddenCanvas.width = 640; hiddenCanvas.height = 480; hiddenCtx.fillStyle='#444'; hiddenCtx.fillRect(0,0,hiddenCanvas.width,hiddenCanvas.height); return; }
-    const w = hiddenCanvas.width = preview.videoWidth; const h = hiddenCanvas.height = preview.videoHeight;
+    if(!preview.videoWidth || !preview.videoHeight){
+      hiddenCanvas.width = 640; hiddenCanvas.height = 480;
+      hiddenCtx.fillStyle = '#444'; hiddenCtx.fillRect(0,0,hiddenCanvas.width,hiddenCanvas.height); return;
+    }
+    const w = hiddenCanvas.width = preview.videoWidth;
+    const h = hiddenCanvas.height = preview.videoHeight;
     hiddenCtx.drawImage(preview,0,0,w,h);
     if(!chromaToggle.checked || !bgImg) return;
-    // create temp bg sized to w,h
-    const temp = document.createElement('canvas'); temp.width = w; temp.height = h; const tctx = temp.getContext('2d'); tctx.drawImage(bgImg,0,0,w,h);
+    // sample background to temp canvas sized to w,h
+    const temp = document.createElement('canvas'); temp.width = w; temp.height = h; const tctx = temp.getContext('2d');
+    tctx.drawImage(bgImg,0,0,w,h);
     const fg = hiddenCtx.getImageData(0,0,w,h); const bg = tctx.getImageData(0,0,w,h);
     const key = hexToRgb(keyColorEl.value); const th = Number(thresholdEl.value);
-    for(let i=0;i<fg.data.length;i+=4){ const r=fg.data[i], g=fg.data[i+1], b=fg.data[i+2]; const dist = Math.sqrt((r-key.r)**2+(g-key.g)**2+(b-key.b)**2); if(dist < th){ fg.data[i]=bg.data[i]; fg.data[i+1]=bg.data[i+1]; fg.data[i+2]=bg.data[i+2]; fg.data[i+3]=bg.data[i+3]; } }
+    for(let i=0;i<fg.data.length;i+=4){
+      const r=fg.data[i], g=fg.data[i+1], b=fg.data[i+2];
+      const dist = Math.sqrt((r-key.r)**2+(g-key.g)**2+(b-key.b)**2);
+      if(dist < th){
+        fg.data[i]=bg.data[i]; fg.data[i+1]=bg.data[i+1]; fg.data[i+2]=bg.data[i+2]; fg.data[i+3]=bg.data[i+3];
+      }
+    }
     hiddenCtx.putImageData(fg,0,0);
   }
 
-  function captureWithChroma(){ captureFrameToCanvas(); const dataUrl = hiddenCanvas.toDataURL('image/png'); const img = new Image(); img.src = dataUrl; captures.push(img); img.onload = ()=>{ renderThumbs(); renderStage(); }; }
+  function captureWithChroma(){
+    captureFrameToCanvas();
+    const dataUrl = hiddenCanvas.toDataURL('image/png');
+    const img = new Image(); img.src = dataUrl; captures.push(img);
+    img.onload = ()=>{ renderThumbs(); renderStage(); };
+  }
 
-  // countdown utility
-  function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
-  async function doCountdown(seconds){ if(!seconds || seconds<=0) return; countdownEl.style.display='flex'; for(let s=seconds;s>0;s--){ countdownEl.textContent = s; await sleep(1000); } countdownEl.style.display='none'; }
+  // Countdown
+  async function doCountdown(seconds){
+    if(!seconds || seconds<=0) return;
+    countdownEl.style.display = 'flex';
+    for(let s=seconds;s>0;s--){
+      countdownEl.textContent = s;
+      await sleep(1000);
+    }
+    countdownEl.style.display = 'none';
+  }
 
-  // start capture sequence
+  // Start capture sequence
   startBtn.addEventListener('click', async ()=>{
     captures = [];
     const count = Number(countEl.value);
@@ -267,74 +313,199 @@ Make sure site is served over HTTPS and camera permission is allowed.');
       await sleep(300);
     }
   });
-  snapBtn.addEventListener('click', ()=>{ captureWithChroma(); });
+  snapBtn.addEventListener('click', ()=> { captureWithChroma(); });
 
-  // thumbs
-  function renderThumbs(){ thumbs.innerHTML=''; captures.forEach((img,idx)=>{ const t=document.createElement('img'); t.src=img.src; t.className='thumb'; t.title = `Shot ${idx+1}`; t.addEventListener('click', ()=>{ /* focus or replace logic if needed */ }); thumbs.appendChild(t); }); }
-
-  // compute layout slots (based on stage 360x540)
-  function computeSlots(templateName, count){ const W=360,H=540, slots=[]; if(templateName==='grid2x2'){ const cols=2, rows=2; const w=W/cols, h=H/rows; for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){ slots.push({x:Math.round(c*w+6), y:Math.round(r*h+6), w:Math.round(w-12), h:Math.round(h-12)}); } }
-    else if(templateName==='strip3'){ const hSlot = H/3; for(let i=0;i<3;i++) slots.push({x:12,y:Math.round(i*hSlot+8),w:W-24,h:Math.round(hSlot-16)}); }
-    else { slots.push({x:8,y:8,w:W-16,h:H-16}); }
-    return slots.slice(0, Math.max(1, Number(count)) ); }
-
-  function drawImageCover(ctx,img,x,y,w,h){ const iw=img.width, ih=img.height; if(!iw||!ih) return; const r=Math.max(w/iw,h/ih); const nw=iw*r, nh=ih*r; const cx = x + (w-nw)/2, cy = y + (h-nh)/2; ctx.drawImage(img, cx, cy, nw, nh); }
-
-  function previewToImageSync(){ const temp=document.createElement('canvas'); temp.width = preview.videoWidth || 640; temp.height = preview.videoHeight || 480; temp.getContext('2d').drawImage(preview,0,0,temp.width,temp.height); const img=new Image(); img.src = temp.toDataURL('image/png'); return img; }
-
-  // rendering the stage and result preview
-  function renderStage(){ const w=stageCanvas.width=360,h=stageCanvas.height=540; stageCtx.clearRect(0,0,w,h); stageCtx.fillStyle='#222'; stageCtx.fillRect(0,0,w,h);
-    const slots = computeSlots(template, Number(countEl.value));
-    slots.forEach((slot,i)=>{ stageCtx.save(); const img = captures[i] || previewToImageSync(); if(img){ drawImageCover(stageCtx,img,slot.x,slot.y,slot.w,slot.h); } else { stageCtx.fillStyle='#333'; stageCtx.fillRect(slot.x,slot.y,slot.w,slot.h); } stageCtx.restore(); });
-    if(overlayImg) drawImageCover(stageCtx, overlayImg, 0, 0, w, h);
-    // texts
-    texts.forEach(t=>{ stageCtx.font = `${t.size||24}px ${t.font}`; stageCtx.fillStyle=t.color||'white'; stageCtx.strokeStyle='rgba(0,0,0,0.6)'; stageCtx.lineWidth=3; stageCtx.strokeText(t.text, t.x, t.y); stageCtx.fillText(t.text, t.x, t.y); });
-    composeResultPreview(); }
-
-  function composeResultPreview(){ const outW=1200,outH=1800; const tmp=document.createElement('canvas'); tmp.width=outW; tmp.height=outH; const tctx=tmp.getContext('2d'); tctx.fillStyle='white'; tctx.fillRect(0,0,outW,outH);
-    const stageSlots = computeSlots(template, Number(countEl.value)); stageSlots.forEach((s,i)=>{ const sx = Math.round(s.x/360 * outW); const sy = Math.round(s.y/540 * outH); const sw = Math.round(s.w/360 * outW); const sh = Math.round(s.h/540 * outH); const img = captures[i] || previewToImageSync(); if(img) drawImageCover(tctx,img,sx,sy,sw,sh); });
-    if(overlayImg) drawImageCover(tctx, overlayImg, 0, 0, outW, outH);
-    texts.forEach(t=>{ const fontSize = Math.round((t.size||24) * (outW/360)); tctx.font = `${fontSize}px ${t.font}`; tctx.fillStyle=t.color||'white'; tctx.strokeStyle='rgba(0,0,0,0.6)'; tctx.lineWidth = Math.max(4, Math.round(6*(outW/360))); const x = Math.round(t.x/360 * outW); const y = Math.round(t.y/540 * outH); tctx.strokeText(t.text,x,y); tctx.fillText(t.text,x,y); });
-    // draw scaled to preview
-    resultCtx.clearRect(0,0,resultPreview.width,resultPreview.height); resultCtx.drawImage(tmp,0,0,resultPreview.width,resultPreview.height);
+  // Render thumbnails
+  function renderThumbs(){
+    thumbs.innerHTML = '';
+    captures.forEach((img,idx)=>{
+      const t = document.createElement('img'); t.src = img.src; t.className='thumb'; t.title = `Shot ${idx+1}`;
+      // on click, allow replacing or focusing if needed in future
+      thumbs.appendChild(t);
+    });
   }
 
-  // export final
-  exportBtn.addEventListener('click', ()=>{
-    const outW=1200,outH=1800; const tmp=document.createElement('canvas'); tmp.width=outW; tmp.height=outH; const tctx=tmp.getContext('2d'); tctx.fillStyle='white'; tctx.fillRect(0,0,outW,outH);
-    const stageSlots = computeSlots(template, Number(countEl.value)); stageSlots.forEach((s,i)=>{ const sx = Math.round(s.x/360 * outW); const sy = Math.round(s.y/540 * outH); const sw = Math.round(s.w/360 * outW); const sh = Math.round(s.h/540 * outH); const img = captures[i] || previewToImageSync(); if(img) drawImageCover(tctx,img,sx,sy,sw,sh); });
+  // Layout slots based on stage (360x540)
+  function computeSlots(templateName, count){
+    const W=360,H=540, slots=[];
+    if(templateName==='grid2x2'){
+      const cols=2, rows=2; const w=W/cols, h=H/rows;
+      for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) slots.push({x:Math.round(c*w+6), y:Math.round(r*h+6), w:Math.round(w-12), h:Math.round(h-12)});
+    } else if(templateName==='strip3'){
+      const hSlot = H/3;
+      for(let i=0;i<3;i++) slots.push({x:12,y:Math.round(i*hSlot+8),w:W-24,h:Math.round(hSlot-16)});
+    } else {
+      slots.push({x:8,y:8,w:W-16,h:H-16});
+    }
+    return slots.slice(0, Math.max(1, Number(count)));
+  }
+
+  function drawImageCover(ctx,img,x,y,w,h){
+    const iw = img.width, ih = img.height; if(!iw||!ih) return;
+    const r = Math.max(w/iw, h/ih); const nw = iw*r, nh = ih*r;
+    const cx = x + (w - nw)/2; const cy = y + (h - nh)/2;
+    ctx.drawImage(img, cx, cy, nw, nh);
+  }
+
+  function previewToImageSync(){
+    const temp = document.createElement('canvas'); temp.width = preview.videoWidth || 640; temp.height = preview.videoHeight || 480;
+    temp.getContext('2d').drawImage(preview,0,0,temp.width,temp.height);
+    const img = new Image(); img.src = temp.toDataURL('image/png'); return img;
+  }
+
+  // Render stage and result preview
+  function renderStage(){
+    const w = stageCanvas.width = 360, h = stageCanvas.height = 540;
+    stageCtx.clearRect(0,0,w,h);
+    stageCtx.fillStyle = '#222'; stageCtx.fillRect(0,0,w,h);
+
+    const slots = computeSlots(template, Number(countEl.value));
+    slots.forEach((slot,i)=>{
+      stageCtx.save();
+      const img = captures[i] || previewToImageSync();
+      if(img) drawImageCover(stageCtx, img, slot.x, slot.y, slot.w, slot.h);
+      else { stageCtx.fillStyle = '#333'; stageCtx.fillRect(slot.x, slot.y, slot.w, slot.h); }
+      stageCtx.restore();
+    });
+
+    if(overlayImg) drawImageCover(stageCtx, overlayImg, 0, 0, w, h);
+
+    // draw texts
+    texts.forEach(t=>{
+      stageCtx.font = `${t.size||24}px ${t.font}`;
+      stageCtx.fillStyle = t.color || 'white';
+      stageCtx.strokeStyle = 'rgba(0,0,0,0.6)';
+      stageCtx.lineWidth = 3;
+      stageCtx.strokeText(t.text, t.x, t.y);
+      stageCtx.fillText(t.text, t.x, t.y);
+    });
+
+    composeResultPreview();
+  }
+
+  function composeResultPreview(){
+    const outW=1200,outH=1800;
+    const tmp = document.createElement('canvas'); tmp.width = outW; tmp.height = outH; const tctx = tmp.getContext('2d');
+    tctx.fillStyle = 'white'; tctx.fillRect(0,0,outW,outH);
+
+    const stageSlots = computeSlots(template, Number(countEl.value));
+    stageSlots.forEach((s,i)=>{
+      const sx = Math.round(s.x/360 * outW);
+      const sy = Math.round(s.y/540 * outH);
+      const sw = Math.round(s.w/360 * outW);
+      const sh = Math.round(s.h/540 * outH);
+      const img = captures[i] || previewToImageSync();
+      if(img) drawImageCover(tctx, img, sx, sy, sw, sh);
+    });
+
     if(overlayImg) drawImageCover(tctx, overlayImg, 0, 0, outW, outH);
-    texts.forEach(t=>{ const fontSize = Math.round((t.size||24) * (outW/360)); tctx.font = `${fontSize}px ${t.font}`; tctx.fillStyle=t.color||'white'; tctx.strokeStyle='rgba(0,0,0,0.6)'; tctx.lineWidth = Math.max(4, Math.round(6*(outW/360))); const x=Math.round(t.x/360*outW); const y=Math.round(t.y/540*outH); tctx.strokeText(t.text,x,y); tctx.fillText(t.text,x,y); });
-    const dataUrl = tmp.toDataURL('image/jpeg',0.95); const a=document.createElement('a'); a.href=dataUrl; a.download='mediabox_photobooth_4x6.jpg'; a.click();
+
+    texts.forEach(t=>{
+      const fontSize = Math.round((t.size||24) * (outW/360));
+      tctx.font = `${fontSize}px ${t.font}`;
+      tctx.fillStyle = t.color || 'white';
+      tctx.strokeStyle = 'rgba(0,0,0,0.6)';
+      tctx.lineWidth = Math.max(4, Math.round(6*(outW/360)));
+      const x = Math.round(t.x/360 * outW);
+      const y = Math.round(t.y/540 * outH);
+      tctx.strokeText(t.text, x, y); tctx.fillText(t.text, x, y);
+    });
+
+    resultCtx.clearRect(0,0,resultPreview.width,resultPreview.height);
+    resultCtx.drawImage(tmp,0,0,resultPreview.width,resultPreview.height);
+  }
+
+  // Export final
+  exportBtn.addEventListener('click', ()=>{
+    const outW=1200,outH=1800;
+    const tmp = document.createElement('canvas'); tmp.width = outW; tmp.height = outH; const tctx = tmp.getContext('2d');
+    tctx.fillStyle = 'white'; tctx.fillRect(0,0,outW,outH);
+    const stageSlots = computeSlots(template, Number(countEl.value));
+    stageSlots.forEach((s,i)=>{
+      const sx = Math.round(s.x/360 * outW);
+      const sy = Math.round(s.y/540 * outH);
+      const sw = Math.round(s.w/360 * outW);
+      const sh = Math.round(s.h/540 * outH);
+      const img = captures[i] || previewToImageSync();
+      if(img) drawImageCover(tctx, img, sx, sy, sw, sh);
+    });
+    if(overlayImg) drawImageCover(tctx, overlayImg, 0, 0, outW, outH);
+    texts.forEach(t=>{
+      const fontSize = Math.round((t.size||24) * (outW/360));
+      tctx.font = `${fontSize}px ${t.font}`;
+      tctx.fillStyle = t.color || 'white';
+      tctx.strokeStyle = 'rgba(0,0,0,0.6)';
+      tctx.lineWidth = Math.max(4, Math.round(6*(outW/360)));
+      const x = Math.round(t.x/360 * outW);
+      const y = Math.round(t.y/540 * outH);
+      tctx.strokeText(t.text, x, y); tctx.fillText(t.text, x, y);
+    });
+    const dataUrl = tmp.toDataURL('image/jpeg', 0.95);
+    const a = document.createElement('a'); a.href = dataUrl; a.download = 'mediabox_photobooth_4x6.jpg'; a.click();
   });
 
-  // text overlays management
-  addTextBtn.addEventListener('click', ()=>{ const txt = textInput.value.trim(); if(!txt) return; const obj = { text: txt, x: 40, y: 520, font: fontSelect.value, size: 24, color: 'white' }; texts.push(obj); textInput.value=''; renderStage(); enableTextDrag(); });
-  clearTextsBtn.addEventListener('click', ()=>{ texts=[]; renderStage(); });
+  // Text overlays
+  addTextBtn.addEventListener('click', ()=> {
+    const txt = textInput.value.trim(); if(!txt) return;
+    const obj = { text: txt, x: 40, y: 520, font: fontSelect.value, size: 24, color: 'white' };
+    texts.push(obj); textInput.value = ''; renderStage(); enableTextDrag();
+  });
+  clearTextsBtn.addEventListener('click', ()=> { texts = []; renderStage(); });
 
-  // drag texts on stage
-  function enableTextDrag(){ const holder = document.getElementById('stageHolder'); let dragging = null; let offset={x:0,y:0};
-    holder.onpointerdown = (ev)=>{ const rect = holder.getBoundingClientRect(); const px = ev.clientX - rect.left; const py = ev.clientY - rect.top; for(let i=texts.length-1;i>=0;i--){ const t = texts[i]; stageCtx.font = `${t.size||24}px ${t.font}`; const w = stageCtx.measureText(t.text).width; const th = (t.size||24); if(px>=t.x && px<=t.x+w && py>=t.y-th && py<=t.y){ dragging={i}; offset.x = px - t.x; offset.y = py - t.y; holder.setPointerCapture(ev.pointerId); break; } } };
-    holder.onpointermove = (ev)=>{ if(!dragging) return; const rect = holder.getBoundingClientRect(); const px = ev.clientX - rect.left; const py = ev.clientY - rect.top; const t = texts[dragging.i]; t.x = Math.max(0, Math.min(320, px - offset.x)); t.y = Math.max(24, Math.min(520, py - offset.y)); renderStage(); };
-    holder.onpointerup = (ev)=>{ if(dragging){ try{ ev.target.releasePointerCapture(ev.pointerId); }catch(e){} dragging=null; } };
+  // Drag texts on stage
+  function enableTextDrag(){
+    const holder = document.getElementById('stageHolder');
+    let dragging = null; let offset = {x:0,y:0};
+    holder.onpointerdown = (ev)=>{
+      const rect = holder.getBoundingClientRect(); const px = ev.clientX - rect.left; const py = ev.clientY - rect.top;
+      for(let i=texts.length-1;i>=0;i--){
+        const t = texts[i];
+        stageCtx.font = `${t.size||24}px ${t.font}`;
+        const w = stageCtx.measureText(t.text).width; const th = (t.size||24);
+        if(px >= t.x && px <= t.x + w && py >= t.y - th && py <= t.y){
+          dragging = { i }; offset.x = px - t.x; offset.y = py - t.y;
+          try{ holder.setPointerCapture(ev.pointerId); }catch(e){}
+          break;
+        }
+      }
+    };
+    holder.onpointermove = (ev)=>{
+      if(!dragging) return;
+      const rect = holder.getBoundingClientRect(); const px = ev.clientX - rect.left; const py = ev.clientY - rect.top;
+      const t = texts[dragging.i];
+      t.x = Math.max(0, Math.min(320, px - offset.x)); t.y = Math.max(24, Math.min(520, py - offset.y));
+      renderStage();
+    };
+    holder.onpointerup = (ev)=>{
+      if(dragging){
+        try{ ev.target.releasePointerCapture(ev.pointerId); }catch(e){}
+        dragging = null;
+      }
+    };
   }
 
-  // template switching
-  templates.addEventListener('click', e=>{ const t = e.target.closest('.template'); if(!t) return; document.querySelectorAll('.template').forEach(x=>x.classList.remove('active')); t.classList.add('active'); template = t.dataset.template; renderStage(); });
+  // Template switching
+  templates.addEventListener('click', e=>{
+    const t = e.target.closest('.template'); if(!t) return;
+    document.querySelectorAll('.template').forEach(x=>x.classList.remove('active')); t.classList.add('active');
+    template = t.dataset.template; renderStage();
+  });
 
-  // helper hex->rgb
-  function hexToRgb(hex){ const m = hex.replace('#',''); return {r:parseInt(m.substring(0,2),16), g:parseInt(m.substring(2,4),16), b:parseInt(m.substring(4,6),16)} }
+  // Reset
+  resetBtn.addEventListener('click', ()=>{
+    if(stream){ stream.getTracks().forEach(t=>t.stop()); stream = null; }
+    captures = []; overlayImg = null; overlayPreview.src = ''; bgImg = null; bgPreview.src = '';
+    texts = []; thumbs.innerHTML = ''; renderStage();
+  });
 
-  // reset
-  resetBtn.addEventListener('click', ()=>{ if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; } captures=[]; overlayImg=null; overlayPreview.src=''; bgImg=null; bgPreview.src=''; texts=[]; thumbs.innerHTML=''; renderStage(); });
-
-  // init
-  renderStage(); enableTextDrag(); navigator.mediaDevices.addEventListener('devicechange', getDevices);
-
-  // make sure UI updates when count or layout changed
+  // Initialization
+  renderStage(); enableTextDrag();
+  navigator.mediaDevices.addEventListener('devicechange', getDevices);
   countEl.addEventListener('change', renderStage);
-  delayEl.addEventListener('change', ()=>{});
+  // do not auto-start camera here — must be user gesture via Start Camera button
 
+  // Ensure device list is available even before permission
+  try{ await getDevices(); }catch(e){}
 })();
 </script>
 </body>
