@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>MediaBox.PhotoBooth.Pro — Demo</title>
+  <title>MediaBox.PhotoBooth.Pro — v1.1</title>
   <style>
     :root{--accent:#1f6feb}
     html,body{height:100%}
@@ -18,7 +18,7 @@
     .controls{display:grid;gap:8px;margin-top:8px}
     label{font-size:13px;color:#394150}
     select,input[type="range"],input[type="number"],input[type="text"]{width:100%;padding:8px;border-radius:6px;border:1px solid #d7dde6}
-    button{background:var(--accent);color:white;border:0;padding:10px 12px;border-radius:8px;cursor:pointer}
+    button{background:var(--accent);color:white;border:0;padding:10px 12px;border-radius:8px;cursor:pointer; font-weight: 500;}
     .small{padding:6px 8px;font-size:13px}
     .flex{display:flex;gap:8px;align-items:center}
     .template-list{display:flex;gap:8px}
@@ -32,14 +32,17 @@
     .note{font-size:13px;color:#5b6770}
     .thumb{width:80px;height:60px;object-fit:cover;border:1px solid #e3e8f0;border-radius:6px}
     .controls-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .countdown-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:72px;color:white;background:rgba(0,0,0,0.35);border-radius:8px;pointer-events:none}
+    .countdown-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:72px;color:white;background:rgba(0,0,0,0.35);border-radius:8px;pointer-events:none; z-index:5;}
+    /* NEW: Flash effect styling */
+    .flash-overlay{position:absolute;inset:0;background:white;opacity:0;pointer-events:none;transition:opacity 0.2s ease-out;border-radius:8px; z-index:10;}
+    .flash-overlay.flash{opacity:1;transition:none;}
     @media(max-width:880px){ .wrap{padding:8px} .right{width:100%} }
   </style>
 </head>
 <body>
   <header>
     <div style="display:flex;gap:12px;align-items:center">
-      <h1>MediaBox.PhotoBooth.Pro — Demo</h1>
+      <h1>MediaBox.PhotoBooth.Pro — v1.1</h1>
       <div class="note">Exports 4×6 (1200×1800 px). Works on desktop & mobile (HTTPS required).</div>
     </div>
     <div style="display:flex;gap:8px;align-items:center">
@@ -51,9 +54,10 @@
   <div class="wrap">
     <div class="left">
       <div style="position:relative">
-        <!-- video preview must include playsinline, muted, autoplay attributes -->
         <video id="preview" autoplay playsinline muted class="stage-canvas" style="width:100%;height:310px;object-fit:cover;border-radius:8px"></video>
         <div id="countdown" class="countdown-overlay" style="display:none">3</div>
+        <!-- NEW: Flash overlay element -->
+        <div id="flashOverlay" class="flash-overlay"></div>
       </div>
 
       <canvas id="hiddenCanvas" width="640" height="480" style="display:none"></canvas>
@@ -78,7 +82,7 @@
         <div class="flex"><label for="delay">Countdown (s)</label><input id="delay" type="number" value="3" min="0" max="20"></div>
 
         <div class="flex">
-          <button id="start" class="small">Start Capture</button>
+          <button id="start" class="small">Start Sequence</button>
           <button id="snap" class="small" style="background:#2ecc71">Snap Now</button>
         </div>
 
@@ -100,18 +104,22 @@
 
         <label>Add text</label>
         <div class="flex"><input id="textInput" placeholder="Caption..."><select id="fontSelect"><option>Arial</option><option>Georgia</option><option>Impact</option><option>Courier New</option><option selected>Roboto</option></select></div>
-        <div class="flex"><button id="addText" class="small">Add Text</button><button id="clearTexts" class="small">Clear Texts</button></div>
+        <div class="flex"><button id="addText" class="small">Add Text</button><button id="clearTexts" class="small" style="background:#8e9eb3">Clear Texts</button></div>
 
         <hr>
 
-        <div class="flex"><button id="export" class="small">Export 4×6 JPEG</button></div>
+        <!-- NEW: Share button added alongside export -->
+        <div class="flex">
+            <button id="export" class="small">Download 4×6</button>
+            <button id="shareBtn" class="small" style="background:#8e44ad; display:none;">Share Photo</button>
+        </div>
 
         <div style="margin-top:8px" class="note">Tip: On phones choose rear camera for higher quality. Use GitHub Pages (HTTPS) or localhost for camera access.</div>
       </div>
     </div>
 
     <div class="right">
-      <div class="stage" id="stageHolder" style="width:360px;height:540px;border:1px solid #e3e8f0;overflow:hidden;background:#111;display:flex;align-items:center;justify-content:center">
+      <div class="stage" id="stageHolder" style="width:360px;height:540px;border:1px solid #e3e8f0;overflow:hidden;background:#111;display:flex;align-items:center;justify-content:center; touch-action: none;">
         <canvas id="stageCanvas" width="360" height="540"></canvas>
       </div>
 
@@ -128,17 +136,10 @@
   </div>
 
   <div class="footer">
-    <small class="note">Drag text overlays on the stage. Click export to download a print-ready 4×6 JPEG.</small>
+    <small class="note">Drag text overlays on the stage. <strong>Drag text completely off the canvas to delete it.</strong></small>
   </div>
 
 <script>
-/*
-  MediaBox.PhotoBooth.Pro — single-file photobooth app
-  - Full features: multi-shot, layouts, overlays, chroma, draggable text, countdown, thumbnails, export 4x6
-  - IMPORTANT: To avoid Android autoplay/permission issues, camera only starts after user clicks Start Camera.
-  - Host on HTTPS (GitHub Pages / localhost).
-*/
-
 (async function(){
   // ELEMENTS
   const preview = document.getElementById('preview');
@@ -163,6 +164,7 @@
   const templates = document.getElementById('templates');
   const thumbs = document.getElementById('thumbs');
   const exportBtn = document.getElementById('export');
+  const shareBtn = document.getElementById('shareBtn');
   const textInput = document.getElementById('textInput');
   const fontSelect = document.getElementById('fontSelect');
   const addTextBtn = document.getElementById('addText');
@@ -171,19 +173,26 @@
   const startCameraBtn = document.getElementById('startCameraBtn');
   const countdownEl = document.getElementById('countdown');
   const facingSelect = document.getElementById('facingMode');
+  const flashOverlay = document.getElementById('flashOverlay');
 
   // STATE
   let stream = null;
   let devices = [];
-  let captures = []; // image objects
+  let captures = []; 
   let overlayImg = null;
   let bgImg = null;
   let template = 'grid2x2';
-  let texts = []; // {text,x,y,font,size,color}
+  let texts = []; 
 
   // Helpers
   function hexToRgb(hex){ const m = hex.replace('#',''); return {r:parseInt(m.substring(0,2),16), g:parseInt(m.substring(2,4),16), b:parseInt(m.substring(4,6),16)} }
   function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+  // NEW: Flash Effect
+  function triggerFlash() {
+    flashOverlay.classList.add('flash');
+    setTimeout(() => flashOverlay.classList.remove('flash'), 50);
+  }
 
   // Enumerate devices
   async function getDevices(){
@@ -204,10 +213,9 @@
     }
   }
 
-  // Start camera - only after user gesture
+  // Start camera 
   async function startCamera({deviceId=null, facingMode=null} = {}){
     try{
-      // stop previous
       if(stream){ stream.getTracks().forEach(t=>t.stop()); stream = null; }
       let constraintsVideo = {};
       if(deviceId){ constraintsVideo.deviceId = { exact: deviceId }; }
@@ -216,15 +224,11 @@
       constraintsVideo.width = { ideal: 1280 }; constraintsVideo.height = { ideal: 720 };
       const constraints = { video: constraintsVideo, audio: false };
 
-      // ask permission
       const s = await navigator.mediaDevices.getUserMedia(constraints);
       stream = s;
       preview.srcObject = s;
-      // Must call play to start video in some mobile browsers
       await preview.play();
-      // update devices (labels known after permission)
       await getDevices();
-      // preselect actual device if available
       try{
         const track = s.getVideoTracks()[0];
         const settings = track.getSettings();
@@ -238,14 +242,11 @@
     }
   }
 
-  // Wire start camera button (explicit user gesture)
   startCameraBtn.addEventListener('click', ()=> startCamera({ deviceId: deviceSelect.value || null, facingMode: facingSelect.value }));
-
-  // Listen to device/facing selection
   deviceSelect.addEventListener('change', ()=> startCamera({ deviceId: deviceSelect.value }));
   facingSelect.addEventListener('change', ()=> startCamera({ facingMode: facingSelect.value }));
 
-  // Load overlay & background images
+  // Load images
   overlayFile.addEventListener('change', e=>{
     const f = e.target.files[0]; if(!f) return;
     const url = URL.createObjectURL(f);
@@ -259,7 +260,7 @@
     bgImg = new Image(); bgImg.onload = ()=> renderStage(); bgImg.src = url;
   });
 
-  // Chroma capture: draw preview, replace keyed pixels with bg
+  // Capture & Chroma
   function captureFrameToCanvas(){
     if(!preview.videoWidth || !preview.videoHeight){
       hiddenCanvas.width = 640; hiddenCanvas.height = 480;
@@ -269,7 +270,6 @@
     const h = hiddenCanvas.height = preview.videoHeight;
     hiddenCtx.drawImage(preview,0,0,w,h);
     if(!chromaToggle.checked || !bgImg) return;
-    // sample background to temp canvas sized to w,h
     const temp = document.createElement('canvas'); temp.width = w; temp.height = h; const tctx = temp.getContext('2d');
     tctx.drawImage(bgImg,0,0,w,h);
     const fg = hiddenCtx.getImageData(0,0,w,h); const bg = tctx.getImageData(0,0,w,h);
@@ -285,13 +285,13 @@
   }
 
   function captureWithChroma(){
+    triggerFlash(); // Trigger visual flash
     captureFrameToCanvas();
     const dataUrl = hiddenCanvas.toDataURL('image/png');
     const img = new Image(); img.src = dataUrl; captures.push(img);
     img.onload = ()=>{ renderThumbs(); renderStage(); };
   }
 
-  // Countdown
   async function doCountdown(seconds){
     if(!seconds || seconds<=0) return;
     countdownEl.style.display = 'flex';
@@ -302,7 +302,6 @@
     countdownEl.style.display = 'none';
   }
 
-  // Start capture sequence
   startBtn.addEventListener('click', async ()=>{
     captures = [];
     const count = Number(countEl.value);
@@ -313,19 +312,16 @@
       await sleep(300);
     }
   });
-  snapBtn.addEventListener('click', ()=> { captureWithChroma(); });
+  snapBtn.addEventListener('click', ()=> captureWithChroma());
 
-  // Render thumbnails
   function renderThumbs(){
     thumbs.innerHTML = '';
     captures.forEach((img,idx)=>{
       const t = document.createElement('img'); t.src = img.src; t.className='thumb'; t.title = `Shot ${idx+1}`;
-      // on click, allow replacing or focusing if needed in future
       thumbs.appendChild(t);
     });
   }
 
-  // Layout slots based on stage (360x540)
   function computeSlots(templateName, count){
     const W=360,H=540, slots=[];
     if(templateName==='grid2x2'){
@@ -353,7 +349,6 @@
     const img = new Image(); img.src = temp.toDataURL('image/png'); return img;
   }
 
-  // Render stage and result preview
   function renderStage(){
     const w = stageCanvas.width = 360, h = stageCanvas.height = 540;
     stageCtx.clearRect(0,0,w,h);
@@ -370,7 +365,6 @@
 
     if(overlayImg) drawImageCover(stageCtx, overlayImg, 0, 0, w, h);
 
-    // draw texts
     texts.forEach(t=>{
       stageCtx.font = `${t.size||24}px ${t.font}`;
       stageCtx.fillStyle = t.color || 'white';
@@ -383,11 +377,12 @@
     composeResultPreview();
   }
 
-  function composeResultPreview(){
+  // NEW: Centralized Image Generation Function (used for both download and sharing)
+  function generateFinalDataUrl() {
     const outW=1200,outH=1800;
     const tmp = document.createElement('canvas'); tmp.width = outW; tmp.height = outH; const tctx = tmp.getContext('2d');
     tctx.fillStyle = 'white'; tctx.fillRect(0,0,outW,outH);
-
+    
     const stageSlots = computeSlots(template, Number(countEl.value));
     stageSlots.forEach((s,i)=>{
       const sx = Math.round(s.x/360 * outW);
@@ -397,9 +392,9 @@
       const img = captures[i] || previewToImageSync();
       if(img) drawImageCover(tctx, img, sx, sy, sw, sh);
     });
-
+    
     if(overlayImg) drawImageCover(tctx, overlayImg, 0, 0, outW, outH);
-
+    
     texts.forEach(t=>{
       const fontSize = Math.round((t.size||24) * (outW/360));
       tctx.font = `${fontSize}px ${t.font}`;
@@ -410,39 +405,48 @@
       const y = Math.round(t.y/540 * outH);
       tctx.strokeText(t.text, x, y); tctx.fillText(t.text, x, y);
     });
-
-    resultCtx.clearRect(0,0,resultPreview.width,resultPreview.height);
-    resultCtx.drawImage(tmp,0,0,resultPreview.width,resultPreview.height);
+    
+    return tmp.toDataURL('image/jpeg', 0.95);
   }
 
-  // Export final
+  function composeResultPreview(){
+    const dataUrl = generateFinalDataUrl();
+    const img = new Image();
+    img.onload = () => {
+        resultCtx.clearRect(0,0,resultPreview.width,resultPreview.height);
+        resultCtx.drawImage(img, 0, 0, resultPreview.width, resultPreview.height);
+    };
+    img.src = dataUrl;
+  }
+
+  // Export File (Download)
   exportBtn.addEventListener('click', ()=>{
-    const outW=1200,outH=1800;
-    const tmp = document.createElement('canvas'); tmp.width = outW; tmp.height = outH; const tctx = tmp.getContext('2d');
-    tctx.fillStyle = 'white'; tctx.fillRect(0,0,outW,outH);
-    const stageSlots = computeSlots(template, Number(countEl.value));
-    stageSlots.forEach((s,i)=>{
-      const sx = Math.round(s.x/360 * outW);
-      const sy = Math.round(s.y/540 * outH);
-      const sw = Math.round(s.w/360 * outW);
-      const sh = Math.round(s.h/540 * outH);
-      const img = captures[i] || previewToImageSync();
-      if(img) drawImageCover(tctx, img, sx, sy, sw, sh);
-    });
-    if(overlayImg) drawImageCover(tctx, overlayImg, 0, 0, outW, outH);
-    texts.forEach(t=>{
-      const fontSize = Math.round((t.size||24) * (outW/360));
-      tctx.font = `${fontSize}px ${t.font}`;
-      tctx.fillStyle = t.color || 'white';
-      tctx.strokeStyle = 'rgba(0,0,0,0.6)';
-      tctx.lineWidth = Math.max(4, Math.round(6*(outW/360)));
-      const x = Math.round(t.x/360 * outW);
-      const y = Math.round(t.y/540 * outH);
-      tctx.strokeText(t.text, x, y); tctx.fillText(t.text, x, y);
-    });
-    const dataUrl = tmp.toDataURL('image/jpeg', 0.95);
+    const dataUrl = generateFinalDataUrl();
     const a = document.createElement('a'); a.href = dataUrl; a.download = 'mediabox_photobooth_4x6.jpg'; a.click();
   });
+
+  // NEW: Web Share API Logic
+  if (navigator.share) {
+    shareBtn.style.display = 'inline-block';
+    shareBtn.addEventListener('click', async () => {
+      try {
+        const dataUrl = generateFinalDataUrl();
+        const blob = await (await fetch(dataUrl)).blob();
+        const file = new File([blob], 'mediabox_photobooth.jpg', { type: 'image/jpeg' });
+        
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+                title: 'My Photobooth Picture',
+                files: [file]
+            });
+        } else {
+            alert("Your browser doesn't support sharing files directly. Please use the download button.");
+        }
+      } catch (err) {
+        console.warn('Share operation failed or was cancelled.', err);
+      }
+    });
+  }
 
   // Text overlays
   addTextBtn.addEventListener('click', ()=> {
@@ -452,10 +456,11 @@
   });
   clearTextsBtn.addEventListener('click', ()=> { texts = []; renderStage(); });
 
-  // Drag texts on stage
+  // Drag texts on stage (NEW: Delete if dragged out of bounds)
   function enableTextDrag(){
     const holder = document.getElementById('stageHolder');
     let dragging = null; let offset = {x:0,y:0};
+    
     holder.onpointerdown = (ev)=>{
       const rect = holder.getBoundingClientRect(); const px = ev.clientX - rect.left; const py = ev.clientY - rect.top;
       for(let i=texts.length-1;i>=0;i--){
@@ -469,15 +474,29 @@
         }
       }
     };
+    
     holder.onpointermove = (ev)=>{
       if(!dragging) return;
-      const rect = holder.getBoundingClientRect(); const px = ev.clientX - rect.left; const py = ev.clientY - rect.top;
+      const rect = holder.getBoundingClientRect(); 
+      const px = ev.clientX - rect.left; const py = ev.clientY - rect.top;
       const t = texts[dragging.i];
-      t.x = Math.max(0, Math.min(320, px - offset.x)); t.y = Math.max(24, Math.min(520, py - offset.y));
+      // Allow dragging freely (removed boundary locks so it can be dragged out to delete)
+      t.x = px - offset.x; 
+      t.y = py - offset.y;
       renderStage();
     };
+    
     holder.onpointerup = (ev)=>{
       if(dragging){
+        const rect = holder.getBoundingClientRect(); 
+        const px = ev.clientX - rect.left; const py = ev.clientY - rect.top;
+        
+        // NEW: If dragged outside the 360x540 canvas bounds, delete the text
+        if(px < 0 || px > 360 || py < 0 || py > 540) {
+            texts.splice(dragging.i, 1);
+            renderStage();
+        }
+        
         try{ ev.target.releasePointerCapture(ev.pointerId); }catch(e){}
         dragging = null;
       }
@@ -502,9 +521,7 @@
   renderStage(); enableTextDrag();
   navigator.mediaDevices.addEventListener('devicechange', getDevices);
   countEl.addEventListener('change', renderStage);
-  // do not auto-start camera here — must be user gesture via Start Camera button
 
-  // Ensure device list is available even before permission
   try{ await getDevices(); }catch(e){}
 })();
 </script>
