@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <title>MediaBox PhotoBooth v2.3</title>
+  <title>MediaBox Web PhotoBooth Pro v2.2</title>
   <style>
     :root {
       --primary: #2563eb; --primary-hover: #1d4ed8;
@@ -14,16 +14,20 @@
     * { box-sizing: border-box; }
     body { font-family: system-ui, -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
     
-    .screen { display: none; flex-direction: column; height: 100%; overflow-y: auto; padding-bottom: 80px; }
+    .screen { display: none; flex-direction: column; height: 100%; overflow-y: auto; padding-bottom: 100px; }
     .screen.active { display: flex; }
     
     header { padding: 16px; background: var(--card); border-bottom: 1px solid var(--border); text-align: center; flex-shrink: 0; }
+    .app-brand { font-size: 0.75rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
     header h1 { margin: 0; font-size: 1.25rem; }
     header p { margin: 4px 0 0; font-size: 0.875rem; color: #64748b; }
 
     .content { padding: 16px; max-width: 600px; margin: 0 auto; width: 100%; flex: 1; }
-    .action-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); padding: 16px; border-top: 1px solid var(--border); display: flex; justify-content: center; gap: 12px; z-index: 100; box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.05); }
     
+    .action-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); padding: 12px 16px 8px; border-top: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; z-index: 100; box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.05); }
+    .buttons-wrap { display: flex; justify-content: center; gap: 12px; width: 100%; }
+    .credits { font-size: 0.7rem; color: #94a3b8; margin-top: 10px; text-align: center; }
+
     button { padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: opacity 0.2s; }
     button:active { opacity: 0.8; }
     .btn-primary { background: var(--primary); color: white; width: 100%; max-width: 300px; }
@@ -64,7 +68,11 @@
 
   <!-- STEP 1: CAMERA SETUP -->
   <div id="step1" class="screen active">
-    <header><h1>Step 1: Camera Access</h1><p>Allow access to begin</p></header>
+    <header>
+      <div class="app-brand">MediaBox Web PhotoBooth Pro</div>
+      <h1>Step 1: Camera Access</h1>
+      <p>Allow access to begin</p>
+    </header>
     <div class="content">
       <div class="card">
         <label>Select Camera</label>
@@ -81,13 +89,20 @@
       </div>
     </div>
     <div class="action-bar">
-      <button class="btn-primary" onclick="goToStep(2)">Next: Layout Setup</button>
+      <div class="buttons-wrap">
+        <button class="btn-primary" onclick="goToStep(2)">Next: Layout Setup</button>
+      </div>
+      <div class="credits">v2.2 &bull; Created by randybondoc</div>
     </div>
   </div>
 
   <!-- STEP 2: LAYOUT SETUP -->
   <div id="step2" class="screen">
-    <header><h1>Step 2: Photo Layout</h1><p>Choose number of shots & arrangement</p></header>
+    <header>
+      <div class="app-brand">MediaBox Web PhotoBooth Pro</div>
+      <h1>Step 2: Photo Layout</h1>
+      <p>Choose number of shots & arrangement</p>
+    </header>
     <div class="content">
       <div class="card">
         <div class="card-title">Presets (4x6 Format)</div>
@@ -105,14 +120,21 @@
       </div>
     </div>
     <div class="action-bar">
-      <button class="btn-secondary" onclick="goToStep(1)">Back</button>
-      <button class="btn-primary" onclick="goToStep(3)">Next: Design</button>
+      <div class="buttons-wrap">
+        <button class="btn-secondary" onclick="goToStep(1)">Back</button>
+        <button class="btn-primary" onclick="goToStep(3)">Next: Design</button>
+      </div>
+      <div class="credits">v2.2 &bull; Created by randybondoc</div>
     </div>
   </div>
 
   <!-- STEP 3: DESIGN SETUP -->
   <div id="step3" class="screen">
-    <header><h1>Step 3: Design & Decor</h1><p>Customize your output</p></header>
+    <header>
+      <div class="app-brand">MediaBox Web PhotoBooth Pro</div>
+      <h1>Step 3: Design & Decor</h1>
+      <p>Customize your output</p>
+    </header>
     <div class="content">
       
       <div class="canvas-container design-container">
@@ -182,17 +204,23 @@
 
     </div>
     <div class="action-bar">
-      <button class="btn-secondary" onclick="goToStep(2)">Back</button>
-      <button class="btn-primary" onclick="goToStep(4)">Next: Green Screen</button>
+      <div class="buttons-wrap">
+        <button class="btn-secondary" onclick="goToStep(2)">Back</button>
+        <button class="btn-primary" onclick="goToStep(4)">Next: Green Screen</button>
+      </div>
+      <div class="credits">v2.2 &bull; Created by randybondoc</div>
     </div>
   </div>
 
   <!-- STEP 4: CHROMA KEY (LIVE PREVIEW) -->
   <div id="step4" class="screen">
-    <header><h1>Step 4: Green Screen Setup</h1><p>Replace background of taken photos</p></header>
+    <header>
+      <div class="app-brand">MediaBox Web PhotoBooth Pro</div>
+      <h1>Step 4: Green Screen Setup</h1>
+      <p>Replace background of taken photos</p>
+    </header>
     <div class="content">
       
-      <!-- Live Preview for Chroma setup -->
       <div class="canvas-container">
         <canvas id="step4Canvas"></canvas>
       </div>
@@ -244,17 +272,23 @@
 
     </div>
     <div class="action-bar">
-      <button class="btn-secondary" onclick="goToStep(3)">Back</button>
-      <button class="btn-primary" onclick="goToStep(5)">Next: Capture</button>
+      <div class="buttons-wrap">
+        <button class="btn-secondary" onclick="goToStep(3)">Back</button>
+        <button class="btn-primary" onclick="goToStep(5)">Next: Capture</button>
+      </div>
+      <div class="credits">v2.2 &bull; Created by randybondoc</div>
     </div>
   </div>
 
   <!-- STEP 5: CAPTURE -->
   <div id="step5" class="screen">
-    <header><h1>Step 5: Photo Session</h1><p>Get ready!</p></header>
+    <header>
+      <div class="app-brand">MediaBox Web PhotoBooth Pro</div>
+      <h1>Step 5: Photo Session</h1>
+      <p>Get ready!</p>
+    </header>
     <div class="content" style="display:flex; flex-direction:column; justify-content:center;">
       
-      <!-- Live Preview for actual session -->
       <div class="canvas-container" style="position:relative;">
         <canvas id="step5Canvas"></canvas>
         <div id="countdownOverlay">3</div>
@@ -277,14 +311,21 @@
 
     </div>
     <div class="action-bar">
-      <button class="btn-secondary" id="btnBackToChroma" onclick="goToStep(4)">Back</button>
-      <button class="btn-primary" id="btnStartSession" style="background:var(--danger)">Start Session</button>
+      <div class="buttons-wrap">
+        <button class="btn-secondary" id="btnBackToChroma" onclick="goToStep(4)">Back</button>
+        <button class="btn-primary" id="btnStartSession" style="background:var(--danger)">Start Session</button>
+      </div>
+      <div class="credits">v2.2 &bull; Created by randybondoc</div>
     </div>
   </div>
 
   <!-- STEP 6: RESULT & EXPORT -->
   <div id="step6" class="screen">
-    <header><h1>Step 6: Your Masterpiece</h1><p>Save and Share</p></header>
+    <header>
+      <div class="app-brand">MediaBox Web PhotoBooth Pro</div>
+      <h1>Step 6: Your Masterpiece</h1>
+      <p>Save and Share</p>
+    </header>
     <div class="content">
       <div class="canvas-container design-container">
         <canvas id="resultCanvas" width="1200" height="1800"></canvas>
@@ -294,8 +335,11 @@
         <button class="btn-secondary" onclick="goToStep(5)" style="flex:1">Reshoot</button>
       </div>
     </div>
-    <div class="action-bar" style="padding: 24px 16px;">
-      <button class="btn-success" style="font-size: 1.1rem; padding: 16px;" onclick="exportFinalImage()">Download 4x6</button>
+    <div class="action-bar">
+      <div class="buttons-wrap">
+        <button class="btn-success" style="font-size: 1.1rem; padding: 12px 24px;" onclick="exportFinalImage()">Download 4x6</button>
+      </div>
+      <div class="credits">v2.2 &bull; Created by randybondoc</div>
     </div>
   </div>
 
@@ -303,7 +347,8 @@
 
 <script>
 /**
- * MediaBox PhotoBooth v2.3 - LIVE PREVIEW FIX
+ * MediaBox Web PhotoBooth Pro v2.2
+ * Created by randybondoc
  */
 const W = 1200, H = 1800; 
 const state = {
@@ -323,7 +368,7 @@ const state = {
 };
 
 let livePreviewRAF = null;
-let currentShotIdx = 0; // Tracks live background swaps during Step 5
+let currentShotIdx = 0; 
 
 const cameraFeed = document.getElementById('cameraFeed');
 const layoutCanvas = document.getElementById('layoutCanvas');
@@ -339,7 +384,7 @@ function goToStep(step) {
   document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
   document.getElementById('step' + step).classList.add('active');
   
-  if(livePreviewRAF) cancelAnimationFrame(livePreviewRAF); // Stop previous feed
+  if(livePreviewRAF) cancelAnimationFrame(livePreviewRAF); 
   
   if(step === 1) { startLivePreview('step1Canvas', false); }
   if(step === 2) { drawLayout(); }
@@ -347,7 +392,7 @@ function goToStep(step) {
   if(step === 4) { renderChromaUI(); startLivePreview('step4Canvas', true); }
   if(step === 5) { 
     document.getElementById('lblShotCount').innerText = state.layoutBoxes.length;
-    currentShotIdx = 0; // reset for live preview loop
+    currentShotIdx = 0; 
     startLivePreview('step5Canvas', true);
   }
   if(step === 6) { renderFinalResult(); }
@@ -401,7 +446,6 @@ function drawChecker(ctx, w, h) {
     }
 }
 
-// The core rendering loop for live preview (Shows chroma working in real-time)
 function startLivePreview(canvasId, useChroma) {
     const canvas = document.getElementById(canvasId);
     if(!canvas) return;
@@ -409,14 +453,12 @@ function startLivePreview(canvasId, useChroma) {
     
     function loop() {
         if (cameraFeed.readyState >= 2 && cameraFeed.videoWidth > 0) {
-            // Lock preview resolution for performance
             canvas.width = 640; 
             canvas.height = Math.round(640 * (cameraFeed.videoHeight / cameraFeed.videoWidth));
             
             if (!useChroma || !state.chromaEnabled) {
                 drawCover(ctx, cameraFeed, 0, 0, canvas.width, canvas.height, false);
             } else {
-                // 1. Draw Intended Background First
                 let bgImg = null;
                 if (state.chromaMode === 'single') bgImg = state.chromaSingleImg;
                 else if (state.chromaMode === 'unique') bgImg = state.chromaUniqueImgs[currentShotIdx];
@@ -427,7 +469,6 @@ function startLivePreview(canvasId, useChroma) {
                 
                 const bgData = ctx.getImageData(0,0,canvas.width, canvas.height).data;
 
-                // 2. Draw Camera frame to process canvas
                 processCanvas.width = canvas.width; processCanvas.height = canvas.height;
                 drawCover(pCtx, cameraFeed, 0, 0, processCanvas.width, processCanvas.height, false);
                 const fg = pCtx.getImageData(0,0,processCanvas.width, processCanvas.height);
@@ -435,7 +476,6 @@ function startLivePreview(canvasId, useChroma) {
                 const key = hexToRgb(document.getElementById('chromaColor').value);
                 const th = Number(document.getElementById('chromaIntensity').value);
 
-                // 3. Pixel Math
                 for(let i=0; i<fg.data.length; i+=4){
                     const r=fg.data[i], g=fg.data[i+1], b=fg.data[i+2];
                     if(Math.sqrt((r-key.r)**2+(g-key.g)**2+(b-key.b)**2) < th) {
@@ -480,7 +520,6 @@ function drawLayout() {
   });
 }
 
-// Drag layout boxes
 let draggingBox = -1, dragBoxOffset = {x:0, y:0};
 layoutCanvas.addEventListener('pointerdown', e => {
   const p = getCanvasPos(e, layoutCanvas);
@@ -655,7 +694,7 @@ async function captureFinalFrame(shotIndex) {
         const r=fg.data[i], g=fg.data[i+1], b=fg.data[i+2];
         if(Math.sqrt((r-key.r)**2+(g-key.g)**2+(b-key.b)**2) < th) {
             if (state.chromaMode === 'transparent' || !customBgData) {
-                fg.data[i+3] = 0; // Pokes hole for designCanvas bgImg
+                fg.data[i+3] = 0; 
             } else {
                 fg.data[i] = customBgData[i]; fg.data[i+1] = customBgData[i+1]; fg.data[i+2] = customBgData[i+2]; fg.data[i+3] = customBgData[i+3];
             }
@@ -674,7 +713,7 @@ document.getElementById('btnStartSession').addEventListener('click', async () =>
   const status = document.getElementById('captureStatus');
 
   for(let i=0; i<state.shotsTotal; i++) {
-    currentShotIdx = i; // Updates the live preview background automatically!
+    currentShotIdx = i; 
     status.innerText = `Taking photo ${i+1} of ${state.shotsTotal}...`;
     
     document.getElementById('countdownOverlay').style.display = 'flex';
@@ -697,7 +736,7 @@ function exportFinalImage() { const a = document.createElement('a'); a.download 
 
 initDevices();
 applyPreset('4-grid');
-goToStep(1); // initialize first screen explicitly
+goToStep(1); 
 </script>
 </body>
 </html>
