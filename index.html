@@ -48,9 +48,22 @@
     .preset-btn { border: 2px solid var(--border); background: transparent; padding: 8px; border-radius: 8px; color: var(--text); }
     .preset-btn.active { border-color: var(--primary); background: #eff6ff; }
 
-    .canvas-container { position: relative; width: 100%; max-width: 400px; margin: 0 auto 16px; aspect-ratio: 4/3; background: #e2e8f0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
-    .design-container { aspect-ratio: 2/3; }
-    canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+    .canvas-container { position: relative; width: 100%; max-width: 400px; margin: 0 auto 16px; aspect-ratio: 4/3; background: #0f172a; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+    .design-container { aspect-ratio: 2/3; background: #e2e8f0; }
+    .canvas-container canvas { position: relative; z-index: 1; width: 100%; height: 100%; display: block; touch-action: none; }
+
+    /* Real, visible preview video inside the canvas container.
+       object-fit: cover matches what drawCover() does on canvas. */
+    .canvas-container .preview-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      background: #0f172a;
+      transform: translateZ(0); /* force GPU layer on Android */
+    }
 
     #editMenu { display: none; background: #f8fafc; border: 1px solid var(--border); padding: 12px; border-radius: 8px; margin-bottom: 16px; }
 
@@ -61,27 +74,12 @@
     .file-input-wrapper input[type="file"] { flex: 1; padding: 6px; border: 1px solid var(--border); border-radius: 6px; }
     .unique-upload-box { background: #f1f5f9; padding: 10px; border-radius: 6px; margin-bottom: 8px; border: 1px dashed #cbd5e1; }
 
-    /* Camera source video: rendered but visually negligible.
-       Do NOT use display:none or z-index:-10 — Android needs it painted. */
-    #cameraFeed {
-      position: fixed;
-      top: 0; left: 0;
-      width: 8px; height: 8px;
-      opacity: 0.02;
-      pointer-events: none;
-      z-index: 1;
-      object-fit: cover;
-    }
-
     .status-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #fee2e2; color: #b91c1c; margin-bottom: 12px; }
     .status-pill.ready { background: #dcfce7; color: #15803d; }
     .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
   </style>
 </head>
 <body>
-
-  <!-- Camera source video. Must be painted (not display:none) for Android Chrome/WebView. -->
-  <video id="cameraFeed" autoplay playsinline muted></video>
 
   <!-- STEP 1: CAMERA SETUP -->
   <div id="step1" class="screen active">
@@ -105,6 +103,7 @@
         <button id="btnStartCamera" class="btn-primary" style="width: 100%">Start Camera</button>
       </div>
       <div class="canvas-container">
+        <video id="step1Video" class="preview-video" autoplay playsinline muted></video>
         <canvas id="step1Canvas" width="640" height="480"></canvas>
       </div>
     </div>
@@ -242,6 +241,7 @@
     <div class="content">
 
       <div class="canvas-container">
+        <video id="step4Video" class="preview-video" autoplay playsinline muted></video>
         <canvas id="step4Canvas" width="640" height="480"></canvas>
       </div>
 
@@ -310,6 +310,7 @@
     <div class="content" style="display:flex; flex-direction:column; justify-content:center;">
 
       <div class="canvas-container" style="position:relative;">
+        <video id="step5Video" class="preview-video" autoplay playsinline muted></video>
         <canvas id="step5Canvas" width="640" height="480"></canvas>
         <div id="countdownOverlay">3</div>
         <div id="flashOverlay"></div>
@@ -370,15 +371,18 @@
  * MediaBox Web PhotoBooth Pro v2.2.1
  * Created by randybondoc
  *
- * Camera subsystem rewritten for mobile robustness (Android Chrome / Samsung Internet /
- * iOS Safari / desktop):
- *  - Secure-context + API support checks
- *  - getUserMedia() called from explicit user gesture
- *  - enumerateDevices() only after permission is granted
- *  - Wait for loadedmetadata + non-zero videoWidth/Height before declaring ready
- *  - play() failures are treated as real camera failures (no silent swallow)
- *  - Live preview loop tolerates "camera not ready" state
- *  - Chroma-key processing throttled to ~20fps to avoid mobile CPU meltdown
+ * Camera subsystem rewritten for mobile robustness.
+ * KEY CHANGES in this revision:
+ *  - The camera <video> is now a REAL, VISIBLE, properly-sized element inside
+ *    each preview container (not an 8x8 hidden stub). Android Chrome and
+ *    Samsung Internet will not reliably decode frames for essentially-invisible
+ *    videos — the video must be in the render tree at normal size.
+ *  - The chroma-key <canvas> sits on TOP of the video as a transparent overlay.
+ *    When chroma is off, we simply clear the canvas so the live video shows through.
+ *  - drawCover() now reads videoWidth/videoHeight for <video> sources.
+ *    (Previously it read .width/.height which for a <video> is the HTML
+ *    attribute default — 300x150 — producing a completely wrong transform.)
+ *  - Multiple preview videos all share the same MediaStream.
  */
 const W = 1200, H = 1800;
 
@@ -402,11 +406,9 @@ let livePreviewRAF = null;
 let activePreviewCanvasId = null;
 let currentShotIdx = 0;
 
-// Camera runtime state
 let cameraReady = false;
 let cameraStarting = false;
 
-const cameraFeed = document.getElementById('cameraFeed');
 const layoutCanvas = document.getElementById('layoutCanvas');
 const lCtx = layoutCanvas.getContext('2d');
 const designCanvas = document.getElementById('designCanvas');
@@ -415,6 +417,12 @@ const resultCanvas = document.getElementById('resultCanvas');
 const rCtx = resultCanvas.getContext('2d');
 const processCanvas = document.getElementById('processCanvas');
 const pCtx = processCanvas.getContext('2d', { willReadFrequently: true });
+
+const previewVideos = [
+  document.getElementById('step1Video'),
+  document.getElementById('step4Video'),
+  document.getElementById('step5Video')
+];
 
 // ---------------------------------------------------------------------------
 // NAVIGATION
@@ -425,6 +433,15 @@ function goToStep(step) {
   if (target) target.classList.add('active');
 
   stopLivePreview();
+
+  // Resume preview videos that live inside this screen
+  if (target && state.stream) {
+    target.querySelectorAll('video.preview-video').forEach(v => {
+      if (v.srcObject !== state.stream) v.srcObject = state.stream;
+      const p = v.play();
+      if (p && p.catch) p.catch(() => {});
+    });
+  }
 
   if (step === 1) { startLivePreview('step1Canvas', false); }
   if (step === 2) { drawLayout(); }
@@ -475,7 +492,7 @@ function stopCamera() {
     try { state.stream.getTracks().forEach(t => t.stop()); } catch (e) {}
     state.stream = null;
   }
-  try { cameraFeed.srcObject = null; } catch (e) {}
+  previewVideos.forEach(v => { try { v.srcObject = null; } catch (e) {} });
   setStatus('Not started', false);
 }
 
@@ -505,7 +522,6 @@ async function startCamera() {
   setStatus('Starting...', false);
 
   try {
-    // Stop any existing stream cleanly before acquiring a new one
     if (state.stream) {
       try { state.stream.getTracks().forEach(t => t.stop()); } catch (e) {}
       state.stream = null;
@@ -514,7 +530,6 @@ async function startCamera() {
     const deviceId = document.getElementById('camDevice').value;
     const facing = document.getElementById('camFacing').value;
 
-    // Base mobile-friendly constraints
     const baseVideo = {
       width:  { ideal: 1280 },
       height: { ideal: 720 }
@@ -522,7 +537,6 @@ async function startCamera() {
 
     let stream = null;
 
-    // Prefer a specific deviceId only if the user explicitly chose one
     if (deviceId) {
       try {
         stream = await navigator.mediaDevices.getUserMedia({
@@ -535,7 +549,6 @@ async function startCamera() {
       }
     }
 
-    // Fallback / default path: facingMode only (much more reliable on Android)
     if (!stream) {
       stream = await navigator.mediaDevices.getUserMedia({
         video: Object.assign({}, baseVideo, { facingMode: { ideal: facing } }),
@@ -545,10 +558,13 @@ async function startCamera() {
 
     state.stream = stream;
 
-    // Attach stream to the (technically rendered) video element
-    cameraFeed.srcObject = stream;
+    // Attach to EVERY preview video.
+    previewVideos.forEach(v => {
+      v.srcObject = stream;
+      const p = v.play();
+      if (p && p.catch) p.catch(err => console.warn("preview play() failed", err));
+    });
 
-    // Watch for the stream ending externally (e.g. another app grabs camera)
     stream.getVideoTracks().forEach(track => {
       track.onended = () => {
         cameraReady = false;
@@ -556,28 +572,35 @@ async function startCamera() {
       };
     });
 
-    // Wait for metadata + real frame dimensions
-    await waitForMetadata(cameraFeed);
+    // Wait for the *visible* preview video to have real frame dimensions.
+    // The currently active screen's video is the most likely to decode first.
+    const primaryVideo = getActiveVideo() || previewVideos[0];
+    await waitForMetadata(primaryVideo);
 
-    // play() failure is a real failure — no silent swallow
+    // play() is a real failure point, don't swallow.
     try {
-      await cameraFeed.play();
+      await primaryVideo.play();
     } catch (playErr) {
       throw new Error("Camera stream acquired but playback failed: " + (playErr && playErr.message ? playErr.message : playErr));
     }
 
-    // Final verification
-    if (!cameraFeed.videoWidth || !cameraFeed.videoHeight) {
+    if (!primaryVideo.videoWidth || !primaryVideo.videoHeight) {
       await new Promise(r => setTimeout(r, 300));
-      if (!cameraFeed.videoWidth || !cameraFeed.videoHeight) {
+      if (!primaryVideo.videoWidth || !primaryVideo.videoHeight) {
         throw new Error("Camera started but no video frames were received.");
       }
+    }
+
+    // Also wait for the *currently active* preview video specifically
+    const active = getActiveVideo();
+    if (active && active !== primaryVideo) {
+      try { await waitForMetadata(active, 5000); } catch (e) { /* non-fatal */ }
+      try { await active.play(); } catch (e) {}
     }
 
     cameraReady = true;
     setStatus('Camera ready', true);
 
-    // Now that permission is granted, device labels are available
     await initDevices();
     document.getElementById('camDevice').disabled = false;
 
@@ -616,7 +639,6 @@ async function initDevices() {
 document.getElementById('btnStartCamera').addEventListener('click', startCamera);
 
 document.getElementById('camFacing').addEventListener('change', () => {
-  // Changing facing preference resets the explicit device selection
   document.getElementById('camDevice').value = "";
   if (cameraReady || state.stream) startCamera();
 });
@@ -627,6 +649,18 @@ document.getElementById('btnSwitchCamLive').addEventListener('click', async () =
   document.getElementById('camDevice').value = "";
   await startCamera();
 });
+
+// ---------------------------------------------------------------------------
+// VIDEO HELPERS
+// ---------------------------------------------------------------------------
+function getActiveVideo() {
+  if (!activePreviewCanvasId) return null;
+  const canvas = document.getElementById(activePreviewCanvasId);
+  if (!canvas) return null;
+  const container = canvas.parentElement;
+  if (!container) return null;
+  return container.querySelector('video.preview-video');
+}
 
 // ---------------------------------------------------------------------------
 // LIVE PREVIEW ENGINE
@@ -675,29 +709,37 @@ function startLivePreview(canvasId, useChroma) {
   if (!canvas) return;
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-  // Chroma processing throttle (~20fps) so we don't melt mid-range Android CPUs.
+  // Chroma processing throttle (~20fps)
   const CHROMA_INTERVAL_MS = 1000 / 20;
   let lastChromaTime = 0;
 
   function loop(ts) {
-    if (activePreviewCanvasId !== canvasId) return; // superseded
+    if (activePreviewCanvasId !== canvasId) return;
 
-    if (!cameraReady || cameraFeed.readyState < 2 || !cameraFeed.videoWidth) {
+    // --- Not ready: show opaque placeholder so the video behind is hidden ---
+    if (!cameraReady || !state.stream) {
       drawWaiting(ctx, canvas);
       livePreviewRAF = requestAnimationFrame(loop);
       return;
     }
 
-    // Match canvas to camera aspect ratio (preview width fixed at 640)
+    const video = getActiveVideo();
+    if (!video || video.readyState < 2 || !video.videoWidth) {
+      drawWaiting(ctx, canvas);
+      livePreviewRAF = requestAnimationFrame(loop);
+      return;
+    }
+
     const targetW = 640;
-    const targetH = Math.round(640 * (cameraFeed.videoHeight / cameraFeed.videoWidth));
+    const targetH = Math.round(640 * (video.videoHeight / video.videoWidth));
     if (canvas.width !== targetW || canvas.height !== targetH) {
       canvas.width  = targetW;
       canvas.height = targetH;
     }
 
     if (!useChroma || !state.chromaEnabled) {
-      drawCover(ctx, cameraFeed, 0, 0, canvas.width, canvas.height, false);
+      // Clear the canvas so the *visible video underneath* shows through.
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
     } else {
       const now = ts || performance.now();
       if (now - lastChromaTime >= CHROMA_INTERVAL_MS) {
@@ -718,7 +760,7 @@ function startLivePreview(canvasId, useChroma) {
 
         processCanvas.width  = canvas.width;
         processCanvas.height = canvas.height;
-        drawCover(pCtx, cameraFeed, 0, 0, processCanvas.width, processCanvas.height, false);
+        drawCover(pCtx, video, 0, 0, processCanvas.width, processCanvas.height, false);
         const fg = pCtx.getImageData(0, 0, processCanvas.width, processCanvas.height);
 
         const key = hexToRgb(document.getElementById('chromaColor').value);
@@ -787,7 +829,6 @@ function applyPreset(type) {
 
   state.shotsTotal = state.layoutBoxes.length;
 
-  // Resize chroma unique array to match new shot count
   while (state.chromaUniqueImgs.length < state.shotsTotal) state.chromaUniqueImgs.push(null);
   state.chromaUniqueImgs = state.chromaUniqueImgs.slice(0, state.shotsTotal);
 
@@ -921,17 +962,23 @@ function drawDesign(ctx = dCtx, isFinal = false) {
   });
 }
 
-function drawCover(ctx, img, x, y, w, h, flip) {
+/* drawCover now correctly handles <video>, <img>, and ImageBitmap sources. */
+function drawCover(ctx, src, x, y, w, h, flip) {
+  const iw = src.videoWidth || src.naturalWidth || src.width;
+  const ih = src.videoHeight || src.naturalHeight || src.height;
+  if (!iw || !ih) return;
+
   ctx.save();
-  const r = Math.max(w / img.width, h / img.height);
-  const nw = img.width * r, nh = img.height * r;
+  const r = Math.max(w / iw, h / ih);
+  const nw = iw * r, nh = ih * r;
   if (flip) {
     ctx.translate(x + w, y);
     ctx.scale(-1, 1);
-    ctx.drawImage(img, (w - nw) / 2, (h - nh) / 2, nw, nh);
+    ctx.drawImage(src, (w - nw) / 2, (h - nh) / 2, nw, nh);
   } else {
-    const cx = x + (w - nw) / 2, cy = y + (h - nh) / 2;
-    ctx.drawImage(img, cx, cy, nw, nh);
+    const cx = x + (w - nw) / 2;
+    const cy = y + (h - nh) / 2;
+    ctx.drawImage(src, cx, cy, nw, nh);
   }
   ctx.restore();
 }
@@ -1077,11 +1124,12 @@ function hexToRgb(hex) {
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 async function captureFinalFrame(shotIndex) {
-  if (!cameraReady || !cameraFeed.videoWidth) return null;
+  const video = getActiveVideo() || previewVideos.find(v => v.videoWidth > 0);
+  if (!video || !video.videoWidth) return null;
 
-  processCanvas.width  = cameraFeed.videoWidth;
-  processCanvas.height = cameraFeed.videoHeight;
-  pCtx.drawImage(cameraFeed, 0, 0, processCanvas.width, processCanvas.height);
+  processCanvas.width  = video.videoWidth;
+  processCanvas.height = video.videoHeight;
+  pCtx.drawImage(video, 0, 0, processCanvas.width, processCanvas.height);
 
   if (state.chromaEnabled) {
     let bgImg = null;
@@ -1190,8 +1238,6 @@ function exportFinalImage() {
 // ---------------------------------------------------------------------------
 // BOOT
 // ---------------------------------------------------------------------------
-// Do NOT touch enumerateDevices() or getUserMedia() at load.
-// Wait for the user to tap "Start Camera".
 applyPreset('4-grid');
 goToStep(1);
 setStatus('Not started', false);
