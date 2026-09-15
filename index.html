@@ -2,528 +2,675 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>MediaBox.PhotoBooth.Pro — v1.1</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>MediaBox PhotoBooth v2.0</title>
   <style>
-    :root{--accent:#1f6feb}
-    html,body{height:100%}
-    body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial; margin:0; background:#f4f6fb; color:#0b1220}
-    header{padding:12px 16px;background:white;border-bottom:1px solid #e6e9ef;display:flex;gap:12px;align-items:center;justify-content:space-between}
-    header h1{font-size:16px;margin:0}
-    .wrap{display:flex;gap:16px;padding:16px;flex-wrap:wrap}
-    .left,.right{background:white;padding:12px;border-radius:10px;box-shadow:0 6px 18px rgba(15,20,30,0.04)}
-    .left{flex:1;min-width:320px}
-    .right{width:420px;min-width:320px}
-    video, canvas{max-width:100%;border-radius:8px;background:black}
-    .controls{display:grid;gap:8px;margin-top:8px}
-    label{font-size:13px;color:#394150}
-    select,input[type="range"],input[type="number"],input[type="text"]{width:100%;padding:8px;border-radius:6px;border:1px solid #d7dde6}
-    button{background:var(--accent);color:white;border:0;padding:10px 12px;border-radius:8px;cursor:pointer; font-weight: 500;}
-    .small{padding:6px 8px;font-size:13px}
-    .flex{display:flex;gap:8px;align-items:center}
-    .template-list{display:flex;gap:8px}
-    .template{border:1px dashed #ccd4e0;padding:6px;border-radius:6px;cursor:pointer;user-select:none}
-    .template.active{border-style:solid;background:linear-gradient(180deg,#f8fbff,#fff)}
-    .overlay-preview, .result-preview{width:100%;height:220px;object-fit:contain;background:#eef2f7;border-radius:6px}
-    .stage{position:relative;display:inline-block}
-    .draggable{position:absolute;touch-action:none}
-    .stage-canvas{background:#111;border-radius:6px}
-    .footer{padding:12px;text-align:right}
-    .note{font-size:13px;color:#5b6770}
-    .thumb{width:80px;height:60px;object-fit:cover;border:1px solid #e3e8f0;border-radius:6px}
-    .controls-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .countdown-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:72px;color:white;background:rgba(0,0,0,0.35);border-radius:8px;pointer-events:none; z-index:5;}
-    /* NEW: Flash effect styling */
-    .flash-overlay{position:absolute;inset:0;background:white;opacity:0;pointer-events:none;transition:opacity 0.2s ease-out;border-radius:8px; z-index:10;}
-    .flash-overlay.flash{opacity:1;transition:none;}
-    @media(max-width:880px){ .wrap{padding:8px} .right{width:100%} }
+    :root {
+      --primary: #2563eb; --primary-hover: #1d4ed8;
+      --success: #16a34a; --success-hover: #15803d;
+      --danger: #ef4444; --bg: #f8fafc; --text: #0f172a;
+      --card: #ffffff; --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    
+    /* Wizard Screens */
+    .screen { display: none; flex-direction: column; height: 100%; overflow-y: auto; padding-bottom: 80px; }
+    .screen.active { display: flex; }
+    
+    /* Header */
+    header { padding: 16px; background: var(--card); border-bottom: 1px solid var(--border); text-align: center; flex-shrink: 0; }
+    header h1 { margin: 0; font-size: 1.25rem; }
+    header p { margin: 4px 0 0; font-size: 0.875rem; color: #64748b; }
+
+    /* Content Area */
+    .content { padding: 16px; max-width: 600px; margin: 0 auto; width: 100%; flex: 1; }
+    
+    /* Bottom Action Bar */
+    .action-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); padding: 16px; border-top: 1px solid var(--border); display: flex; justify-content: center; gap: 12px; z-index: 100; box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.05); }
+    
+    /* Buttons */
+    button { padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: opacity 0.2s; }
+    button:active { opacity: 0.8; }
+    .btn-primary { background: var(--primary); color: white; width: 100%; max-width: 300px; }
+    .btn-success { background: var(--success); color: white; width: 100%; max-width: 300px; }
+    .btn-secondary { background: #e2e8f0; color: #334155; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-hero { font-size: 1.25rem; padding: 16px 32px; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4); animation: pulse 2s infinite; }
+    
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+
+    /* Forms & Controls */
+    .card { background: var(--card); padding: 16px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 16px; }
+    .card-title { font-weight: 600; margin-bottom: 12px; font-size: 1.1rem; }
+    label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 4px; color: #475569; }
+    select, input[type="text"], input[type="number"], input[type="range"] { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 12px; font-size: 1rem; }
+    .flex-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+    .hint { font-size: 0.75rem; color: #64748b; margin-top: -8px; margin-bottom: 12px; display: block; }
+    
+    /* Layout Presets */
+    .preset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+    .preset-btn { border: 2px solid var(--border); background: transparent; padding: 8px; border-radius: 8px; color: var(--text); }
+    .preset-btn.active { border-color: var(--primary); background: #eff6ff; }
+
+    /* Canvas Areas */
+    .canvas-container { position: relative; width: 100%; max-width: 400px; margin: 0 auto 16px; aspect-ratio: 2/3; background: #e2e8f0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+    canvas { width: 100%; height: 100%; display: block; touch-action: none; } /* touch-action none prevents scrolling while dragging */
+    video { width: 100%; height: 100%; object-fit: cover; background: #000; }
+    
+    /* Edit Menu (pops up when an item is selected) */
+    #editMenu { display: none; background: #f8fafc; border: 1px solid var(--border); padding: 12px; border-radius: 8px; margin-bottom: 16px; }
+    
+    /* Overlays */
+    #flashOverlay { position: absolute; inset: 0; background: white; opacity: 0; pointer-events: none; transition: opacity 0.1s; z-index: 50; }
+    #countdownOverlay { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; font-size: 8rem; color: white; background: rgba(0,0,0,0.4); z-index: 40; font-weight: bold; text-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+    
+    /* File input wrapper */
+    .file-input-wrapper { display: flex; gap: 8px; margin-bottom: 12px; }
+    .file-input-wrapper input[type="file"] { flex: 1; padding: 6px; border: 1px solid var(--border); border-radius: 6px; }
   </style>
 </head>
 <body>
-  <header>
-    <div style="display:flex;gap:12px;align-items:center">
-      <h1>MediaBox.PhotoBooth.Pro — v1.1</h1>
-      <div class="note">Exports 4×6 (1200×1800 px). Works on desktop & mobile (HTTPS required).</div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <button id="startCameraBtn" class="small">Start Camera</button>
-      <button id="restartBtn" class="small" style="background:#ef6f6f">Reset</button>
-    </div>
-  </header>
 
-  <div class="wrap">
-    <div class="left">
-      <div style="position:relative">
-        <video id="preview" autoplay playsinline muted class="stage-canvas" style="width:100%;height:310px;object-fit:cover;border-radius:8px"></video>
-        <div id="countdown" class="countdown-overlay" style="display:none">3</div>
-        <!-- NEW: Flash overlay element -->
-        <div id="flashOverlay" class="flash-overlay"></div>
+  <!-- STEP 1: CAMERA SETUP -->
+  <div id="step1" class="screen active">
+    <header><h1>Step 1: Camera Access</h1><p>Allow access to begin</p></header>
+    <div class="content">
+      <div class="card">
+        <label>Select Camera</label>
+        <select id="camDevice"></select>
+        <label>Facing Preference</label>
+        <select id="camFacing">
+          <option value="environment">Back (Rear) Camera</option>
+          <option value="user">Front (Selfie) Camera</option>
+        </select>
+        <button id="btnStartCamera" class="btn-secondary" style="width: 100%">Test Camera</button>
       </div>
-
-      <canvas id="hiddenCanvas" width="640" height="480" style="display:none"></canvas>
-
-      <div class="controls">
-        <div class="flex"><label for="deviceSelect">Camera</label><select id="deviceSelect"></select></div>
-        <div class="flex"><label for="facingMode">Facing</label>
-          <select id="facingMode"><option value="user">Front</option><option value="environment" selected>Back</option></select>
-        </div>
-
-        <div class="flex"><label for="count">Photos</label><select id="count"><option>1</option><option>2</option><option>3</option><option selected>4</option></select></div>
-        <div class="flex"><label for="layout">Layout</label>
-          <div style="flex:1">
-            <div class="template-list" id="templates">
-              <div class="template active" data-template="grid2x2">2×2</div>
-              <div class="template" data-template="strip3">3-strip</div>
-              <div class="template" data-template="single">Single</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex"><label for="delay">Countdown (s)</label><input id="delay" type="number" value="3" min="0" max="20"></div>
-
-        <div class="flex">
-          <button id="start" class="small">Start Sequence</button>
-          <button id="snap" class="small" style="background:#2ecc71">Snap Now</button>
-        </div>
-
-        <hr>
-
-        <label>Overlay / Print Frame (PNG recommended)</label>
-        <input id="overlayFile" type="file" accept="image/*">
-        <img id="overlayPreview" class="overlay-preview" alt="overlay preview">
-
-        <label>Background (for chroma)</label>
-        <input id="bgFile" type="file" accept="image/*">
-        <img id="bgPreview" class="overlay-preview" alt="background preview">
-
-        <div class="flex"><input type="checkbox" id="chromaToggle"><label for="chromaToggle">Enable chroma key</label></div>
-        <div class="flex"><label>Key color</label><input id="keyColor" type="color" value="#00ff00"></div>
-        <div class="flex"><label>Threshold</label><input id="threshold" type="range" min="0" max="200" value="60"></div>
-
-        <hr>
-
-        <label>Add text</label>
-        <div class="flex"><input id="textInput" placeholder="Caption..."><select id="fontSelect"><option>Arial</option><option>Georgia</option><option>Impact</option><option>Courier New</option><option selected>Roboto</option></select></div>
-        <div class="flex"><button id="addText" class="small">Add Text</button><button id="clearTexts" class="small" style="background:#8e9eb3">Clear Texts</button></div>
-
-        <hr>
-
-        <!-- NEW: Share button added alongside export -->
-        <div class="flex">
-            <button id="export" class="small">Download 4×6</button>
-            <button id="shareBtn" class="small" style="background:#8e44ad; display:none;">Share Photo</button>
-        </div>
-
-        <div style="margin-top:8px" class="note">Tip: On phones choose rear camera for higher quality. Use GitHub Pages (HTTPS) or localhost for camera access.</div>
+      <div class="canvas-container" style="aspect-ratio: 4/3; max-width:100%;">
+        <video id="previewVideo" autoplay playsinline muted></video>
       </div>
     </div>
-
-    <div class="right">
-      <div class="stage" id="stageHolder" style="width:360px;height:540px;border:1px solid #e3e8f0;overflow:hidden;background:#111;display:flex;align-items:center;justify-content:center; touch-action: none;">
-        <canvas id="stageCanvas" width="360" height="540"></canvas>
-      </div>
-
-      <div style="margin-top:10px">
-        <div class="note">Captured thumbnails</div>
-        <div id="thumbs" style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"></div>
-      </div>
-
-      <div style="margin-top:12px">
-        <div class="note">Result preview (scaled)</div>
-        <canvas id="resultPreview" class="result-preview" width="360" height="240"></canvas>
-      </div>
+    <div class="action-bar">
+      <button class="btn-primary" onclick="goToStep(2)">Next: Layout Setup</button>
     </div>
   </div>
 
-  <div class="footer">
-    <small class="note">Drag text overlays on the stage. <strong>Drag text completely off the canvas to delete it.</strong></small>
+  <!-- STEP 2: LAYOUT SETUP -->
+  <div id="step2" class="screen">
+    <header><h1>Step 2: Photo Layout</h1><p>Choose number of shots & arrangement</p></header>
+    <div class="content">
+      <div class="card">
+        <div class="card-title">Presets (4x6 Format)</div>
+        <div class="preset-grid">
+          <button class="preset-btn" onclick="applyPreset('1')">1 Photo</button>
+          <button class="preset-btn active" onclick="applyPreset('4-grid')">2x2 Grid</button>
+          <button class="preset-btn" onclick="applyPreset('3-strip')">3 Strip</button>
+          <button class="preset-btn" onclick="applyPreset('4-strip')">4 Strip</button>
+          <button class="preset-btn" onclick="applyPreset('8-grid')">8 (2x4 Strip)</button>
+        </div>
+        <span class="hint">Tip: You can drag the black boxes below to custom positions!</span>
+        <button onclick="exportTemplateMap()" class="btn-secondary" style="width:100%; font-size:0.875rem;">Download Layout Map (For Canva/PS)</button>
+      </div>
+      <div class="canvas-container">
+        <canvas id="layoutCanvas" width="1200" height="1800"></canvas>
+      </div>
+    </div>
+    <div class="action-bar">
+      <button class="btn-secondary" onclick="goToStep(1)">Back</button>
+      <button class="btn-primary" onclick="goToStep(3)">Next: Design</button>
+    </div>
   </div>
+
+  <!-- STEP 3: DESIGN SETUP -->
+  <div id="step3" class="screen">
+    <header><h1>Step 3: Design & Decor</h1><p>Layer: Background > Photos > Overlay > Text</p></header>
+    <div class="content">
+      
+      <!-- Interactive Preview -->
+      <div class="canvas-container">
+        <canvas id="designCanvas" width="1200" height="1800"></canvas>
+      </div>
+
+      <!-- Editor Context Menu (Shows when text/sticker is clicked) -->
+      <div id="editMenu">
+        <div class="card-title" id="editTitle">Edit Item</div>
+        <label>Size</label>
+        <input type="range" id="editSize" min="0.1" max="5" step="0.1" value="1">
+        <div id="editColorWrap">
+          <label>Color</label>
+          <input type="color" id="editColor" style="height:40px">
+        </div>
+        <button id="btnDeleteItem" class="btn-danger" style="width:100%; margin-top:8px;">Delete Selected Item</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">1. Background Image</div>
+        <span class="hint">Sits at the very back (optional).</span>
+        <div class="file-input-wrapper">
+          <input type="file" id="fileBg" accept="image/*">
+          <button class="btn-secondary" onclick="clearBg()">Clear</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">2. Overlay / Frame</div>
+        <span class="hint">MUST be a transparent PNG. Sits on top of photos.</span>
+        <div class="file-input-wrapper">
+          <input type="file" id="fileOverlay" accept="image/png">
+          <button class="btn-secondary" onclick="clearOverlay()">Clear</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">3. Stickers & Graphics</div>
+        <span class="hint">Upload a transparent image and drag it around.</span>
+        <input type="file" id="fileSticker" accept="image/*">
+      </div>
+
+      <div class="card">
+        <div class="card-title">4. Add Text</div>
+        <span class="hint">Add text, then click it on the canvas above to resize/edit.</span>
+        <input type="text" id="textInput" placeholder="Enter text here...">
+        <div class="flex-row">
+          <select id="textFont" style="margin:0; flex:1;">
+            <option value="Arial">Arial</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Impact">Impact</option>
+            <option value="Courier New">Courier</option>
+          </select>
+          <input type="color" id="textColor" value="#ffffff" style="height:42px; width:50px;">
+          <button class="btn-secondary" onclick="addText()">Add</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">5. Chroma Key (Green Screen)</div>
+        <div class="flex-row"><input type="checkbox" id="chkChroma"> <label>Enable Chroma Key</label></div>
+        <div class="flex-row">
+          <input type="color" id="chromaColor" value="#00ff00" style="height:40px; width:50px;">
+          <input type="range" id="chromaIntensity" min="0" max="200" value="60" style="flex:1;">
+        </div>
+      </div>
+
+    </div>
+    <div class="action-bar">
+      <button class="btn-secondary" onclick="goToStep(2)">Back</button>
+      <button class="btn-primary" onclick="goToStep(4)">Next: Capture</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: CAPTURE -->
+  <div id="step4" class="screen">
+    <header><h1>Step 4: Photo Session</h1><p>Get ready!</p></header>
+    <div class="content" style="display:flex; flex-direction:column; justify-content:center;">
+      
+      <div class="canvas-container" style="max-width: 100%; aspect-ratio: 4/3; margin-bottom: 24px;">
+        <video id="captureVideo" autoplay playsinline muted></video>
+        <div id="countdownOverlay">3</div>
+        <div id="flashOverlay"></div>
+      </div>
+
+      <div class="card">
+        <label>Countdown Timer (seconds)</label>
+        <input type="number" id="countdownSecs" value="3" min="1" max="10">
+        <p id="captureStatus" style="text-align:center; font-weight:bold; color:var(--primary); margin-bottom:0;">Ready for <span id="lblShotCount">4</span> shots.</p>
+      </div>
+
+    </div>
+    <div class="action-bar">
+      <button class="btn-secondary" id="btnBackToDesign" onclick="goToStep(3)">Back</button>
+      <button class="btn-primary" id="btnStartSession" style="background:var(--danger)">Start Session</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: RESULT & EXPORT -->
+  <div id="step5" class="screen">
+    <header><h1>Step 5: Your Masterpiece</h1><p>Save and Share</p></header>
+    <div class="content">
+      <div class="canvas-container">
+        <canvas id="resultCanvas" width="1200" height="1800"></canvas>
+      </div>
+      
+      <div style="display:flex; gap:12px; margin-bottom: 16px;">
+        <button class="btn-secondary" onclick="goToStep(4)" style="flex:1">Reshoot</button>
+        <button class="btn-secondary" id="btnShare" style="flex:1; display:none;">Share To App</button>
+      </div>
+
+    </div>
+    <div class="action-bar" style="padding: 24px 16px;">
+      <button class="btn-success btn-hero" onclick="exportFinalImage()">Download High-Res 4x6</button>
+    </div>
+  </div>
+
+  <!-- Hidden processing canvas for capturing camera frames and chroma -->
+  <canvas id="processCanvas" style="display:none;"></canvas>
 
 <script>
-(async function(){
-  // ELEMENTS
-  const preview = document.getElementById('preview');
-  const deviceSelect = document.getElementById('deviceSelect');
-  const startBtn = document.getElementById('start');
-  const snapBtn = document.getElementById('snap');
-  const hiddenCanvas = document.getElementById('hiddenCanvas');
-  const hiddenCtx = hiddenCanvas.getContext('2d');
-  const stageCanvas = document.getElementById('stageCanvas');
-  const stageCtx = stageCanvas.getContext('2d');
-  const resultPreview = document.getElementById('resultPreview');
-  const resultCtx = resultPreview.getContext('2d');
-  const overlayFile = document.getElementById('overlayFile');
-  const overlayPreview = document.getElementById('overlayPreview');
-  const bgFile = document.getElementById('bgFile');
-  const bgPreview = document.getElementById('bgPreview');
-  const chromaToggle = document.getElementById('chromaToggle');
-  const keyColorEl = document.getElementById('keyColor');
-  const thresholdEl = document.getElementById('threshold');
-  const countEl = document.getElementById('count');
-  const delayEl = document.getElementById('delay');
-  const templates = document.getElementById('templates');
-  const thumbs = document.getElementById('thumbs');
-  const exportBtn = document.getElementById('export');
-  const shareBtn = document.getElementById('shareBtn');
-  const textInput = document.getElementById('textInput');
-  const fontSelect = document.getElementById('fontSelect');
-  const addTextBtn = document.getElementById('addText');
-  const clearTextsBtn = document.getElementById('clearTexts');
-  const resetBtn = document.getElementById('restartBtn');
-  const startCameraBtn = document.getElementById('startCameraBtn');
-  const countdownEl = document.getElementById('countdown');
-  const facingSelect = document.getElementById('facingMode');
-  const flashOverlay = document.getElementById('flashOverlay');
+/**
+ * MediaBox PhotoBooth v2.0
+ * State & Engine
+ */
+const W = 1200, H = 1800; // Final 4x6 output resolution
+const state = {
+  stream: null,
+  shotsTotal: 4,
+  layoutBoxes: [], // array of {x, y, w, h}
+  bgImg: null,
+  overlayImg: null,
+  items: [], // combined array of texts and stickers for Z-index rendering. {type: 'text'|'sticker', x, y, size, obj, ...}
+  captures: [], // base64 images taken during session
+  selectedItemIndex: -1
+};
 
-  // STATE
-  let stream = null;
-  let devices = [];
-  let captures = []; 
-  let overlayImg = null;
-  let bgImg = null;
-  let template = 'grid2x2';
-  let texts = []; 
+// Elements
+const previewVideo = document.getElementById('previewVideo');
+const captureVideo = document.getElementById('captureVideo');
+const layoutCanvas = document.getElementById('layoutCanvas');
+const lCtx = layoutCanvas.getContext('2d');
+const designCanvas = document.getElementById('designCanvas');
+const dCtx = designCanvas.getContext('2d');
+const resultCanvas = document.getElementById('resultCanvas');
+const rCtx = resultCanvas.getContext('2d');
+const processCanvas = document.getElementById('processCanvas');
+const pCtx = processCanvas.getContext('2d');
+const countdownOverlay = document.getElementById('countdownOverlay');
+const flashOverlay = document.getElementById('flashOverlay');
 
-  // Helpers
-  function hexToRgb(hex){ const m = hex.replace('#',''); return {r:parseInt(m.substring(0,2),16), g:parseInt(m.substring(2,4),16), b:parseInt(m.substring(4,6),16)} }
-  function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+// Navigation
+function goToStep(step) {
+  document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+  document.getElementById('step' + step).classList.add('active');
+  
+  if(step === 2) { drawLayout(); }
+  if(step === 3) { state.selectedItemIndex = -1; closeEditMenu(); drawDesign(); }
+  if(step === 4) { 
+    document.getElementById('lblShotCount').innerText = state.layoutBoxes.length;
+    // ensure camera is mapped to the big view
+    if(state.stream) captureVideo.srcObject = state.stream;
+  }
+  if(step === 5) { renderFinalResult(); }
+}
 
-  // NEW: Flash Effect
-  function triggerFlash() {
-    flashOverlay.classList.add('flash');
-    setTimeout(() => flashOverlay.classList.remove('flash'), 50);
+// --- STEP 1: CAMERA ---
+async function initDevices() {
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const videoDevs = devices.filter(d => d.kind === 'videoinput');
+    const sel = document.getElementById('camDevice');
+    sel.innerHTML = '<option value="">Auto Select</option>';
+    videoDevs.forEach((d, i) => {
+      sel.innerHTML += `<option value="${d.deviceId}">${d.label || 'Camera ' + (i+1)}</option>`;
+    });
+  } catch(e) { console.warn('Could not enumerate devices'); }
+}
+
+async function startCamera() {
+  if (state.stream) state.stream.getTracks().forEach(t => t.stop());
+  const deviceId = document.getElementById('camDevice').value;
+  const facing = document.getElementById('camFacing').value;
+  
+  let constraints = { video: { width: { ideal: 1280 }, height: { ideal: 720 } } };
+  
+  // If specific device selected, use it. Otherwise rely on facing mode.
+  if (deviceId) {
+    constraints.video.deviceId = { exact: deviceId };
+  } else {
+    constraints.video.facingMode = { ideal: facing };
   }
 
-  // Enumerate devices
-  async function getDevices(){
-    try{
-      const list = await navigator.mediaDevices.enumerateDevices();
-      devices = list.filter(d=>d.kind === 'videoinput');
-      const cur = deviceSelect.value;
-      deviceSelect.innerHTML = '';
-      devices.forEach((d,i)=>{
-        const opt = document.createElement('option');
-        opt.value = d.deviceId;
-        opt.textContent = d.label || `Camera ${i+1}`;
-        deviceSelect.appendChild(opt);
-      });
-      if(cur) deviceSelect.value = cur;
-    }catch(e){
-      console.warn('enumerateDevices failed', e);
-    }
+  try {
+    state.stream = await navigator.mediaDevices.getUserMedia(constraints);
+    previewVideo.srcObject = state.stream;
+    initDevices(); // re-init to get real labels if permissions just granted
+  } catch(e) {
+    alert("Camera error: " + e.message);
   }
+}
+document.getElementById('btnStartCamera').addEventListener('click', startCamera);
+document.getElementById('camFacing').addEventListener('change', () => {
+    document.getElementById('camDevice').value = ""; // clear specific device to allow facing swap
+    startCamera();
+});
 
-  // Start camera 
-  async function startCamera({deviceId=null, facingMode=null} = {}){
-    try{
-      if(stream){ stream.getTracks().forEach(t=>t.stop()); stream = null; }
-      let constraintsVideo = {};
-      if(deviceId){ constraintsVideo.deviceId = { exact: deviceId }; }
-      else if(facingMode){ constraintsVideo.facingMode = { ideal: facingMode }; }
-      else { constraintsVideo.facingMode = { ideal: 'environment' }; }
-      constraintsVideo.width = { ideal: 1280 }; constraintsVideo.height = { ideal: 720 };
-      const constraints = { video: constraintsVideo, audio: false };
-
-      const s = await navigator.mediaDevices.getUserMedia(constraints);
-      stream = s;
-      preview.srcObject = s;
-      await preview.play();
-      await getDevices();
-      try{
-        const track = s.getVideoTracks()[0];
-        const settings = track.getSettings();
-        if(settings.deviceId) deviceSelect.value = settings.deviceId;
-      }catch(e){}
-      hiddenCanvas.width = preview.videoWidth || 640; hiddenCanvas.height = preview.videoHeight || 480;
-      renderStage();
-    }catch(err){
-      console.error('startCamera error', err);
-      alert('Camera access failed: ' + (err && err.message ? err.message : err) + '\nMake sure site is HTTPS and camera permission is allowed.');
-    }
-  }
-
-  startCameraBtn.addEventListener('click', ()=> startCamera({ deviceId: deviceSelect.value || null, facingMode: facingSelect.value }));
-  deviceSelect.addEventListener('change', ()=> startCamera({ deviceId: deviceSelect.value }));
-  facingSelect.addEventListener('change', ()=> startCamera({ facingMode: facingSelect.value }));
-
-  // Load images
-  overlayFile.addEventListener('change', e=>{
-    const f = e.target.files[0]; if(!f) return;
-    const url = URL.createObjectURL(f);
-    overlayPreview.src = url;
-    overlayImg = new Image(); overlayImg.onload = ()=> renderStage(); overlayImg.src = url;
-  });
-  bgFile.addEventListener('change', e=>{
-    const f = e.target.files[0]; if(!f) return;
-    const url = URL.createObjectURL(f);
-    bgPreview.src = url;
-    bgImg = new Image(); bgImg.onload = ()=> renderStage(); bgImg.src = url;
-  });
-
-  // Capture & Chroma
-  function captureFrameToCanvas(){
-    if(!preview.videoWidth || !preview.videoHeight){
-      hiddenCanvas.width = 640; hiddenCanvas.height = 480;
-      hiddenCtx.fillStyle = '#444'; hiddenCtx.fillRect(0,0,hiddenCanvas.width,hiddenCanvas.height); return;
-    }
-    const w = hiddenCanvas.width = preview.videoWidth;
-    const h = hiddenCanvas.height = preview.videoHeight;
-    hiddenCtx.drawImage(preview,0,0,w,h);
-    if(!chromaToggle.checked || !bgImg) return;
-    const temp = document.createElement('canvas'); temp.width = w; temp.height = h; const tctx = temp.getContext('2d');
-    tctx.drawImage(bgImg,0,0,w,h);
-    const fg = hiddenCtx.getImageData(0,0,w,h); const bg = tctx.getImageData(0,0,w,h);
-    const key = hexToRgb(keyColorEl.value); const th = Number(thresholdEl.value);
-    for(let i=0;i<fg.data.length;i+=4){
-      const r=fg.data[i], g=fg.data[i+1], b=fg.data[i+2];
-      const dist = Math.sqrt((r-key.r)**2+(g-key.g)**2+(b-key.b)**2);
-      if(dist < th){
-        fg.data[i]=bg.data[i]; fg.data[i+1]=bg.data[i+1]; fg.data[i+2]=bg.data[i+2]; fg.data[i+3]=bg.data[i+3];
+// --- STEP 2: LAYOUT ---
+function applyPreset(type) {
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  state.layoutBoxes = [];
+  if(type === '1') {
+    state.layoutBoxes.push({x: 100, y: 150, w: 1000, h: 1500});
+  } else if(type === '4-grid') {
+    state.layoutBoxes = [
+      {x: 60, y: 60, w: 510, h: 810}, {x: 630, y: 60, w: 510, h: 810},
+      {x: 60, y: 930, w: 510, h: 810}, {x: 630, y: 930, w: 510, h: 810}
+    ];
+  } else if(type === '3-strip') {
+    state.layoutBoxes = [
+      {x: 100, y: 100, w: 1000, h: 500}, {x: 100, y: 650, w: 1000, h: 500}, {x: 100, y: 1200, w: 1000, h: 500}
+    ];
+  } else if(type === '4-strip') {
+    state.layoutBoxes = [
+      {x: 100, y: 80, w: 1000, h: 380}, {x: 100, y: 500, w: 1000, h: 380},
+      {x: 100, y: 920, w: 1000, h: 380}, {x: 100, y: 1340, w: 1000, h: 380}
+    ];
+  } else if(type === '8-grid') {
+    for(let r=0; r<4; r++) {
+      for(let c=0; c<2; c++) {
+        state.layoutBoxes.push({x: c*550 + 60, y: r*420 + 60, w: 490, h: 380});
       }
     }
-    hiddenCtx.putImageData(fg,0,0);
   }
+  state.shotsTotal = state.layoutBoxes.length;
+  drawLayout();
+}
 
-  function captureWithChroma(){
-    triggerFlash(); // Trigger visual flash
-    captureFrameToCanvas();
-    const dataUrl = hiddenCanvas.toDataURL('image/png');
-    const img = new Image(); img.src = dataUrl; captures.push(img);
-    img.onload = ()=>{ renderThumbs(); renderStage(); };
+function drawLayout() {
+  lCtx.fillStyle = '#ffffff'; lCtx.fillRect(0, 0, W, H);
+  lCtx.fillStyle = '#1e293b';
+  state.layoutBoxes.forEach((b, i) => {
+    lCtx.fillRect(b.x, b.y, b.w, b.h);
+    lCtx.fillStyle = '#ffffff'; lCtx.font = "bold 80px Arial"; lCtx.textAlign = "center";
+    lCtx.fillText(i+1, b.x + b.w/2, b.y + b.h/2 + 30);
+    lCtx.fillStyle = '#1e293b';
+  });
+}
+
+function exportTemplateMap() {
+  const link = document.createElement('a');
+  link.download = 'mediabox_layout_map_1200x1800.png';
+  link.href = layoutCanvas.toDataURL();
+  link.click();
+}
+
+// Layout Box Dragging logic
+let draggingBox = -1;
+let dragBoxOffset = {x:0, y:0};
+layoutCanvas.addEventListener('pointerdown', e => {
+  const pos = getCanvasPos(e, layoutCanvas);
+  draggingBox = state.layoutBoxes.findIndex(b => pos.x >= b.x && pos.x <= b.x+b.w && pos.y >= b.y && pos.y <= b.y+b.h);
+  if(draggingBox > -1) {
+    dragBoxOffset = { x: pos.x - state.layoutBoxes[draggingBox].x, y: pos.y - state.layoutBoxes[draggingBox].y };
   }
+});
+layoutCanvas.addEventListener('pointermove', e => {
+  if(draggingBox > -1) {
+    const pos = getCanvasPos(e, layoutCanvas);
+    state.layoutBoxes[draggingBox].x = pos.x - dragBoxOffset.x;
+    state.layoutBoxes[draggingBox].y = pos.y - dragBoxOffset.y;
+    drawLayout();
+  }
+});
+layoutCanvas.addEventListener('pointerup', () => { draggingBox = -1; });
 
-  async function doCountdown(seconds){
-    if(!seconds || seconds<=0) return;
-    countdownEl.style.display = 'flex';
-    for(let s=seconds;s>0;s--){
-      countdownEl.textContent = s;
+
+// --- STEP 3: DESIGN ENGINE ---
+function getCanvasPos(evt, canvas) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = W / rect.width; const scaleY = H / rect.height;
+  return { x: (evt.clientX - rect.left) * scaleX, y: (evt.clientY - rect.top) * scaleY };
+}
+
+function loadImg(file, callback) {
+  if(!file) return;
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  img.onload = () => callback(img);
+  img.src = url;
+}
+
+document.getElementById('fileBg').addEventListener('change', e => loadImg(e.target.files[0], img => { state.bgImg = img; drawDesign(); }));
+document.getElementById('fileOverlay').addEventListener('change', e => loadImg(e.target.files[0], img => { state.overlayImg = img; drawDesign(); }));
+document.getElementById('fileSticker').addEventListener('change', e => loadImg(e.target.files[0], img => { 
+  state.items.push({ type: 'sticker', img: img, x: W/2, y: H/2, size: 1, w: img.width, h: img.height });
+  e.target.value = ""; // reset
+  drawDesign(); 
+}));
+
+function clearBg() { state.bgImg = null; document.getElementById('fileBg').value=""; drawDesign(); }
+function clearOverlay() { state.overlayImg = null; document.getElementById('fileOverlay').value=""; drawDesign(); }
+
+function addText() {
+  const txt = document.getElementById('textInput').value.trim();
+  if(!txt) return;
+  state.items.push({
+    type: 'text', text: txt, x: W/2, y: H/2, size: 1, 
+    color: document.getElementById('textColor').value, 
+    font: document.getElementById('textFont').value
+  });
+  document.getElementById('textInput').value = "";
+  drawDesign();
+}
+
+function drawDesign(ctx = dCtx, isFinal = false) {
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,W,H);
+  
+  // 1. Background
+  if(state.bgImg) drawCover(ctx, state.bgImg, 0, 0, W, H);
+  
+  // 2. Photo Boxes / Actual Captures
+  state.layoutBoxes.forEach((b, i) => {
+    ctx.save();
+    if(isFinal && state.captures[i]) {
+       drawCover(ctx, state.captures[i], b.x, b.y, b.w, b.h);
+    } else {
+       ctx.fillStyle = '#cbd5e1'; ctx.fillRect(b.x, b.y, b.w, b.h);
+       ctx.fillStyle = '#ffffff'; ctx.font = "bold 60px Arial"; ctx.textAlign = "center";
+       ctx.fillText("Photo " + (i+1), b.x + b.w/2, b.y + b.h/2 + 20);
+    }
+    ctx.restore();
+  });
+
+  // 3. Overlay
+  if(state.overlayImg) drawCover(ctx, state.overlayImg, 0, 0, W, H);
+
+  // 4 & 5. Items (Stickers and Texts)
+  state.items.forEach((it, i) => {
+    ctx.save();
+    if(it.type === 'sticker') {
+      const dw = it.w * it.size; const dh = it.h * it.size;
+      ctx.drawImage(it.img, it.x - dw/2, it.y - dh/2, dw, dh);
+      if(!isFinal && i === state.selectedItemIndex) drawDashedBox(ctx, it.x - dw/2, it.y - dh/2, dw, dh);
+    } 
+    else if(it.type === 'text') {
+      const fSize = 80 * it.size;
+      ctx.font = `bold ${fSize}px ${it.font}`;
+      ctx.fillStyle = it.color;
+      ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+      ctx.lineWidth = Math.max(4, 4 * it.size);
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.strokeText(it.text, it.x, it.y);
+      ctx.fillText(it.text, it.x, it.y);
+      
+      if(!isFinal && i === state.selectedItemIndex) {
+        const metrics = ctx.measureText(it.text);
+        drawDashedBox(ctx, it.x - metrics.width/2 - 10, it.y - fSize/2 - 10, metrics.width + 20, fSize + 20);
+      }
+    }
+    ctx.restore();
+  });
+}
+
+function drawCover(ctx, img, x, y, w, h) {
+  const r = Math.max(w/img.width, h/img.height);
+  const nw = img.width*r, nh = img.height*r;
+  ctx.drawImage(img, x + (w-nw)/2, y + (h-nh)/2, nw, nh);
+}
+function drawDashedBox(ctx, x, y, w, h) {
+  ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 4; ctx.setLineDash([15, 15]); ctx.strokeRect(x,y,w,h);
+}
+
+// Editor Interactions (Drag/Select)
+let dragItem = -1, itemOffset = {x:0, y:0};
+designCanvas.addEventListener('pointerdown', e => {
+  const p = getCanvasPos(e, designCanvas);
+  // check backwards for topmost
+  for(let i = state.items.length - 1; i >= 0; i--) {
+    const it = state.items[i];
+    let hit = false;
+    if(it.type === 'sticker') {
+      const dw = it.w * it.size, dh = it.h * it.size;
+      hit = (p.x >= it.x - dw/2 && p.x <= it.x + dw/2 && p.y >= it.y - dh/2 && p.y <= it.y + dh/2);
+    } else {
+      dCtx.font = `bold ${80 * it.size}px ${it.font}`;
+      const w = dCtx.measureText(it.text).width;
+      const h = 80 * it.size;
+      hit = (p.x >= it.x - w/2 && p.x <= it.x + w/2 && p.y >= it.y - h/2 && p.y <= it.y + h/2);
+    }
+    if(hit) {
+      dragItem = i; itemOffset = { x: p.x - it.x, y: p.y - it.y };
+      selectItem(i);
+      return;
+    }
+  }
+  selectItem(-1); // clicked empty space
+});
+
+designCanvas.addEventListener('pointermove', e => {
+  if(dragItem > -1) {
+    const p = getCanvasPos(e, designCanvas);
+    state.items[dragItem].x = p.x - itemOffset.x;
+    state.items[dragItem].y = p.y - itemOffset.y;
+    drawDesign();
+  }
+});
+designCanvas.addEventListener('pointerup', () => { dragItem = -1; });
+
+function selectItem(idx) {
+  state.selectedItemIndex = idx;
+  const menu = document.getElementById('editMenu');
+  if(idx === -1) { menu.style.display = 'none'; drawDesign(); return; }
+  
+  const it = state.items[idx];
+  menu.style.display = 'block';
+  document.getElementById('editTitle').innerText = it.type === 'text' ? 'Edit Text' : 'Edit Sticker';
+  document.getElementById('editSize').value = it.size;
+  if(it.type === 'text') {
+    document.getElementById('editColorWrap').style.display = 'block';
+    document.getElementById('editColor').value = it.color;
+  } else {
+    document.getElementById('editColorWrap').style.display = 'none';
+  }
+  drawDesign();
+}
+
+function closeEditMenu() { document.getElementById('editMenu').style.display = 'none'; }
+
+// Editor Menu Actions
+document.getElementById('editSize').addEventListener('input', e => {
+  if(state.selectedItemIndex > -1) { state.items[state.selectedItemIndex].size = parseFloat(e.target.value); drawDesign(); }
+});
+document.getElementById('editColor').addEventListener('input', e => {
+  if(state.selectedItemIndex > -1) { state.items[state.selectedItemIndex].color = e.target.value; drawDesign(); }
+});
+document.getElementById('btnDeleteItem').addEventListener('click', () => {
+  if(state.selectedItemIndex > -1) {
+    state.items.splice(state.selectedItemIndex, 1);
+    selectItem(-1);
+  }
+});
+
+
+// --- STEP 4: CAPTURE & CHROMA ---
+function hexToRgb(hex){ const m=hex.replace('#',''); return {r:parseInt(m.substring(0,2),16), g:parseInt(m.substring(2,4),16), b:parseInt(m.substring(4,6),16)}; }
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+async function captureFrame() {
+  const vid = document.getElementById('captureVideo');
+  if(!vid.videoWidth) return null;
+  processCanvas.width = vid.videoWidth; processCanvas.height = vid.videoHeight;
+  pCtx.drawImage(vid, 0, 0, processCanvas.width, processCanvas.height);
+  
+  if(document.getElementById('chkChroma').checked && state.bgImg) {
+    const temp = document.createElement('canvas'); temp.width = processCanvas.width; temp.height = processCanvas.height;
+    drawCover(temp.getContext('2d'), state.bgImg, 0, 0, temp.width, temp.height);
+    
+    const fg = pCtx.getImageData(0,0,processCanvas.width, processCanvas.height);
+    const bg = temp.getContext('2d').getImageData(0,0,processCanvas.width, processCanvas.height);
+    const key = hexToRgb(document.getElementById('chromaColor').value);
+    const th = Number(document.getElementById('chromaIntensity').value);
+    
+    for(let i=0; i<fg.data.length; i+=4){
+      const r=fg.data[i], g=fg.data[i+1], b=fg.data[i+2];
+      if(Math.sqrt((r-key.r)**2+(g-key.g)**2+(b-key.b)**2) < th) {
+        fg.data[i]=bg.data[i]; fg.data[i+1]=bg.data[i+1]; fg.data[i+2]=bg.data[i+2];
+      }
+    }
+    pCtx.putImageData(fg,0,0);
+  }
+  
+  const img = new Image();
+  img.src = processCanvas.toDataURL('image/png');
+  await new Promise(r => img.onload = r);
+  return img;
+}
+
+document.getElementById('btnStartSession').addEventListener('click', async () => {
+  state.captures = [];
+  document.getElementById('btnBackToDesign').style.display = 'none';
+  document.getElementById('btnStartSession').style.display = 'none';
+  const delay = parseInt(document.getElementById('countdownSecs').value) || 3;
+  const status = document.getElementById('captureStatus');
+
+  for(let i=0; i<state.shotsTotal; i++) {
+    status.innerText = `Taking photo ${i+1} of ${state.shotsTotal}...`;
+    
+    // Countdown
+    countdownOverlay.style.display = 'flex';
+    for(let s=delay; s>0; s--) {
+      countdownOverlay.innerText = s;
       await sleep(1000);
     }
-    countdownEl.style.display = 'none';
+    countdownOverlay.style.display = 'none';
+    
+    // Flash & Capture
+    flashOverlay.style.opacity = '1';
+    setTimeout(() => flashOverlay.style.opacity = '0', 100);
+    const img = await captureFrame();
+    if(img) state.captures.push(img);
+    await sleep(500); // pause between shots
   }
+  
+  document.getElementById('btnBackToDesign').style.display = 'block';
+  document.getElementById('btnStartSession').style.display = 'block';
+  status.innerText = "Session Complete!";
+  goToStep(5);
+});
 
-  startBtn.addEventListener('click', async ()=>{
-    captures = [];
-    const count = Number(countEl.value);
-    const delay = Number(delayEl.value);
-    for(let i=0;i<count;i++){
-      await doCountdown(delay);
-      captureWithChroma();
-      await sleep(300);
-    }
-  });
-  snapBtn.addEventListener('click', ()=> captureWithChroma());
 
-  function renderThumbs(){
-    thumbs.innerHTML = '';
-    captures.forEach((img,idx)=>{
-      const t = document.createElement('img'); t.src = img.src; t.className='thumb'; t.title = `Shot ${idx+1}`;
-      thumbs.appendChild(t);
-    });
+// --- STEP 5: FINAL RESULT & SHARE ---
+function renderFinalResult() {
+  drawDesign(rCtx, true); // true = draw with actual photos
+  
+  // Enable Native Web Share if supported
+  if(navigator.share) {
+    document.getElementById('btnShare').style.display = 'block';
   }
+}
 
-  function computeSlots(templateName, count){
-    const W=360,H=540, slots=[];
-    if(templateName==='grid2x2'){
-      const cols=2, rows=2; const w=W/cols, h=H/rows;
-      for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) slots.push({x:Math.round(c*w+6), y:Math.round(r*h+6), w:Math.round(w-12), h:Math.round(h-12)});
-    } else if(templateName==='strip3'){
-      const hSlot = H/3;
-      for(let i=0;i<3;i++) slots.push({x:12,y:Math.round(i*hSlot+8),w:W-24,h:Math.round(hSlot-16)});
+function exportFinalImage() {
+  const a = document.createElement('a');
+  a.download = 'mediabox_booth_final.jpg';
+  a.href = resultCanvas.toDataURL('image/jpeg', 0.95);
+  a.click();
+}
+
+document.getElementById('btnShare').addEventListener('click', async () => {
+  try {
+    const dataUrl = resultCanvas.toDataURL('image/jpeg', 0.95);
+    const blob = await (await fetch(dataUrl)).blob();
+    const file = new File([blob], 'photobooth.jpg', { type: 'image/jpeg' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ title: 'My Photobooth Pic', files: [file] });
     } else {
-      slots.push({x:8,y:8,w:W-16,h:H-16});
+        alert("Your browser/device doesn't support direct file sharing.");
     }
-    return slots.slice(0, Math.max(1, Number(count)));
-  }
+  } catch(e) { console.log('Share canceled or failed', e); }
+});
 
-  function drawImageCover(ctx,img,x,y,w,h){
-    const iw = img.width, ih = img.height; if(!iw||!ih) return;
-    const r = Math.max(w/iw, h/ih); const nw = iw*r, nh = ih*r;
-    const cx = x + (w - nw)/2; const cy = y + (h - nh)/2;
-    ctx.drawImage(img, cx, cy, nw, nh);
-  }
-
-  function previewToImageSync(){
-    const temp = document.createElement('canvas'); temp.width = preview.videoWidth || 640; temp.height = preview.videoHeight || 480;
-    temp.getContext('2d').drawImage(preview,0,0,temp.width,temp.height);
-    const img = new Image(); img.src = temp.toDataURL('image/png'); return img;
-  }
-
-  function renderStage(){
-    const w = stageCanvas.width = 360, h = stageCanvas.height = 540;
-    stageCtx.clearRect(0,0,w,h);
-    stageCtx.fillStyle = '#222'; stageCtx.fillRect(0,0,w,h);
-
-    const slots = computeSlots(template, Number(countEl.value));
-    slots.forEach((slot,i)=>{
-      stageCtx.save();
-      const img = captures[i] || previewToImageSync();
-      if(img) drawImageCover(stageCtx, img, slot.x, slot.y, slot.w, slot.h);
-      else { stageCtx.fillStyle = '#333'; stageCtx.fillRect(slot.x, slot.y, slot.w, slot.h); }
-      stageCtx.restore();
-    });
-
-    if(overlayImg) drawImageCover(stageCtx, overlayImg, 0, 0, w, h);
-
-    texts.forEach(t=>{
-      stageCtx.font = `${t.size||24}px ${t.font}`;
-      stageCtx.fillStyle = t.color || 'white';
-      stageCtx.strokeStyle = 'rgba(0,0,0,0.6)';
-      stageCtx.lineWidth = 3;
-      stageCtx.strokeText(t.text, t.x, t.y);
-      stageCtx.fillText(t.text, t.x, t.y);
-    });
-
-    composeResultPreview();
-  }
-
-  // NEW: Centralized Image Generation Function (used for both download and sharing)
-  function generateFinalDataUrl() {
-    const outW=1200,outH=1800;
-    const tmp = document.createElement('canvas'); tmp.width = outW; tmp.height = outH; const tctx = tmp.getContext('2d');
-    tctx.fillStyle = 'white'; tctx.fillRect(0,0,outW,outH);
-    
-    const stageSlots = computeSlots(template, Number(countEl.value));
-    stageSlots.forEach((s,i)=>{
-      const sx = Math.round(s.x/360 * outW);
-      const sy = Math.round(s.y/540 * outH);
-      const sw = Math.round(s.w/360 * outW);
-      const sh = Math.round(s.h/540 * outH);
-      const img = captures[i] || previewToImageSync();
-      if(img) drawImageCover(tctx, img, sx, sy, sw, sh);
-    });
-    
-    if(overlayImg) drawImageCover(tctx, overlayImg, 0, 0, outW, outH);
-    
-    texts.forEach(t=>{
-      const fontSize = Math.round((t.size||24) * (outW/360));
-      tctx.font = `${fontSize}px ${t.font}`;
-      tctx.fillStyle = t.color || 'white';
-      tctx.strokeStyle = 'rgba(0,0,0,0.6)';
-      tctx.lineWidth = Math.max(4, Math.round(6*(outW/360)));
-      const x = Math.round(t.x/360 * outW);
-      const y = Math.round(t.y/540 * outH);
-      tctx.strokeText(t.text, x, y); tctx.fillText(t.text, x, y);
-    });
-    
-    return tmp.toDataURL('image/jpeg', 0.95);
-  }
-
-  function composeResultPreview(){
-    const dataUrl = generateFinalDataUrl();
-    const img = new Image();
-    img.onload = () => {
-        resultCtx.clearRect(0,0,resultPreview.width,resultPreview.height);
-        resultCtx.drawImage(img, 0, 0, resultPreview.width, resultPreview.height);
-    };
-    img.src = dataUrl;
-  }
-
-  // Export File (Download)
-  exportBtn.addEventListener('click', ()=>{
-    const dataUrl = generateFinalDataUrl();
-    const a = document.createElement('a'); a.href = dataUrl; a.download = 'mediabox_photobooth_4x6.jpg'; a.click();
-  });
-
-  // NEW: Web Share API Logic
-  if (navigator.share) {
-    shareBtn.style.display = 'inline-block';
-    shareBtn.addEventListener('click', async () => {
-      try {
-        const dataUrl = generateFinalDataUrl();
-        const blob = await (await fetch(dataUrl)).blob();
-        const file = new File([blob], 'mediabox_photobooth.jpg', { type: 'image/jpeg' });
-        
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-                title: 'My Photobooth Picture',
-                files: [file]
-            });
-        } else {
-            alert("Your browser doesn't support sharing files directly. Please use the download button.");
-        }
-      } catch (err) {
-        console.warn('Share operation failed or was cancelled.', err);
-      }
-    });
-  }
-
-  // Text overlays
-  addTextBtn.addEventListener('click', ()=> {
-    const txt = textInput.value.trim(); if(!txt) return;
-    const obj = { text: txt, x: 40, y: 520, font: fontSelect.value, size: 24, color: 'white' };
-    texts.push(obj); textInput.value = ''; renderStage(); enableTextDrag();
-  });
-  clearTextsBtn.addEventListener('click', ()=> { texts = []; renderStage(); });
-
-  // Drag texts on stage (NEW: Delete if dragged out of bounds)
-  function enableTextDrag(){
-    const holder = document.getElementById('stageHolder');
-    let dragging = null; let offset = {x:0,y:0};
-    
-    holder.onpointerdown = (ev)=>{
-      const rect = holder.getBoundingClientRect(); const px = ev.clientX - rect.left; const py = ev.clientY - rect.top;
-      for(let i=texts.length-1;i>=0;i--){
-        const t = texts[i];
-        stageCtx.font = `${t.size||24}px ${t.font}`;
-        const w = stageCtx.measureText(t.text).width; const th = (t.size||24);
-        if(px >= t.x && px <= t.x + w && py >= t.y - th && py <= t.y){
-          dragging = { i }; offset.x = px - t.x; offset.y = py - t.y;
-          try{ holder.setPointerCapture(ev.pointerId); }catch(e){}
-          break;
-        }
-      }
-    };
-    
-    holder.onpointermove = (ev)=>{
-      if(!dragging) return;
-      const rect = holder.getBoundingClientRect(); 
-      const px = ev.clientX - rect.left; const py = ev.clientY - rect.top;
-      const t = texts[dragging.i];
-      // Allow dragging freely (removed boundary locks so it can be dragged out to delete)
-      t.x = px - offset.x; 
-      t.y = py - offset.y;
-      renderStage();
-    };
-    
-    holder.onpointerup = (ev)=>{
-      if(dragging){
-        const rect = holder.getBoundingClientRect(); 
-        const px = ev.clientX - rect.left; const py = ev.clientY - rect.top;
-        
-        // NEW: If dragged outside the 360x540 canvas bounds, delete the text
-        if(px < 0 || px > 360 || py < 0 || py > 540) {
-            texts.splice(dragging.i, 1);
-            renderStage();
-        }
-        
-        try{ ev.target.releasePointerCapture(ev.pointerId); }catch(e){}
-        dragging = null;
-      }
-    };
-  }
-
-  // Template switching
-  templates.addEventListener('click', e=>{
-    const t = e.target.closest('.template'); if(!t) return;
-    document.querySelectorAll('.template').forEach(x=>x.classList.remove('active')); t.classList.add('active');
-    template = t.dataset.template; renderStage();
-  });
-
-  // Reset
-  resetBtn.addEventListener('click', ()=>{
-    if(stream){ stream.getTracks().forEach(t=>t.stop()); stream = null; }
-    captures = []; overlayImg = null; overlayPreview.src = ''; bgImg = null; bgPreview.src = '';
-    texts = []; thumbs.innerHTML = ''; renderStage();
-  });
-
-  // Initialization
-  renderStage(); enableTextDrag();
-  navigator.mediaDevices.addEventListener('devicechange', getDevices);
-  countEl.addEventListener('change', renderStage);
-
-  try{ await getDevices(); }catch(e){}
-})();
+// Run initialization
+initDevices();
+applyPreset('4-grid'); // default layout
 </script>
 </body>
 </html>
