@@ -1,389 +1,1362 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <title>MediaBox Web PhotoBooth Pro v2.2.1b</title>
-  <style>
-    :root {
-      --primary: #2563eb; --primary-hover: #1d4ed8;
-      --success: #16a34a; --success-hover: #15803d;
-      --danger: #ef4444; --bg: #f8fafc; --text: #0f172a;
-      --card: #ffffff; --border: #e2e8f0;
-    }
-    * { box-sizing: border-box; }
-    body { font-family: system-ui, -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  <title>MediaBox Web PhotoBooth Pro v2.3</title>
 
-    .screen { display: none; flex-direction: column; height: 100%; overflow-y: auto; padding-bottom: 100px; }
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700&family=Montserrat:wght@600;700&family=Playfair+Display:wght@700&family=Bebas+Neue&family=Lobster&family=Pacifico&family=Caveat:wght@700&family=Permanent+Marker&family=Righteous&family=Roboto+Mono:wght@600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+
+  <style>
+    /* =========================================================
+       DESIGN SYSTEM
+       ========================================================= */
+    :root {
+      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --radius-xs: 6px;
+      --radius-sm: 10px;
+      --radius: 14px;
+      --radius-lg: 20px;
+      --radius-full: 999px;
+      --transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-slow: 320ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="light"] {
+      --bg: #f5f7fb;
+      --bg-gradient: linear-gradient(160deg, #eef2ff 0%, #f5f7fb 40%);
+      --bg-elevated: #ffffff;
+      --bg-subtle: #f1f5f9;
+      --bg-sunken: #e9eef5;
+      --text: #0b1220;
+      --text-muted: #64748b;
+      --text-faint: #94a3b8;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --primary-soft: #eef2ff;
+      --primary-soft-text: #4338ca;
+      --success: #10b981;
+      --success-soft: #ecfdf5;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --danger-soft: #fef2f2;
+      --shadow-sm: 0 1px 2px rgba(15,23,42,0.06);
+      --shadow: 0 4px 6px -1px rgba(15,23,42,0.08), 0 2px 4px -1px rgba(15,23,42,0.04);
+      --shadow-lg: 0 20px 25px -5px rgba(15,23,42,0.1), 0 8px 10px -6px rgba(15,23,42,0.05);
+      --ring: 0 0 0 3px rgba(99,102,241,0.25);
+      --glass: rgba(255,255,255,0.7);
+    }
+
+    [data-theme="dark"] {
+      --bg: #0a0f1c;
+      --bg-gradient: linear-gradient(160deg, #111a35 0%, #0a0f1c 45%);
+      --bg-elevated: #131a2b;
+      --bg-subtle: #1a2338;
+      --bg-sunken: #0d1425;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-faint: #64748b;
+      --border: #232e47;
+      --border-strong: #354062;
+      --primary: #818cf8;
+      --primary-hover: #a5b4fc;
+      --primary-soft: #1e1b4b;
+      --primary-soft-text: #c7d2fe;
+      --success: #34d399;
+      --success-soft: #064e3b;
+      --warning: #fbbf24;
+      --danger: #f87171;
+      --danger-soft: #450a0a;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.5), 0 2px 4px -1px rgba(0,0,0,0.3);
+      --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.6), 0 8px 10px -6px rgba(0,0,0,0.4);
+      --ring: 0 0 0 3px rgba(129,140,248,0.3);
+      --glass: rgba(19,26,43,0.75);
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      background-image: var(--bg-gradient);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      font-size: 15px;
+      line-height: 1.5;
+      transition: background var(--transition-slow), color var(--transition-slow);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* =========================================================
+       LAYOUT SHELL
+       ========================================================= */
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--glass);
+      backdrop-filter: saturate(180%) blur(14px);
+      -webkit-backdrop-filter: saturate(180%) blur(14px);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      z-index: 50;
+      flex-shrink: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%);
+      display: grid;
+      place-items: center;
+      color: white;
+      font-weight: 800;
+      font-size: 15px;
+      box-shadow: var(--shadow-sm);
+      flex-shrink: 0;
+    }
+
+    .brand-text { min-width: 0; }
+    .brand-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text);
+    }
+    .brand-version {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-faint);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: all var(--transition);
+      padding: 0;
+      font-size: 18px;
+    }
+    .icon-btn:hover {
+      background: var(--bg-subtle);
+      color: var(--text);
+    }
+    .icon-btn:active { transform: scale(0.94); }
+
+    /* =========================================================
+       STEPPER
+       ========================================================= */
+    .stepper {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 49;
+    }
+    .stepper::-webkit-scrollbar { display: none; }
+
+    .step-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      background: transparent;
+      border: 1px solid transparent;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-faint);
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all var(--transition);
+      flex-shrink: 0;
+    }
+    .step-chip .step-num {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--bg-sunken);
+      color: var(--text-faint);
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      transition: all var(--transition);
+    }
+    .step-chip.active {
+      background: var(--primary-soft);
+      color: var(--primary-soft-text);
+      border-color: transparent;
+    }
+    .step-chip.active .step-num {
+      background: var(--primary);
+      color: white;
+    }
+    .step-chip.done .step-num {
+      background: var(--success);
+      color: white;
+    }
+    .step-chip.done { color: var(--text-muted); }
+
+    /* =========================================================
+       SCREENS
+       ========================================================= */
+    .screen {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding-bottom: 120px;
+    }
     .screen.active { display: flex; }
 
-    header { padding: 16px; background: var(--card); border-bottom: 1px solid var(--border); text-align: center; flex-shrink: 0; }
-    .app-brand { font-size: 0.75rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-    header h1 { margin: 0; font-size: 1.25rem; }
-    header p { margin: 4px 0 0; font-size: 0.875rem; color: #64748b; }
+    .screen-header {
+      padding: 20px 20px 8px;
+      max-width: 680px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .screen-header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0 0 4px;
+    }
+    .screen-header p {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      margin: 0;
+    }
 
-    .content { padding: 16px; max-width: 600px; margin: 0 auto; width: 100%; flex: 1; }
+    .content {
+      padding: 8px 20px 24px;
+      max-width: 680px;
+      margin: 0 auto;
+      width: 100%;
+      flex: 1;
+    }
 
-    .action-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); padding: 12px 16px 8px; border-top: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; z-index: 100; box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.05); }
-    .buttons-wrap { display: flex; justify-content: center; gap: 12px; width: 100%; }
-    .credits { font-size: 0.7rem; color: #94a3b8; margin-top: 10px; text-align: center; }
+    /* =========================================================
+       CARDS
+       ========================================================= */
+    .card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-sm);
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin: 0 0 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text);
+    }
+    .card-title .badge {
+      font-size: 10px;
+      font-weight: 700;
+      background: var(--primary-soft);
+      color: var(--primary-soft-text);
+      padding: 2px 7px;
+      border-radius: var(--radius-full);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+    .card-desc {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin: 0 0 12px;
+      line-height: 1.5;
+    }
 
-    button { padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: opacity 0.2s; }
-    button:active { opacity: 0.8; }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-primary { background: var(--primary); color: white; width: 100%; max-width: 300px; }
-    .btn-success { background: var(--success); color: white; width: 100%; max-width: 300px; }
-    .btn-secondary { background: #e2e8f0; color: #334155; }
-    .btn-danger { background: var(--danger); color: white; }
+    /* =========================================================
+       FORM CONTROLS
+       ========================================================= */
+    label.field-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.01em;
+    }
 
-    .card { background: var(--card); padding: 16px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 16px; }
-    .card-title { font-weight: 600; margin-bottom: 12px; font-size: 1.1rem; }
-    label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 4px; color: #475569; }
-    .radio-label { display: flex; align-items: center; gap: 8px; font-weight: normal; margin-bottom: 8px; cursor: pointer; font-size: 0.95rem; }
-    select, input[type="text"], input[type="number"], input[type="range"] { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 12px; font-size: 1rem; }
-    .flex-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
-    .hint { font-size: 0.75rem; color: #64748b; margin-top: -8px; margin-bottom: 12px; display: block; }
+    select, input[type="text"], input[type="number"], textarea {
+      width: 100%;
+      padding: 11px 12px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--text);
+      transition: all var(--transition);
+      margin-bottom: 12px;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    select {
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+    }
+    select:focus, input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: var(--ring);
+      background: var(--bg-elevated);
+    }
+    select:disabled { opacity: 0.55; cursor: not-allowed; }
 
-    .preset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
-    .preset-btn { border: 2px solid var(--border); background: transparent; padding: 8px; border-radius: 8px; color: var(--text); }
-    .preset-btn.active { border-color: var(--primary); background: #eff6ff; }
+    input[type="range"] {
+      width: 100%;
+      appearance: none;
+      -webkit-appearance: none;
+      height: 4px;
+      background: var(--bg-sunken);
+      border-radius: 999px;
+      margin: 10px 0 14px;
+      padding: 0;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      border: 3px solid var(--bg-elevated);
+      box-shadow: var(--shadow);
+      transition: transform var(--transition);
+    }
+    input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.15); }
+    input[type="range"]::-moz-range-thumb {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      border: 3px solid var(--bg-elevated);
+      box-shadow: var(--shadow);
+    }
 
-    .canvas-container { position: relative; width: 100%; max-width: 400px; margin: 0 auto 16px; aspect-ratio: 4/3; background: #0f172a; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
-    .design-container { aspect-ratio: 2/3; background: #e2e8f0; }
-    .canvas-container canvas { position: relative; z-index: 1; width: 100%; height: 100%; display: block; touch-action: none; }
+    input[type="color"] {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg-subtle);
+      cursor: pointer;
+      padding: 2px;
+    }
+    input[type="color"]::-webkit-color-swatch-wrapper { padding: 2px; }
+    input[type="color"]::-webkit-color-swatch { border: none; border-radius: 6px; }
 
-    .canvas-container .preview-video {
+    input[type="checkbox"] {
+      width: 18px; height: 18px;
+      accent-color: var(--primary);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    input[type="radio"] {
+      accent-color: var(--primary);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition);
+      user-select: none;
+    }
+    .check-row:hover { border-color: var(--border-strong); }
+    .check-row label { font-size: 13.5px; font-weight: 500; margin: 0; cursor: pointer; }
+
+    .radio-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .radio-row:hover { border-color: var(--border-strong); background: var(--bg-subtle); }
+    .radio-row input { margin: 0; }
+    .radio-row span { font-size: 13.5px; font-weight: 500; }
+
+    /* =========================================================
+       BUTTONS
+       ========================================================= */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 18px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all var(--transition);
+      white-space: nowrap;
+      user-select: none;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+      box-shadow: 0 2px 8px rgba(16,185,129,0.3);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-ghost {
+      background: var(--bg-subtle);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover:not(:disabled) { background: var(--bg-sunken); border-color: var(--border-strong); }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+    .btn-outline:hover:not(:disabled) { background: var(--primary-soft); }
+
+    .btn-block { width: 100%; }
+    .btn-sm { padding: 8px 14px; font-size: 13px; }
+    .btn-icon { width: 38px; height: 38px; padding: 0; }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .btn-row .btn { flex: 1; margin: 0; }
+
+    /* =========================================================
+       PRESET GRID
+       ========================================================= */
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .preset-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px 6px 10px;
+      background: var(--bg-subtle);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      text-align: center;
+    }
+    .preset-btn:hover { border-color: var(--border-strong); color: var(--text); }
+    .preset-btn.active {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary-soft-text);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+    }
+    .preset-icon {
+      width: 44px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+    }
+    .preset-icon svg { width: 100%; height: 100%; }
+    .preset-btn.active .preset-icon svg [stroke] { stroke: var(--primary); }
+    .preset-btn.active .preset-icon svg [fill]:not([fill="none"]) { fill: var(--primary); }
+
+    /* =========================================================
+       CANVAS CONTAINER
+       ========================================================= */
+    .canvas-shell {
+      position: relative;
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto 16px;
+      aspect-ratio: 4 / 3;
+      background: #0a0f1c;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-lg);
+    }
+    .canvas-shell.tall { aspect-ratio: 2 / 3; background: var(--bg-sunken); }
+
+    .canvas-shell canvas {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+    }
+
+    .canvas-shell .preview-video {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
       z-index: 0;
-      background: #0f172a;
+      background: #0a0f1c;
       transform: translateZ(0);
     }
 
-    #editMenu { display: none; background: #f8fafc; border: 1px solid var(--border); padding: 12px; border-radius: 8px; margin-bottom: 16px; }
+    #flashOverlay {
+      position: absolute; inset: 0;
+      background: white; opacity: 0;
+      pointer-events: none;
+      transition: opacity 120ms;
+      z-index: 50;
+    }
+    #countdownOverlay {
+      position: absolute; inset: 0;
+      display: none; align-items: center; justify-content: center;
+      font-size: 140px; font-weight: 800; color: white;
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 40;
+      text-shadow: 0 4px 24px rgba(0,0,0,0.6);
+      animation: countPulse 0.9s ease-in-out infinite;
+    }
+    @keyframes countPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.08); opacity: 0.85; }
+    }
 
-    #flashOverlay { position: absolute; inset: 0; background: white; opacity: 0; pointer-events: none; transition: opacity 0.1s; z-index: 50; }
-    #countdownOverlay { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; font-size: 8rem; color: white; background: rgba(0,0,0,0.4); z-index: 40; font-weight: bold; text-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+    /* =========================================================
+       STATUS PILL / TOASTS
+       ========================================================= */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 7px 12px;
+      border-radius: var(--radius-full);
+      background: var(--bg-subtle);
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      border: 1px solid var(--border);
+    }
+    .status-pill.ready { background: var(--success-soft); color: var(--success); border-color: transparent; }
+    .status-pill.error { background: var(--danger-soft); color: var(--danger); border-color: transparent; }
+    .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 0 3px rgba(148,163,184,0.2);
+      animation: statusPulse 1.8s ease-in-out infinite;
+    }
+    .status-pill.ready .status-dot { animation: none; box-shadow: 0 0 0 3px rgba(16,185,129,0.2); }
+    @keyframes statusPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
 
-    .file-input-wrapper { display: flex; gap: 8px; margin-bottom: 12px; }
-    .file-input-wrapper input[type="file"] { flex: 1; padding: 6px; border: 1px solid var(--border); border-radius: 6px; }
-    .unique-upload-box { background: #f1f5f9; padding: 10px; border-radius: 6px; margin-bottom: 8px; border: 1px dashed #cbd5e1; }
+    #toastContainer {
+      position: fixed;
+      bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+      width: min(92vw, 420px);
+    }
 
-    .status-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #fee2e2; color: #b91c1c; margin-bottom: 12px; }
-    .status-pill.ready { background: #dcfce7; color: #15803d; }
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+    .toast {
+      background: var(--bg-elevated);
+      color: var(--text);
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-lg);
+      font-size: 13.5px;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: all var(--transition-slow);
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast-success { border-left: 3px solid var(--success); }
+    .toast-error { border-left: 3px solid var(--danger); }
+    .toast-info { border-left: 3px solid var(--primary); }
+
+    /* =========================================================
+       ACTION BAR (FIXED BOTTOM)
+       ========================================================= */
+    .action-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--glass);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 100;
+      gap: 6px;
+    }
+    .action-bar .btn-row { width: 100%; max-width: 480px; margin: 0; }
+    .credits {
+      font-size: 10.5px;
+      color: var(--text-faint);
+      letter-spacing: 0.02em;
+    }
+
+    /* =========================================================
+       ASSET GALLERY
+       ========================================================= */
+    .asset-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .asset-thumb {
+      aspect-ratio: 1;
+      border-radius: var(--radius-xs);
+      overflow: hidden;
+      border: 2px solid var(--border);
+      cursor: pointer;
+      background: var(--bg-sunken);
+      background-size: cover;
+      background-position: center;
+      transition: all var(--transition);
+      position: relative;
+    }
+    .asset-thumb:hover { border-color: var(--border-strong); transform: scale(1.03); }
+    .asset-thumb.selected {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+    }
+    .asset-thumb::after {
+      content: attr(data-name);
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.75), transparent);
+      color: white;
+      font-size: 9px;
+      font-weight: 600;
+      padding: 8px 4px 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+    .asset-thumb:hover::after { opacity: 1; }
+
+    .empty-state {
+      padding: 20px 16px;
+      text-align: center;
+      color: var(--text-faint);
+      font-size: 12.5px;
+      background: var(--bg-subtle);
+      border: 1px dashed var(--border-strong);
+      border-radius: var(--radius-sm);
+      margin-bottom: 12px;
+    }
+    .empty-state-icon { font-size: 24px; margin-bottom: 6px; opacity: 0.6; }
+
+    /* =========================================================
+       EDIT PANEL
+       ========================================================= */
+    #editMenu {
+      display: none;
+      background: var(--primary-soft);
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 14px;
+      animation: slideIn 0.2s ease-out;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    #editMenu .card-title { color: var(--primary-soft-text); margin-bottom: 12px; }
+
+    /* =========================================================
+       FILE INPUT
+       ========================================================= */
+    .file-input-hidden {
+      position: absolute;
+      width: 1px; height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .file-input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    /* =========================================================
+       STEP 4 CHROMA ACCENT
+       ========================================================= */
+    .chroma-toggle-card {
+      border: 2px solid var(--success) !important;
+      background: var(--success-soft) !important;
+    }
+    .chroma-toggle-card .check-row {
+      background: transparent;
+      border: none;
+      padding: 4px 0;
+    }
+
+    /* =========================================================
+       STEP 5 CAPTURE CONTROLS
+       ========================================================= */
+    .switch-camera-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+    }
+    .switch-camera-row .info { flex: 1; min-width: 0; }
+    .switch-camera-row .info .t { font-size: 13.5px; font-weight: 600; color: var(--text); margin: 0 0 2px; }
+    .switch-camera-row .info .d { font-size: 11.5px; color: var(--text-muted); margin: 0; }
+
+    /* =========================================================
+       RESULT SCREEN
+       ========================================================= */
+    .result-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: var(--success-soft);
+      color: var(--success);
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: 0.02em;
+    }
+
+    /* =========================================================
+       SCROLLBAR (subtle)
+       ========================================================= */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+
+    /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+    @media (max-width: 380px) {
+      .content, .screen-header { padding-left: 14px; padding-right: 14px; }
+      .preset-grid { grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); }
+    }
+
+    /* Theme toggle icon cross-fade */
+    .theme-icon-sun, .theme-icon-moon {
+      transition: opacity var(--transition), transform var(--transition);
+    }
+    [data-theme="light"] .theme-icon-sun { opacity: 0; transform: scale(0.6); position: absolute; }
+    [data-theme="light"] .theme-icon-moon { opacity: 1; transform: scale(1); }
+    [data-theme="dark"] .theme-icon-sun { opacity: 1; transform: scale(1); }
+    [data-theme="dark"] .theme-icon-moon { opacity: 0; transform: scale(0.6); position: absolute; }
+    .theme-btn { position: relative; }
   </style>
 </head>
 <body>
 
-  <!-- STEP 1: CAMERA SETUP -->
+<div class="app-shell">
+
+  <!-- ============================= TOPBAR ============================= -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-logo">M</div>
+      <div class="brand-text">
+        <div class="brand-title">MediaBox PhotoBooth</div>
+        <div class="brand-version">Pro v2.3</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="icon-btn theme-btn" id="btnThemeToggle" title="Toggle theme" aria-label="Toggle theme">
+        <svg class="theme-icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="theme-icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================= STEPPER ============================= -->
+  <div class="stepper" id="stepper"></div>
+
+  <!-- ============================= STEP 1 ============================= -->
   <div id="step1" class="screen active">
-    <header>
-      <div class="app-brand">MediaBox Web PhotoBooth Pro</div>
-      <h1>Step 1: Camera Access</h1>
-      <p>Allow access to begin</p>
-    </header>
+    <div class="screen-header">
+      <h1>Camera Access</h1>
+      <p>Grant permission and pick your camera to begin.</p>
+    </div>
     <div class="content">
       <div class="card">
         <div id="camStatusPill" class="status-pill"><span class="status-dot"></span><span id="camStatusText">Not started</span></div>
-        <label>Select Camera</label>
+
+        <label class="field-label">Select Camera</label>
         <select id="camDevice" disabled>
           <option value="">Auto Select</option>
         </select>
-        <label>Facing Preference</label>
+
+        <label class="field-label">Facing Preference</label>
         <select id="camFacing">
           <option value="environment">Back (Rear) Camera</option>
           <option value="user">Front (Selfie) Camera</option>
         </select>
-        <button id="btnStartCamera" class="btn-primary" style="width: 100%">Start Camera</button>
+
+        <button id="btnStartCamera" class="btn btn-primary btn-block">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+          Start Camera
+        </button>
       </div>
-      <div class="canvas-container">
+
+      <div class="canvas-shell">
         <video id="step1Video" class="preview-video" autoplay playsinline muted></video>
         <canvas id="step1Canvas" width="640" height="480"></canvas>
       </div>
     </div>
     <div class="action-bar">
-      <div class="buttons-wrap">
-        <button class="btn-primary" onclick="tryGoToStep2()">Next: Layout Setup</button>
+      <div class="btn-row">
+        <button class="btn btn-primary btn-block" onclick="tryGoToStep2()">
+          Continue to Layout
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
       </div>
-      <div class="credits">v2.2.1b &bull; Created by randybondoc</div>
+      <div class="credits">Created by randybondoc</div>
     </div>
   </div>
 
-  <!-- STEP 2: LAYOUT SETUP -->
+  <!-- ============================= STEP 2 ============================= -->
   <div id="step2" class="screen">
-    <header>
-      <div class="app-brand">MediaBox Web PhotoBooth Pro</div>
-      <h1>Step 2: Photo Layout</h1>
-      <p>Choose number of shots & arrangement</p>
-    </header>
+    <div class="screen-header">
+      <h1>Photo Layout</h1>
+      <p>Choose how your photos will be arranged on the 4×6 print.</p>
+    </div>
     <div class="content">
       <div class="card">
-        <div class="card-title">Presets (4x6 Format)</div>
-        <div class="preset-grid">
-          <button class="preset-btn" data-preset="1" onclick="applyPreset('1')">1 Photo</button>
-          <button class="preset-btn" data-preset="4-grid" onclick="applyPreset('4-grid')">2x2 Grid</button>
-          <button class="preset-btn" data-preset="3-strip" onclick="applyPreset('3-strip')">3 Strip</button>
-          <button class="preset-btn" data-preset="4-strip" onclick="applyPreset('4-strip')">4 Strip</button>
-          <button class="preset-btn" data-preset="8-grid" onclick="applyPreset('8-grid')">8 (2x4 Strip)</button>
-        </div>
-        <span class="hint">Tip: You can drag the black boxes below to custom positions!</span>
+        <div class="card-title">Layout Presets <span class="badge">4×6</span></div>
+        <p class="card-desc">All presets use equal margins and gaps so the print always looks centered.</p>
+        <div class="preset-grid" id="presetGrid"></div>
       </div>
-      <div class="canvas-container design-container">
+      <div class="canvas-shell tall">
         <canvas id="layoutCanvas" width="1200" height="1800"></canvas>
       </div>
     </div>
     <div class="action-bar">
-      <div class="buttons-wrap">
-        <button class="btn-secondary" onclick="goToStep(1)">Back</button>
-        <button class="btn-primary" onclick="goToStep(3)">Next: Design</button>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goToStep(1)">Back</button>
+        <button class="btn btn-primary" onclick="goToStep(3)">Design</button>
       </div>
-      <div class="credits">v2.2.1b &bull; Created by randybondoc</div>
+      <div class="credits">Created by randybondoc</div>
     </div>
   </div>
 
-  <!-- STEP 3: DESIGN SETUP -->
+  <!-- ============================= STEP 3 ============================= -->
   <div id="step3" class="screen">
-    <header>
-      <div class="app-brand">MediaBox Web PhotoBooth Pro</div>
-      <h1>Step 3: Design & Decor</h1>
-      <p>Customize your output</p>
-    </header>
+    <div class="screen-header">
+      <h1>Design &amp; Decor</h1>
+      <p>Layer backgrounds, overlays, stickers, and text on your print.</p>
+    </div>
     <div class="content">
 
-      <div class="canvas-container design-container">
+      <div class="canvas-shell tall">
         <canvas id="designCanvas" width="1200" height="1800"></canvas>
       </div>
 
       <div id="editMenu">
-        <div class="card-title" id="editTitle" style="color:var(--primary)">Edit Selected Item</div>
-        <label>Size</label>
+        <div class="card-title" id="editTitle">Edit Selected Item</div>
+        <label class="field-label">Size</label>
         <input type="range" id="editSize" min="0.1" max="5" step="0.1" value="1">
-        <label>Rotate (Degrees)</label>
+        <label class="field-label">Rotation</label>
         <input type="range" id="editRotation" min="0" max="360" value="0">
         <div id="editColorWrap">
-          <label>Color</label>
-          <input type="color" id="editColor" style="height:40px; margin-bottom:12px;">
+          <label class="field-label">Color</label>
+          <input type="color" id="editColor" style="height:44px; width:100%; margin-bottom:12px;">
         </div>
+        <div class="btn-row" style="margin-bottom:0;">
+          <button id="btnFlipItem" class="btn btn-ghost">Mirror</button>
+          <button id="btnDuplicateItem" class="btn btn-ghost">Duplicate</button>
+          <button id="btnDeleteItem" class="btn btn-danger">Delete</button>
+        </div>
+      </div>
+
+      <!-- BACKGROUND -->
+      <div class="card">
+        <div class="card-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          Background
+        </div>
+        <p class="card-desc">The base image behind all photos.</p>
+
+        <div id="bgGalleryEmpty" class="empty-state" style="display:none;">
+          <div class="empty-state-icon">🖼️</div>
+          No presets found in <code>background/</code> folder.
+        </div>
+        <div class="asset-gallery" id="bgGallery"></div>
+
+        <input type="file" id="fileBg" class="file-input-hidden" accept="image/*,.heic,.heif,.webp,.gif,.jpg,.jpeg,.png">
+        <input type="file" id="fileBgFolder" class="file-input-hidden" webkitdirectory directory multiple>
+
+        <div class="btn-row">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('fileBg').click()">Choose File</button>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('fileBgFolder').click()">Load Folder</button>
+          <button class="btn btn-ghost btn-sm" onclick="clearBg()">Clear</button>
+        </div>
+
+        <div class="check-row">
+          <input type="checkbox" id="chkFlipBg" onchange="toggleFlipBg()">
+          <label for="chkFlipBg">Mirror background</label>
+        </div>
+      </div>
+
+      <!-- OVERLAY -->
+      <div class="card">
+        <div class="card-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="8" y="8" width="8" height="8" rx="1"/></svg>
+          Overlay / Frame
+        </div>
+        <p class="card-desc">Transparent PNG frame that sits on top of the photos.</p>
+
+        <div id="overlayGalleryEmpty" class="empty-state" style="display:none;">
+          <div class="empty-state-icon">✨</div>
+          No presets found in <code>overlay/</code> folder.
+        </div>
+        <div class="asset-gallery" id="overlayGallery"></div>
+
+        <input type="file" id="fileOverlay" class="file-input-hidden" accept="image/png,image/webp,image/gif,.png,.webp,.gif">
+        <input type="file" id="fileOverlayFolder" class="file-input-hidden" webkitdirectory directory multiple>
+
+        <div class="btn-row">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('fileOverlay').click()">Choose File</button>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('fileOverlayFolder').click()">Load Folder</button>
+          <button class="btn btn-ghost btn-sm" onclick="clearOverlay()">Clear</button>
+        </div>
+
+        <div class="check-row">
+          <input type="checkbox" id="chkFlipOverlay" onchange="toggleFlipOverlay()">
+          <label for="chkFlipOverlay">Mirror overlay</label>
+        </div>
+      </div>
+
+      <!-- STICKERS -->
+      <div class="card">
+        <div class="card-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-3.5L6 21l1.5-7.5L2 9h7z"/></svg>
+          Stickers &amp; Graphics
+        </div>
+        <p class="card-desc">Tap a sticker to add it, then drag on the canvas to reposition.</p>
+
+        <div id="stickerGalleryEmpty" class="empty-state" style="display:none;">
+          <div class="empty-state-icon">🎨</div>
+          No presets found in <code>stickers/</code> folder.
+        </div>
+        <div class="asset-gallery" id="stickerGallery"></div>
+
+        <input type="file" id="fileSticker" class="file-input-hidden" accept="image/*,.heic,.heif,.webp,.gif,.jpg,.jpeg,.png">
+        <input type="file" id="fileStickerFolder" class="file-input-hidden" webkitdirectory directory multiple>
+
+        <div class="btn-row">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('fileSticker').click()">Choose File</button>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('fileStickerFolder').click()">Load Folder</button>
+        </div>
+      </div>
+
+      <!-- TEXT -->
+      <div class="card">
+        <div class="card-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+          Add Text
+        </div>
+        <input type="text" id="textInput" placeholder="Enter your text…" maxlength="80">
         <div style="display:flex; gap:8px;">
-          <button id="btnFlipItem" class="btn-secondary" style="flex:1;">Mirror (Flip)</button>
-          <button id="btnDeleteItem" class="btn-danger" style="flex:1;">Delete</button>
+          <select id="textFont" style="flex:1; margin:0;"></select>
+          <input type="color" id="textColor" value="#ffffff" style="width:52px; height:44px; padding:2px;">
+        </div>
+        <div class="btn-row" style="margin-top:12px;">
+          <button class="btn btn-primary btn-block" onclick="addText()">Add Text</button>
         </div>
       </div>
-
-      <div class="card">
-        <div class="card-title">1. Background Image</div>
-        <span class="hint">Sits at the very back of the entire 4x6 print.</span>
-        <div class="file-input-wrapper">
-          <input type="file" id="fileBg" accept="image/*">
-          <button class="btn-secondary" onclick="clearBg()">Clear</button>
-        </div>
-        <div class="flex-row">
-            <input type="checkbox" id="chkFlipBg" onchange="toggleFlipBg()"> <label>Mirror Background</label>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">2. Overlay / Frame</div>
-        <span class="hint">MUST be a transparent PNG. Sits on top of photos.</span>
-        <div class="file-input-wrapper">
-          <input type="file" id="fileOverlay" accept="image/png">
-          <button class="btn-secondary" onclick="clearOverlay()">Clear</button>
-        </div>
-        <div class="flex-row">
-            <input type="checkbox" id="chkFlipOverlay" onchange="toggleFlipOverlay()"> <label>Mirror Overlay</label>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">3. Stickers & Graphics</div>
-        <span class="hint">Upload a transparent image, then click it on canvas to edit.</span>
-        <input type="file" id="fileSticker" accept="image/*">
-      </div>
-
-      <div class="card">
-        <div class="card-title">4. Add Text</div>
-        <input type="text" id="textInput" placeholder="Enter text here...">
-        <div class="flex-row">
-          <select id="textFont" style="margin:0; flex:1;">
-            <option value="Arial">Arial</option>
-            <option value="Georgia">Georgia</option>
-            <option value="Impact">Impact</option>
-            <option value="Courier New">Courier</option>
-          </select>
-          <input type="color" id="textColor" value="#ffffff" style="height:42px; width:50px;">
-          <button class="btn-secondary" onclick="addText()">Add</button>
-        </div>
-      </div>
-
     </div>
     <div class="action-bar">
-      <div class="buttons-wrap">
-        <button class="btn-secondary" onclick="goToStep(2)">Back</button>
-        <button class="btn-primary" onclick="goToStep(4)">Next: Green Screen</button>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goToStep(2)">Back</button>
+        <button class="btn btn-primary" onclick="goToStep(4)">Green Screen</button>
       </div>
-      <div class="credits">v2.2.1b &bull; Created by randybondoc</div>
+      <div class="credits">Created by randybondoc</div>
     </div>
   </div>
 
-  <!-- STEP 4: CHROMA KEY (LIVE PREVIEW) -->
+  <!-- ============================= STEP 4 ============================= -->
   <div id="step4" class="screen">
-    <header>
-      <div class="app-brand">MediaBox Web PhotoBooth Pro</div>
-      <h1>Step 4: Green Screen Setup</h1>
-      <p>Replace background of taken photos</p>
-    </header>
+    <div class="screen-header">
+      <h1>Green Screen</h1>
+      <p>Optional: replace the background of your shots in real time.</p>
+    </div>
     <div class="content">
 
-      <div class="canvas-container">
+      <div class="canvas-shell">
         <video id="step4Video" class="preview-video" autoplay playsinline muted></video>
         <canvas id="step4Canvas" width="640" height="480"></canvas>
       </div>
 
-      <div class="card" style="border: 2px solid #16a34a;">
-        <div class="flex-row" style="margin-bottom:0;">
-            <input type="checkbox" id="chkChroma" style="width:20px; height:20px;" onchange="toggleChromaUI()">
-            <label style="font-weight:bold; font-size:1.1rem; color:#16a34a; margin:0;">Enable Green Screen</label>
+      <div class="card chroma-toggle-card">
+        <div class="check-row">
+          <input type="checkbox" id="chkChroma" onchange="toggleChromaUI()">
+          <label for="chkChroma" style="font-weight:700; color: var(--success);">Enable Green Screen</label>
         </div>
       </div>
 
       <div id="chromaSettings" style="display:none;">
-          <div class="card">
-            <div class="card-title">Key Color & Intensity</div>
-            <span class="hint">Select the color of your background (watch the preview change!).</span>
-            <div class="flex-row">
-              <input type="color" id="chromaColor" value="#00ff00" style="height:50px; width:60px;">
-              <input type="range" id="chromaIntensity" min="0" max="200" value="100" style="flex:1;">
-            </div>
+        <div class="card">
+          <div class="card-title">Key Color &amp; Intensity</div>
+          <p class="card-desc">Pick the color of your background — the preview updates live.</p>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <input type="color" id="chromaColor" value="#00ff00" style="height:52px; width:64px;">
+            <input type="range" id="chromaIntensity" min="0" max="200" value="100" style="flex:1;">
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Background Replacement</div>
+
+          <label class="radio-row">
+            <input type="radio" name="chromaMode" value="transparent" checked onchange="updateChromaMode()">
+            <span>Use design background (Step 3)</span>
+          </label>
+          <label class="radio-row">
+            <input type="radio" name="chromaMode" value="single" onchange="updateChromaMode()">
+            <span>Single custom image (all shots)</span>
+          </label>
+          <label class="radio-row">
+            <input type="radio" name="chromaMode" value="unique" onchange="updateChromaMode()">
+            <span>Unique custom image (per shot)</span>
+          </label>
+
+          <div id="chromaSingleWrap" style="display:none; margin-top:14px;">
+            <label class="field-label">Upload single background</label>
+            <input type="file" id="fileChromaSingle" accept="image/*,.heic,.heif,.webp,.gif,.jpg,.jpeg,.png">
           </div>
 
-          <div class="card">
-            <div class="card-title">Background Replacement Mode</div>
-
-            <label class="radio-label">
-                <input type="radio" name="chromaMode" value="transparent" checked onchange="updateChromaMode()">
-                1. Show Main Background (From Step 3)
-            </label>
-            <label class="radio-label">
-                <input type="radio" name="chromaMode" value="single" onchange="updateChromaMode()">
-                2. Single Custom Image (For all shots)
-            </label>
-            <label class="radio-label">
-                <input type="radio" name="chromaMode" value="unique" onchange="updateChromaMode()">
-                3. Unique Custom Image (Per shot)
-            </label>
-
-            <div id="chromaSingleWrap" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
-                <label>Upload Single Background</label>
-                <input type="file" id="fileChromaSingle" accept="image/*">
-            </div>
-
-            <div id="chromaUniqueWrap" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
-                <label>Upload Background Per Shot</label>
-                <div id="uniqueInputsContainer"></div>
-            </div>
+          <div id="chromaUniqueWrap" style="display:none; margin-top:14px;">
+            <label class="field-label">Upload per-shot backgrounds</label>
+            <div id="uniqueInputsContainer"></div>
           </div>
+        </div>
       </div>
-
     </div>
     <div class="action-bar">
-      <div class="buttons-wrap">
-        <button class="btn-secondary" onclick="goToStep(3)">Back</button>
-        <button class="btn-primary" onclick="goToStep(5)">Next: Capture</button>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goToStep(3)">Back</button>
+        <button class="btn btn-primary" onclick="goToStep(5)">Capture</button>
       </div>
-      <div class="credits">v2.2.1b &bull; Created by randybondoc</div>
+      <div class="credits">Created by randybondoc</div>
     </div>
   </div>
 
-  <!-- STEP 5: CAPTURE -->
+  <!-- ============================= STEP 5 ============================= -->
   <div id="step5" class="screen">
-    <header>
-      <div class="app-brand">MediaBox Web PhotoBooth Pro</div>
-      <h1>Step 5: Photo Session</h1>
-      <p>Get ready!</p>
-    </header>
-    <div class="content" style="display:flex; flex-direction:column; justify-content:center;">
+    <div class="screen-header">
+      <h1>Photo Session</h1>
+      <p>Get ready — the countdown starts when you tap Start Session.</p>
+    </div>
+    <div class="content">
 
-      <div class="canvas-container" style="position:relative;">
+      <div class="canvas-shell" style="position:relative;">
         <video id="step5Video" class="preview-video" autoplay playsinline muted></video>
         <canvas id="step5Canvas" width="640" height="480"></canvas>
         <div id="countdownOverlay">3</div>
         <div id="flashOverlay"></div>
       </div>
 
-      <div class="card" style="display: flex; justify-content: space-between; align-items: center; padding: 12px;">
-        <div>
-            <label style="margin:0">Camera Feed</label>
-            <span class="hint" style="margin:0">Wrong lens? Swap it here.</span>
+      <div class="switch-camera-row">
+        <div class="info">
+          <p class="t">Camera feed</p>
+          <p class="d">Wrong lens? Swap it here.</p>
         </div>
-        <button id="btnSwitchCamLive" class="btn-secondary" style="padding: 8px 16px;">Switch Camera</button>
+        <button id="btnSwitchCamLive" class="btn btn-ghost btn-sm">Switch</button>
       </div>
 
       <div class="card">
-        <label>Countdown Timer (seconds)</label>
+        <label class="field-label">Countdown timer (seconds)</label>
         <input type="number" id="countdownSecs" value="3" min="1" max="10">
-        <p id="captureStatus" style="text-align:center; font-weight:bold; color:var(--primary); margin-bottom:0;">Ready for <span id="lblShotCount">4</span> shots.</p>
+        <p id="captureStatus" style="text-align:center; font-weight:600; color: var(--primary); margin:0;">
+          Ready for <span id="lblShotCount">4</span> shots
+        </p>
       </div>
-
     </div>
     <div class="action-bar">
-      <div class="buttons-wrap">
-        <button class="btn-secondary" id="btnBackToChroma" onclick="goToStep(4)">Back</button>
-        <button class="btn-primary" id="btnStartSession" style="background:var(--danger)">Start Session</button>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="btnBackToChroma" onclick="goToStep(4)">Back</button>
+        <button class="btn btn-danger" id="btnStartSession">Start Session</button>
       </div>
-      <div class="credits">v2.2.1b &bull; Created by randybondoc</div>
+      <div class="credits">Created by randybondoc</div>
     </div>
   </div>
 
-  <!-- STEP 6: RESULT & EXPORT -->
+  <!-- ============================= STEP 6 ============================= -->
   <div id="step6" class="screen">
-    <header>
-      <div class="app-brand">MediaBox Web PhotoBooth Pro</div>
-      <h1>Step 6: Your Masterpiece</h1>
-      <p>Save and Share</p>
-    </header>
+    <div class="screen-header">
+      <h1>Your Masterpiece</h1>
+      <p>Download it, share it, or print it.</p>
+    </div>
     <div class="content">
-      <div class="canvas-container design-container">
+      <div class="result-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Ready to export
+      </div>
+      <div class="canvas-shell tall">
         <canvas id="resultCanvas" width="1200" height="1800"></canvas>
       </div>
-
-      <div style="display:flex; gap:12px; margin-bottom: 16px;">
-        <button class="btn-secondary" onclick="goToStep(5)" style="flex:1">Reshoot</button>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goToStep(5)">Reshoot</button>
+        <button class="btn btn-ghost" onclick="goToStep(3)">Edit Design</button>
       </div>
     </div>
     <div class="action-bar">
-      <div class="buttons-wrap">
-        <button class="btn-success" style="font-size: 1.1rem; padding: 12px 24px;" onclick="exportFinalImage()">Download 4x6</button>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="btnShareImage" style="flex:0 0 auto;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </button>
+        <button class="btn btn-ghost" id="btnPrintImage" style="flex:0 0 auto;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        </button>
+        <button class="btn btn-success" style="flex:1;" id="btnDownload">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download 4×6
+        </button>
       </div>
-      <div class="credits">v2.2.1b &bull; Created by randybondoc</div>
+      <div class="credits">Created by randybondoc</div>
     </div>
   </div>
 
-  <canvas id="processCanvas" style="display:none;"></canvas>
+</div>
+
+<div id="toastContainer"></div>
+<canvas id="processCanvas" style="display:none;"></canvas>
 
 <script>
-/**
- * MediaBox Web PhotoBooth Pro v2.2.1b
- * Created by randybondoc
- *
- * Changes in v2.2.1b (performance pass):
- *  - Only the ACTIVE screen's preview video plays. Hidden screens' videos are
- *    paused so Android isn't decoding the same stream three times over.
- *  - Chroma-key preview canvas processes at 320px wide instead of 640px
- *    (4x less pixel work; visually identical at preview size).
- *  - Chroma-key throttle lowered to ~12fps so the CPU pixel loop no longer
- *    starves the camera decoder. Non-chroma previews still run at RAF speed.
- *  - Final capture still uses full camera resolution and full quality.
- */
+/* =========================================================================
+   MediaBox Web PhotoBooth Pro v2.3
+   Created by randybondoc
+
+   New in v2.3:
+    - Modern UI with design tokens, dark/light theme toggle
+    - Symmetrical layout presets (equal margins & gaps) + 1 Landscape
+    - Folder-based asset loading (background/, overlay/, stickers/)
+    - Expanded font library (Google Fonts + system fonts)
+    - HEIC/WebP/GIF/JPG/PNG support (HEIC via lazy-loaded CDN decoder)
+    - Toasts, share sheet, print, edit panel with duplicate
+    - Perf: only active screen's video decodes; chroma preview at 320px @ 12fps
+   ========================================================================= */
+
 const W = 1200, H = 1800;
 
+/* -------------------------------------------------------------------------
+   LAYOUT PRESETS — all symmetrical (equal margins, equal gaps)
+   ------------------------------------------------------------------------- */
+const LAYOUT_PRESETS = {
+  '1-photo': {
+    label: '1 Photo',
+    icon: '<svg viewBox="0 0 44 32" fill="none"><rect x="4" y="2" width="36" height="28" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>',
+    boxes: [{ x: 60, y: 60, w: 1080, h: 1680 }]
+  },
+  '1-landscape': {
+    label: '1 Landscape',
+    icon: '<svg viewBox="0 0 44 32" fill="none"><rect x="2" y="6" width="40" height="20" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>',
+    boxes: [{ x: 60, y: 495, w: 1080, h: 810 }]
+  },
+  '2-grid': {
+    label: '2 Photos',
+    icon: '<svg viewBox="0 0 44 32" fill="none"><rect x="4" y="2" width="36" height="12.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="4" y="17.5" width="36" height="12.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>',
+    boxes: [
+      { x: 60, y: 60,  w: 1080, h: 820 },
+      { x: 60, y: 920, w: 1080, h: 820 }
+    ]
+  },
+  '4-grid': {
+    label: '2×2 Grid',
+    icon: '<svg viewBox="0 0 44 32" fill="none"><rect x="4" y="2" width="16" height="12.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="24" y="2" width="16" height="12.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="4" y="17.5" width="16" height="12.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="24" y="17.5" width="16" height="12.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>',
+    boxes: [
+      { x: 60,  y: 60,  w: 520, h: 820 },
+      { x: 620, y: 60,  w: 520, h: 820 },
+      { x: 60,  y: 920, w: 520, h: 820 },
+      { x: 620, y: 920, w: 520, h: 820 }
+    ]
+  },
+  '3-strip': {
+    label: '3 Strip',
+    icon: '<svg viewBox="0 0 44 32" fill="none"><rect x="4" y="2" width="36" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="4" y="12" width="36" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="4" y="22" width="36" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>',
+    boxes: [
+      { x: 60, y: 60,   w: 1080, h: 540 },
+      { x: 60, y: 630,  w: 1080, h: 540 },
+      { x: 60, y: 1200, w: 1080, h: 540 }
+    ]
+  },
+  '4-strip': {
+    label: '4 Strip',
+    icon: '<svg viewBox="0 0 44 32" fill="none"><rect x="9" y="2" width="26" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="9.4" width="26" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="16.8" width="26" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="24.2" width="26" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>',
+    boxes: [
+      { x: 150, y: 60,   w: 900, h: 405 },
+      { x: 150, y: 485,  w: 900, h: 405 },
+      { x: 150, y: 910,  w: 900, h: 405 },
+      { x: 150, y: 1335, w: 900, h: 405 }
+    ]
+  },
+  '8-grid': {
+    label: '2×4 Strip',
+    icon: '<svg viewBox="0 0 44 32" fill="none"><rect x="6" y="2" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="24" y="2" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="6" y="9.4" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="24" y="9.4" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="6" y="16.8" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="24" y="16.8" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="6" y="24.2" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="24" y="24.2" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>',
+    boxes: (() => {
+      const boxes = [];
+      const margin = 60, gap = 30;
+      const cw = (1080 - gap) / 2;   // 525
+      const ch = (1680 - 3 * gap) / 4; // ~397
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 2; c++) {
+          boxes.push({
+            x: margin + c * (cw + gap),
+            y: margin + r * (ch + gap),
+            w: cw, h: ch
+          });
+        }
+      }
+      return boxes;
+    })()
+  }
+};
+
+/* -------------------------------------------------------------------------
+   FONTS
+   ------------------------------------------------------------------------- */
+const FONT_GROUPS = [
+  { label: 'Sans-Serif', fonts: ['Inter', 'Poppins', 'Montserrat', 'Arial', 'Helvetica', 'Verdana', 'Tahoma', 'Trebuchet MS', 'system-ui'] },
+  { label: 'Serif',      fonts: ['Playfair Display', 'Georgia', 'Times New Roman', 'Garamond', 'Palatino'] },
+  { label: 'Display',    fonts: ['Bebas Neue', 'Righteous', 'Impact', 'Lobster', 'Pacifico', 'Permanent Marker', 'Caveat'] },
+  { label: 'Monospace',  fonts: ['Roboto Mono', 'Courier New', 'monospace'] },
+  { label: 'Handwriting',fonts: ['Dancing Script', 'cursive'] }
+];
+
+/* -------------------------------------------------------------------------
+   STATE
+   ------------------------------------------------------------------------- */
 const state = {
   stream: null,
-  shotsTotal: 4,
+  currentPreset: '4-grid',
   layoutBoxes: [],
+  shotsTotal: 4,
+
   bgImg: null, bgFlip: false,
   overlayImg: null, overlayFlip: false,
   items: [],
@@ -393,16 +1366,25 @@ const state = {
   chromaEnabled: false,
   chromaMode: 'transparent',
   chromaSingleImg: null,
-  chromaUniqueImgs: []
+  chromaUniqueImgs: [],
+
+  // Asset library loaded from folders
+  library: {
+    background: [],   // [{ name, url }]
+    overlay:    [],
+    stickers:   []
+  }
 };
 
 let livePreviewRAF = null;
 let activePreviewCanvasId = null;
 let currentShotIdx = 0;
-
 let cameraReady = false;
 let cameraStarting = false;
 
+/* -------------------------------------------------------------------------
+   DOM
+   ------------------------------------------------------------------------- */
 const layoutCanvas = document.getElementById('layoutCanvas');
 const lCtx = layoutCanvas.getContext('2d');
 const designCanvas = document.getElementById('designCanvas');
@@ -418,26 +1400,83 @@ const previewVideos = [
   document.getElementById('step5Video')
 ];
 
-// ---------------------------------------------------------------------------
-// NAVIGATION
-// ---------------------------------------------------------------------------
+/* -------------------------------------------------------------------------
+   TOASTS
+   ------------------------------------------------------------------------- */
+function toast(msg, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.textContent = msg;
+  container.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+  setTimeout(() => {
+    el.classList.remove('show');
+    setTimeout(() => el.remove(), 350);
+  }, 2800);
+}
+
+/* -------------------------------------------------------------------------
+   THEME
+   ------------------------------------------------------------------------- */
+function initTheme() {
+  const saved = localStorage.getItem('mbpb_theme');
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = saved || (prefersDark ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', theme);
+}
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('mbpb_theme', next);
+}
+document.getElementById('btnThemeToggle').addEventListener('click', toggleTheme);
+initTheme();
+
+/* -------------------------------------------------------------------------
+   STEPPER
+   ------------------------------------------------------------------------- */
+const STEP_LABELS = ['Camera', 'Layout', 'Design', 'Chroma', 'Capture', 'Result'];
+function renderStepper(activeStep) {
+  const container = document.getElementById('stepper');
+  container.innerHTML = '';
+  STEP_LABELS.forEach((label, i) => {
+    const stepNum = i + 1;
+    const chip = document.createElement('button');
+    chip.className = 'step-chip';
+    if (stepNum === activeStep) chip.classList.add('active');
+    else if (stepNum < activeStep) chip.classList.add('done');
+    chip.innerHTML = `<span class="step-num">${stepNum}</span><span>${label}</span>`;
+    chip.addEventListener('click', () => {
+      if (stepNum === 2 && !cameraReady) { toast('Start the camera first', 'error'); return; }
+      goToStep(stepNum);
+    });
+    container.appendChild(chip);
+  });
+  // Scroll active chip into view
+  const active = container.querySelector('.step-chip.active');
+  if (active) active.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+}
+
+/* -------------------------------------------------------------------------
+   NAVIGATION
+   ------------------------------------------------------------------------- */
 function goToStep(step) {
   document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
   const target = document.getElementById('step' + step);
   if (target) target.classList.add('active');
+  renderStepper(step);
 
   stopLivePreview();
 
-  // Big Android perf win: pause every preview video that isn't in the
-  // newly-active screen so we aren't decoding the same stream N times.
+  // Pause videos that are not in the active screen
   previewVideos.forEach(v => {
-    const inActiveScreen = target && target.contains(v);
-    if (!inActiveScreen) {
-      try { v.pause(); } catch (e) {}
-    }
+    const inActive = target && target.contains(v);
+    if (!inActive && v) { try { v.pause(); } catch (e) {} }
   });
 
-  // Resume only the active screen's video.
+  // Resume active screen's video
   if (target && state.stream) {
     target.querySelectorAll('video.preview-video').forEach(v => {
       if (v.srcObject !== state.stream) v.srcObject = state.stream;
@@ -446,8 +1485,8 @@ function goToStep(step) {
     });
   }
 
-  if (step === 1) { startLivePreview('step1Canvas', false); }
-  if (step === 2) { drawLayout(); }
+  if (step === 1) startLivePreview('step1Canvas', false);
+  if (step === 2) drawLayout();
   if (step === 3) { state.selectedItemIndex = -1; closeEditMenu(); drawDesign(); }
   if (step === 4) { renderChromaUI(); startLivePreview('step4Canvas', true); }
   if (step === 5) {
@@ -455,35 +1494,33 @@ function goToStep(step) {
     currentShotIdx = 0;
     startLivePreview('step5Canvas', true);
   }
-  if (step === 6) { renderFinalResult(); }
+  if (step === 6) renderFinalResult();
 }
 
 function tryGoToStep2() {
-  if (!cameraReady) {
-    alert("Please start the camera first by tapping 'Start Camera'.");
-    return;
-  }
+  if (!cameraReady) { toast('Start the camera first', 'error'); return; }
   goToStep(2);
 }
 
-// ---------------------------------------------------------------------------
-// CAMERA SUBSYSTEM
-// ---------------------------------------------------------------------------
-function setStatus(text, ready) {
+/* -------------------------------------------------------------------------
+   CAMERA
+   ------------------------------------------------------------------------- */
+function setStatus(text, cls) {
   const pill = document.getElementById('camStatusPill');
   const txt = document.getElementById('camStatusText');
   if (!pill || !txt) return;
   txt.textContent = text;
-  pill.classList.toggle('ready', !!ready);
+  pill.classList.remove('ready', 'error');
+  if (cls) pill.classList.add(cls);
 }
 
 function checkCameraSupport() {
   if (!window.isSecureContext) {
-    alert("Camera requires a secure (HTTPS) context.\n\nOpen this page from an https:// URL or localhost — file:// and http:// will not work on most mobile browsers.");
+    toast('Camera needs HTTPS. Open via https:// or localhost.', 'error');
     return false;
   }
   if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
-    alert("This browser does not support camera access (getUserMedia unavailable).");
+    toast('This browser does not support camera access', 'error');
     return false;
   }
   return true;
@@ -496,21 +1533,15 @@ function stopCamera() {
     state.stream = null;
   }
   previewVideos.forEach(v => { try { v.srcObject = null; } catch (e) {} });
-  setStatus('Not started', false);
+  setStatus('Not started');
 }
 
 function waitForMetadata(video, timeoutMs = 15000) {
   return new Promise((resolve, reject) => {
     const start = Date.now();
     const check = () => {
-      if (video.readyState >= 1 && video.videoWidth > 0 && video.videoHeight > 0) {
-        resolve();
-        return;
-      }
-      if (Date.now() - start > timeoutMs) {
-        reject(new Error("Timed out waiting for camera video frames. The camera may be in use by another app."));
-        return;
-      }
+      if (video.readyState >= 1 && video.videoWidth > 0 && video.videoHeight > 0) { resolve(); return; }
+      if (Date.now() - start > timeoutMs) { reject(new Error("Timed out waiting for video frames.")); return; }
       requestAnimationFrame(check);
     };
     check();
@@ -522,7 +1553,7 @@ async function startCamera() {
   if (!checkCameraSupport()) return false;
 
   cameraStarting = true;
-  setStatus('Starting...', false);
+  setStatus('Starting…');
 
   try {
     if (state.stream) {
@@ -532,26 +1563,17 @@ async function startCamera() {
 
     const deviceId = document.getElementById('camDevice').value;
     const facing = document.getElementById('camFacing').value;
-
-    const baseVideo = {
-      width:  { ideal: 1280 },
-      height: { ideal: 720 }
-    };
+    const baseVideo = { width: { ideal: 1280 }, height: { ideal: 720 } };
 
     let stream = null;
-
     if (deviceId) {
       try {
         stream = await navigator.mediaDevices.getUserMedia({
           video: Object.assign({}, baseVideo, { deviceId: { exact: deviceId } }),
           audio: false
         });
-      } catch (err) {
-        console.warn("Exact deviceId failed, falling back to facingMode.", err);
-        stream = null;
-      }
+      } catch (e) { stream = null; }
     }
-
     if (!stream) {
       stream = await navigator.mediaDevices.getUserMedia({
         video: Object.assign({}, baseVideo, { facingMode: { ideal: facing } }),
@@ -560,52 +1582,38 @@ async function startCamera() {
     }
 
     state.stream = stream;
-
-    // Attach stream to EVERY preview video, but only *play* the active one.
-    // Paused hidden videos consume no decoder resources on Android.
-    previewVideos.forEach(v => { v.srcObject = stream; });
+    previewVideos.forEach(v => { if (v) v.srcObject = stream; });
 
     const activeVideo = getActiveVideo() || previewVideos[0];
-    const activePlay = activeVideo.play();
-    if (activePlay && activePlay.catch) {
-      activePlay.catch(err => console.warn("preview play() failed", err));
-    }
+    const p = activeVideo.play();
+    if (p && p.catch) p.catch(() => {});
 
     stream.getVideoTracks().forEach(track => {
-      track.onended = () => {
-        cameraReady = false;
-        setStatus('Camera stopped', false);
-      };
+      track.onended = () => { cameraReady = false; setStatus('Camera stopped'); };
     });
 
-    // Wait for the *visible* preview video to have real frame dimensions.
     await waitForMetadata(activeVideo);
 
-    try {
-      await activeVideo.play();
-    } catch (playErr) {
-      throw new Error("Camera stream acquired but playback failed: " + (playErr && playErr.message ? playErr.message : playErr));
-    }
+    try { await activeVideo.play(); }
+    catch (err) { throw new Error("Stream acquired but playback failed."); }
 
     if (!activeVideo.videoWidth || !activeVideo.videoHeight) {
       await new Promise(r => setTimeout(r, 300));
-      if (!activeVideo.videoWidth || !activeVideo.videoHeight) {
-        throw new Error("Camera started but no video frames were received.");
-      }
+      if (!activeVideo.videoWidth) throw new Error("No video frames received.");
     }
 
     cameraReady = true;
-    setStatus('Camera ready', true);
+    setStatus('Camera ready', 'ready');
+    toast('Camera ready', 'success');
 
     await initDevices();
     document.getElementById('camDevice').disabled = false;
-
     return true;
 
   } catch (e) {
     cameraReady = false;
-    setStatus('Camera error', false);
-    alert("Camera error: " + (e && e.message ? e.message : e));
+    setStatus('Camera error', 'error');
+    toast(e.message || String(e), 'error');
     return false;
   } finally {
     cameraStarting = false;
@@ -616,51 +1624,45 @@ async function initDevices() {
   try {
     if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
     const devices = await navigator.mediaDevices.enumerateDevices();
-    const videoDevs = devices.filter(d => d.kind === 'videoinput');
+    const cams = devices.filter(d => d.kind === 'videoinput');
     const sel = document.getElementById('camDevice');
-    const currentVal = sel.value;
+    const cur = sel.value;
     sel.innerHTML = '<option value="">Auto Select</option>';
-    videoDevs.forEach((d, i) => {
+    cams.forEach((d, i) => {
       const opt = document.createElement('option');
       opt.value = d.deviceId;
       opt.textContent = d.label || ('Camera ' + (i + 1));
       sel.appendChild(opt);
     });
-    if (currentVal) sel.value = currentVal;
-  } catch (e) {
-    console.warn("enumerateDevices failed:", e);
-  }
+    if (cur) sel.value = cur;
+  } catch (e) {}
 }
 
 document.getElementById('btnStartCamera').addEventListener('click', startCamera);
-
 document.getElementById('camFacing').addEventListener('change', () => {
-  document.getElementById('camDevice').value = "";
+  document.getElementById('camDevice').value = '';
   if (cameraReady || state.stream) startCamera();
 });
-
 document.getElementById('btnSwitchCamLive').addEventListener('click', async () => {
-  const facingSel = document.getElementById('camFacing');
-  facingSel.value = (facingSel.value === 'user') ? 'environment' : 'user';
-  document.getElementById('camDevice').value = "";
+  const sel = document.getElementById('camFacing');
+  sel.value = sel.value === 'user' ? 'environment' : 'user';
+  document.getElementById('camDevice').value = '';
   await startCamera();
 });
 
-// ---------------------------------------------------------------------------
-// VIDEO HELPERS
-// ---------------------------------------------------------------------------
+/* -------------------------------------------------------------------------
+   VIDEO HELPERS
+   ------------------------------------------------------------------------- */
 function getActiveVideo() {
   if (!activePreviewCanvasId) return null;
   const canvas = document.getElementById(activePreviewCanvasId);
-  if (!canvas) return null;
-  const container = canvas.parentElement;
-  if (!container) return null;
-  return container.querySelector('video.preview-video');
+  if (!canvas || !canvas.parentElement) return null;
+  return canvas.parentElement.querySelector('video.preview-video');
 }
 
-// ---------------------------------------------------------------------------
-// LIVE PREVIEW ENGINE
-// ---------------------------------------------------------------------------
+/* -------------------------------------------------------------------------
+   LIVE PREVIEW
+   ------------------------------------------------------------------------- */
 function drawChecker(ctx, w, h) {
   const size = 20;
   for (let y = 0; y < h; y += size) {
@@ -671,29 +1673,31 @@ function drawChecker(ctx, w, h) {
   }
 }
 
-function drawWaiting(ctx, canvas) {
-  if (!canvas.width)  canvas.width  = 640;
+function drawWaiting(ctx, canvas, theme) {
+  if (!canvas.width) canvas.width = 640;
   if (!canvas.height) canvas.height = 480;
-  ctx.fillStyle = '#e2e8f0';
+  const dark = theme === 'dark';
+  ctx.fillStyle = dark ? '#131a2b' : '#e2e8f0';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillStyle = '#94a3b8';
-  ctx.font = 'bold 48px system-ui, sans-serif';
-  ctx.fillText('📷', canvas.width / 2, canvas.height / 2 - 40);
-  ctx.fillStyle = '#475569';
+
+  // Camera icon
+  ctx.fillStyle = dark ? '#475569' : '#94a3b8';
+  ctx.font = 'bold 52px system-ui, sans-serif';
+  ctx.fillText('📷', canvas.width / 2, canvas.height / 2 - 30);
+
+  ctx.fillStyle = dark ? '#cbd5e1' : '#475569';
   ctx.font = 'bold 22px system-ui, sans-serif';
-  ctx.fillText('Camera not started', canvas.width / 2, canvas.height / 2 + 15);
-  ctx.fillStyle = '#94a3b8';
-  ctx.font = '16px system-ui, sans-serif';
-  ctx.fillText('Go to Step 1 and tap "Start Camera"', canvas.width / 2, canvas.height / 2 + 45);
+  ctx.fillText('Camera not started', canvas.width / 2, canvas.height / 2 + 25);
+
+  ctx.fillStyle = dark ? '#64748b' : '#94a3b8';
+  ctx.font = '14px system-ui, sans-serif';
+  ctx.fillText('Go to Step 1 and tap "Start Camera"', canvas.width / 2, canvas.height / 2 + 52);
 }
 
 function stopLivePreview() {
-  if (livePreviewRAF) {
-    cancelAnimationFrame(livePreviewRAF);
-    livePreviewRAF = null;
-  }
+  if (livePreviewRAF) { cancelAnimationFrame(livePreviewRAF); livePreviewRAF = null; }
   activePreviewCanvasId = null;
 }
 
@@ -705,39 +1709,36 @@ function startLivePreview(canvasId, useChroma) {
   if (!canvas) return;
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-  // Chroma processing throttle (~12fps). The pixel loop is heavy; running it
-  // slower keeps the camera decoder happy on mid-range Android.
-  const CHROMA_INTERVAL_MS = 1000 / 12;
+  const CHROMA_INTERVAL_MS = 1000 / 12; // ~12fps for chroma preview
   let lastChromaTime = 0;
 
   function loop(ts) {
     if (activePreviewCanvasId !== canvasId) return;
 
+    const theme = document.documentElement.getAttribute('data-theme');
+
     if (!cameraReady || !state.stream) {
-      drawWaiting(ctx, canvas);
+      drawWaiting(ctx, canvas, theme);
       livePreviewRAF = requestAnimationFrame(loop);
       return;
     }
 
     const video = getActiveVideo();
     if (!video || video.readyState < 2 || !video.videoWidth) {
-      drawWaiting(ctx, canvas);
+      drawWaiting(ctx, canvas, theme);
       livePreviewRAF = requestAnimationFrame(loop);
       return;
     }
 
-    // Chroma preview runs at 320px wide (4x less pixel work than 640px).
-    // Non-chroma preview runs at 640px since it's just a clearRect.
     const previewW = useChroma ? 320 : 640;
     const targetW = previewW;
     const targetH = Math.round(previewW * (video.videoHeight / video.videoWidth));
     if (canvas.width !== targetW || canvas.height !== targetH) {
-      canvas.width  = targetW;
+      canvas.width = targetW;
       canvas.height = targetH;
     }
 
     if (!useChroma || !state.chromaEnabled) {
-      // Clear the canvas so the visible video underneath shows through.
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     } else {
       const now = ts || performance.now();
@@ -749,83 +1750,63 @@ function startLivePreview(canvasId, useChroma) {
         else if (state.chromaMode === 'unique') bgImg = state.chromaUniqueImgs[currentShotIdx];
         else if (state.chromaMode === 'transparent') bgImg = state.bgImg;
 
-        if (bgImg) {
-          drawCover(ctx, bgImg, 0, 0, canvas.width, canvas.height, false);
-        } else {
-          drawChecker(ctx, canvas.width, canvas.height);
-        }
+        if (bgImg) drawCover(ctx, bgImg, 0, 0, canvas.width, canvas.height, false);
+        else drawChecker(ctx, canvas.width, canvas.height);
 
         const bgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
 
-        processCanvas.width  = canvas.width;
+        processCanvas.width = canvas.width;
         processCanvas.height = canvas.height;
         drawCover(pCtx, video, 0, 0, processCanvas.width, processCanvas.height, false);
         const fg = pCtx.getImageData(0, 0, processCanvas.width, processCanvas.height);
 
         const key = hexToRgb(document.getElementById('chromaColor').value);
-        const th  = Number(document.getElementById('chromaIntensity').value);
+        const th = Number(document.getElementById('chromaIntensity').value);
+        const th2 = th * th;
 
         const fgD = fg.data;
-        const bgD = bgData;
         const kr = key.r, kg = key.g, kb = key.b;
-        const th2 = th * th;
         for (let i = 0; i < fgD.length; i += 4) {
-          const dr = fgD[i]   - kr;
-          const dg = fgD[i+1] - kg;
-          const db = fgD[i+2] - kb;
+          const dr = fgD[i] - kr, dg = fgD[i+1] - kg, db = fgD[i+2] - kb;
           if ((dr*dr + dg*dg + db*db) < th2) {
-            fgD[i]   = bgD[i];
-            fgD[i+1] = bgD[i+1];
-            fgD[i+2] = bgD[i+2];
-            fgD[i+3] = bgD[i+3];
+            fgD[i] = bgData[i];
+            fgD[i+1] = bgData[i+1];
+            fgD[i+2] = bgData[i+2];
+            fgD[i+3] = bgData[i+3];
           }
         }
         ctx.putImageData(fg, 0, 0);
       }
-      // else: skip frame — keep the last processed image on-screen
     }
 
     livePreviewRAF = requestAnimationFrame(loop);
   }
-
   livePreviewRAF = requestAnimationFrame(loop);
 }
 
-// ---------------------------------------------------------------------------
-// LAYOUT
-// ---------------------------------------------------------------------------
+/* -------------------------------------------------------------------------
+   LAYOUT
+   ------------------------------------------------------------------------- */
+function renderPresetGrid() {
+  const grid = document.getElementById('presetGrid');
+  grid.innerHTML = '';
+  Object.entries(LAYOUT_PRESETS).forEach(([key, preset]) => {
+    const btn = document.createElement('button');
+    btn.className = 'preset-btn';
+    btn.dataset.preset = key;
+    btn.innerHTML = `<div class="preset-icon">${preset.icon}</div><span>${preset.label}</span>`;
+    btn.addEventListener('click', () => applyPreset(key));
+    grid.appendChild(btn);
+  });
+}
+
 function applyPreset(type) {
+  if (!LAYOUT_PRESETS[type]) return;
+  state.currentPreset = type;
   document.querySelectorAll('.preset-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.preset === type);
   });
-
-  state.layoutBoxes = [];
-  if (type === '1') state.layoutBoxes.push({x: 100, y: 150, w: 1000, h: 1500});
-  else if (type === '4-grid') state.layoutBoxes = [
-    {x: 60, y: 60, w: 510, h: 810},
-    {x: 630, y: 60, w: 510, h: 810},
-    {x: 60, y: 930, w: 510, h: 810},
-    {x: 630, y: 930, w: 510, h: 810}
-  ];
-  else if (type === '3-strip') state.layoutBoxes = [
-    {x: 100, y: 100, w: 1000, h: 500},
-    {x: 100, y: 650, w: 1000, h: 500},
-    {x: 100, y: 1200, w: 1000, h: 500}
-  ];
-  else if (type === '4-strip') state.layoutBoxes = [
-    {x: 100, y: 80, w: 1000, h: 380},
-    {x: 100, y: 500, w: 1000, h: 380},
-    {x: 100, y: 920, w: 1000, h: 380},
-    {x: 100, y: 1340, w: 1000, h: 380}
-  ];
-  else if (type === '8-grid') {
-    for (let r = 0; r < 4; r++) {
-      for (let c = 0; c < 2; c++) {
-        state.layoutBoxes.push({x: c * 550 + 60, y: r * 420 + 60, w: 490, h: 380});
-      }
-    }
-  }
-
+  state.layoutBoxes = LAYOUT_PRESETS[type].boxes.map(b => ({ ...b }));
   state.shotsTotal = state.layoutBoxes.length;
 
   while (state.chromaUniqueImgs.length < state.shotsTotal) state.chromaUniqueImgs.push(null);
@@ -835,17 +1816,50 @@ function applyPreset(type) {
 }
 
 function drawLayout() {
-  lCtx.fillStyle = '#ffffff'; lCtx.fillRect(0, 0, W, H);
-  lCtx.fillStyle = '#1e293b';
+  lCtx.fillStyle = '#ffffff';
+  lCtx.fillRect(0, 0, W, H);
+
+  // Draw a subtle print border
+  lCtx.strokeStyle = '#e2e8f0';
+  lCtx.lineWidth = 2;
+  lCtx.strokeRect(30, 30, W - 60, H - 60);
+
   state.layoutBoxes.forEach((b, i) => {
-    lCtx.fillRect(b.x, b.y, b.w, b.h);
-    lCtx.fillStyle = '#ffffff'; lCtx.font = "bold 80px Arial"; lCtx.textAlign = "center";
-    lCtx.fillText(i + 1, b.x + b.w / 2, b.y + b.h / 2 + 30);
-    lCtx.fillStyle = '#1e293b';
+    // Gradient fill
+    const grad = lCtx.createLinearGradient(b.x, b.y, b.x, b.y + b.h);
+    grad.addColorStop(0, '#334155');
+    grad.addColorStop(1, '#1e293b');
+    lCtx.fillStyle = grad;
+
+    // Rounded rect
+    roundRect(lCtx, b.x, b.y, b.w, b.h, 12);
+    lCtx.fill();
+
+    // Number
+    lCtx.fillStyle = '#ffffff';
+    lCtx.font = `bold ${Math.min(b.w, b.h) * 0.3}px 'Inter', sans-serif`;
+    lCtx.textAlign = 'center';
+    lCtx.textBaseline = 'middle';
+    lCtx.fillText(i + 1, b.x + b.w / 2, b.y + b.h / 2);
   });
 }
 
-let draggingBox = -1, dragBoxOffset = {x: 0, y: 0};
+function roundRect(ctx, x, y, w, h, r) {
+  r = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+let draggingBox = -1, dragBoxOffset = { x: 0, y: 0 };
 layoutCanvas.addEventListener('pointerdown', e => {
   const p = getCanvasPos(e, layoutCanvas);
   draggingBox = state.layoutBoxes.findIndex(b => p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h);
@@ -862,61 +1876,272 @@ layoutCanvas.addEventListener('pointermove', e => {
 layoutCanvas.addEventListener('pointerup', () => draggingBox = -1);
 layoutCanvas.addEventListener('pointercancel', () => draggingBox = -1);
 
-// ---------------------------------------------------------------------------
-// DESIGN ENGINE
-// ---------------------------------------------------------------------------
+/* -------------------------------------------------------------------------
+   DESIGN ENGINE
+   ------------------------------------------------------------------------- */
 function getCanvasPos(evt, canvas) {
   const rect = canvas.getBoundingClientRect();
   return {
     x: (evt.clientX - rect.left) * (W / rect.width),
-    y: (evt.clientY - rect.top)  * (H / rect.height)
+    y: (evt.clientY - rect.top) * (H / rect.height)
   };
 }
 
-function loadImg(file, callback) {
-  if (!file) return;
-  const img = new Image();
-  img.onload = () => callback(img);
-  img.src = URL.createObjectURL(file);
+/* --- HEIC support (lazy-loaded) --- */
+let heicLibPromise = null;
+function ensureHeicLib() {
+  if (window.heic2any) return Promise.resolve(window.heic2any);
+  if (heicLibPromise) return heicLibPromise;
+  heicLibPromise = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js';
+    s.onload = () => resolve(window.heic2any);
+    s.onerror = () => { heicLibPromise = null; reject(new Error('Could not load HEIC decoder')); };
+    document.head.appendChild(s);
+  });
+  return heicLibPromise;
 }
 
+function isHeic(file) {
+  return /\.(heic|heif)$/i.test(file.name) || file.type === 'image/heic' || file.type === 'image/heif';
+}
+
+async function loadFileAsImage(file) {
+  // Accepts File or Blob or URL string. Returns an HTMLImageElement.
+  let url;
+  let revoke = null;
+
+  if (typeof file === 'string') {
+    url = file;
+  } else if (isHeic(file) && !window.heic2any) {
+    // Try decoding HEIC via CDN library
+    try {
+      const heic2any = await ensureHeicLib();
+      const blob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 });
+      url = URL.createObjectURL(Array.isArray(blob) ? blob[0] : blob);
+      revoke = url;
+    } catch (e) {
+      throw new Error('HEIC file could not be decoded in this browser.');
+    }
+  } else if (typeof file === 'object' && file instanceof Blob) {
+    url = URL.createObjectURL(file);
+    revoke = url;
+  } else {
+    throw new Error('Unsupported file');
+  }
+
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      if (revoke) URL.revokeObjectURL(revoke);
+      resolve(img);
+    };
+    img.onerror = () => {
+      if (revoke) URL.revokeObjectURL(revoke);
+      reject(new Error('Could not load image'));
+    };
+    img.src = url;
+  });
+}
+
+async function loadImgInput(inputEl, callback) {
+  const file = inputEl.files && inputEl.files[0];
+  if (!file) return;
+  try {
+    const img = await loadFileAsImage(file);
+    callback(img);
+  } catch (e) {
+    toast(e.message || 'Could not load image', 'error');
+  } finally {
+    inputEl.value = '';
+  }
+}
+
+/* --- File inputs --- */
 document.getElementById('fileBg').addEventListener('change', e =>
-  loadImg(e.target.files[0], img => { state.bgImg = img; drawDesign(); }));
+  loadImgInput(e.target, img => { state.bgImg = img; drawDesign(); toast('Background applied', 'success'); }));
 
 document.getElementById('fileOverlay').addEventListener('change', e =>
-  loadImg(e.target.files[0], img => { state.overlayImg = img; drawDesign(); }));
+  loadImgInput(e.target, img => { state.overlayImg = img; drawDesign(); toast('Overlay applied', 'success'); }));
 
-document.getElementById('fileSticker').addEventListener('change', e => {
-  loadImg(e.target.files[0], img => {
+document.getElementById('fileSticker').addEventListener('change', e =>
+  loadImgInput(e.target, img => {
     state.items.push({
-      type: 'sticker', img: img, x: W / 2, y: H / 2,
+      type: 'sticker', img, x: W / 2, y: H / 2,
       size: 1, rotation: 0, flipX: false, w: img.width, h: img.height
     });
-    e.target.value = "";
     drawDesign();
-  });
-});
+    toast('Sticker added', 'success');
+  }));
 
-function clearBg() { state.bgImg = null; document.getElementById('fileBg').value = ""; drawDesign(); }
-function clearOverlay() { state.overlayImg = null; document.getElementById('fileOverlay').value = ""; drawDesign(); }
+/* --- Folder loading --- */
+function attachFolderLoader(inputId, kind, onLoaded) {
+  const el = document.getElementById(inputId);
+  if (!el) return;
+  el.addEventListener('change', async e => {
+    const files = Array.from(e.target.files || []);
+    const images = files.filter(f => /\.(png|jpe?g|webp|gif|heic|heif)$/i.test(f.name));
+    if (!images.length) { toast('No images found in that folder', 'error'); return; }
+
+    const items = images.map(f => ({
+      name: f.name,
+      url: URL.createObjectURL(f), // Blob URL for local folder
+      file: f
+    }));
+    state.library[kind] = items;
+    renderGallery(kind);
+    toast(`Loaded ${items.length} ${kind} image${items.length > 1 ? 's' : ''}`, 'success');
+    if (onLoaded) onLoaded(items);
+  });
+}
+
+attachFolderLoader('fileBgFolder', 'background');
+attachFolderLoader('fileOverlayFolder', 'overlay');
+attachFolderLoader('fileStickerFolder', 'stickers');
+
+/* --- Manifest auto-load ---
+   When the app is served over HTTP, it will try to fetch
+   `background/manifest.json`, `overlay/manifest.json` and
+   `stickers/manifest.json`. If found, they populate the library.
+
+   Manifest format:
+     { "files": ["wall1.jpg", "wall2.png", ...] }
+   or plain array:
+     [ "wall1.jpg", "wall2.png" ]
+--- */
+async function tryLoadManifest(kind) {
+  const candidates = [
+    `${kind}/manifest.json`,
+    `${kind}/index.json`
+  ];
+  for (const path of candidates) {
+    try {
+      const res = await fetch(path, { cache: 'no-cache' });
+      if (!res.ok) continue;
+      const data = await res.json();
+      const list = Array.isArray(data) ? data : (data.files || data.images || []);
+      if (!Array.isArray(list) || !list.length) continue;
+
+      state.library[kind] = list.map(name => ({
+        name,
+        url: `${kind}/${encodeURIComponent(name)}`
+      }));
+      renderGallery(kind);
+      return true;
+    } catch (e) { /* try next */ }
+  }
+  return false;
+}
+
+/* --- Gallery rendering --- */
+function renderGallery(kind) {
+  const map = {
+    background: { gallery: 'bgGallery', empty: 'bgGalleryEmpty' },
+    overlay:    { gallery: 'overlayGallery', empty: 'overlayGalleryEmpty' },
+    stickers:   { gallery: 'stickerGallery', empty: 'stickerGalleryEmpty' }
+  };
+  const ids = map[kind];
+  if (!ids) return;
+
+  const gallery = document.getElementById(ids.gallery);
+  const emptyState = document.getElementById(ids.empty);
+  const items = state.library[kind] || [];
+
+  gallery.innerHTML = '';
+  if (!items.length) {
+    if (emptyState) emptyState.style.display = 'block';
+    return;
+  }
+  if (emptyState) emptyState.style.display = 'none';
+
+  items.forEach((item, i) => {
+    const thumb = document.createElement('div');
+    thumb.className = 'asset-thumb';
+    thumb.dataset.name = item.name;
+    thumb.style.backgroundImage = `url("${item.url}")`;
+    thumb.addEventListener('click', () => applyLibraryItem(kind, item, thumb));
+    gallery.appendChild(thumb);
+  });
+}
+
+async function applyLibraryItem(kind, item, thumb) {
+  try {
+    let img;
+    if (item.file) {
+      img = await loadFileAsImage(item.file);
+    } else {
+      img = await loadFileAsImage(item.url);
+    }
+
+    // Mark selected
+    const siblings = thumb.parentElement.querySelectorAll('.asset-thumb');
+    siblings.forEach(s => s.classList.remove('selected'));
+    thumb.classList.add('selected');
+
+    if (kind === 'background') {
+      state.bgImg = img;
+      drawDesign();
+      toast('Background applied', 'success');
+    } else if (kind === 'overlay') {
+      state.overlayImg = img;
+      drawDesign();
+      toast('Overlay applied', 'success');
+    } else if (kind === 'stickers') {
+      state.items.push({
+        type: 'sticker', img, x: W / 2, y: H / 2,
+        size: 1, rotation: 0, flipX: false, w: img.width, h: img.height
+      });
+      drawDesign();
+      toast('Sticker added', 'success');
+    }
+  } catch (e) {
+    toast('Could not load image', 'error');
+  }
+}
+
+/* --- Clear / Toggles --- */
+function clearBg() { state.bgImg = null; drawDesign(); toast('Background cleared'); }
+function clearOverlay() { state.overlayImg = null; drawDesign(); toast('Overlay cleared'); }
 function toggleFlipBg() { state.bgFlip = document.getElementById('chkFlipBg').checked; drawDesign(); }
 function toggleFlipOverlay() { state.overlayFlip = document.getElementById('chkFlipOverlay').checked; drawDesign(); }
 
+/* --- Text --- */
+function buildFontSelect() {
+  const sel = document.getElementById('textFont');
+  sel.innerHTML = '';
+  FONT_GROUPS.forEach(group => {
+    const og = document.createElement('optgroup');
+    og.label = group.label;
+    group.fonts.forEach(f => {
+      const opt = document.createElement('option');
+      opt.value = f;
+      opt.textContent = f;
+      opt.style.fontFamily = `'${f}', sans-serif`;
+      og.appendChild(opt);
+    });
+    sel.appendChild(og);
+  });
+}
+
 function addText() {
   const txt = document.getElementById('textInput').value.trim();
-  if (!txt) return;
+  if (!txt) { toast('Enter some text first', 'error'); return; }
   state.items.push({
     type: 'text', text: txt, x: W / 2, y: H / 2,
     size: 1, rotation: 0, flipX: false,
     color: document.getElementById('textColor').value,
     font: document.getElementById('textFont').value
   });
-  document.getElementById('textInput').value = "";
+  document.getElementById('textInput').value = '';
   drawDesign();
+  toast('Text added', 'success');
 }
 
+/* --- Design rendering --- */
 function drawDesign(ctx = dCtx, isFinal = false) {
-  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, W, H);
   if (state.bgImg) drawCover(ctx, state.bgImg, 0, 0, W, H, state.bgFlip);
 
   state.layoutBoxes.forEach((b, i) => {
@@ -924,9 +2149,14 @@ function drawDesign(ctx = dCtx, isFinal = false) {
     if (isFinal && state.captures[i]) {
       drawCover(ctx, state.captures[i], b.x, b.y, b.w, b.h, false);
     } else {
-      ctx.fillStyle = '#cbd5e1'; ctx.fillRect(b.x, b.y, b.w, b.h);
-      ctx.fillStyle = '#ffffff'; ctx.font = "bold 60px Arial"; ctx.textAlign = "center";
-      ctx.fillText("Photo " + (i + 1), b.x + b.w / 2, b.y + b.h / 2 + 20);
+      ctx.fillStyle = '#e2e8f0';
+      roundRect(ctx, b.x, b.y, b.w, b.h, 12);
+      ctx.fill();
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = `bold ${Math.min(b.w, b.h) * 0.12}px 'Inter', sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Photo ' + (i + 1), b.x + b.w / 2, b.y + b.h / 2);
     }
     ctx.restore();
   });
@@ -945,11 +2175,12 @@ function drawDesign(ctx = dCtx, isFinal = false) {
       if (!isFinal && i === state.selectedItemIndex) drawDashedBox(ctx, -dw / 2, -dh / 2, dw, dh);
     } else if (it.type === 'text') {
       const fSize = 80 * it.size;
-      ctx.font = `bold ${fSize}px ${it.font}`;
+      ctx.font = `700 ${fSize}px '${it.font}', sans-serif`;
       ctx.fillStyle = it.color;
-      ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+      ctx.strokeStyle = 'rgba(0,0,0,0.55)';
       ctx.lineWidth = Math.max(4, 4 * it.size);
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
       ctx.strokeText(it.text, 0, 0);
       ctx.fillText(it.text, 0, 0);
       if (!isFinal && i === state.selectedItemIndex) {
@@ -961,12 +2192,10 @@ function drawDesign(ctx = dCtx, isFinal = false) {
   });
 }
 
-/* drawCover correctly handles <video>, <img>, and ImageBitmap sources. */
 function drawCover(ctx, src, x, y, w, h, flip) {
   const iw = src.videoWidth || src.naturalWidth || src.width;
   const ih = src.videoHeight || src.naturalHeight || src.height;
   if (!iw || !ih) return;
-
   ctx.save();
   const r = Math.max(w / iw, h / ih);
   const nw = iw * r, nh = ih * r;
@@ -975,20 +2204,21 @@ function drawCover(ctx, src, x, y, w, h, flip) {
     ctx.scale(-1, 1);
     ctx.drawImage(src, (w - nw) / 2, (h - nh) / 2, nw, nh);
   } else {
-    const cx = x + (w - nw) / 2;
-    const cy = y + (h - nh) / 2;
-    ctx.drawImage(src, cx, cy, nw, nh);
+    ctx.drawImage(src, x + (w - nw) / 2, y + (h - nh) / 2, nw, nh);
   }
   ctx.restore();
 }
 
 function drawDashedBox(ctx, x, y, w, h) {
-  ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 4;
-  ctx.setLineDash([15, 15]);
+  ctx.strokeStyle = '#6366f1';
+  ctx.lineWidth = 4;
+  ctx.setLineDash([14, 14]);
   ctx.strokeRect(x, y, w, h);
+  ctx.setLineDash([]);
 }
 
-let dragItem = -1, itemOffset = {x: 0, y: 0};
+/* --- Item interactions --- */
+let dragItem = -1, itemOffset = { x: 0, y: 0 };
 
 designCanvas.addEventListener('pointerdown', e => {
   const p = getCanvasPos(e, designCanvas);
@@ -1002,12 +2232,12 @@ designCanvas.addEventListener('pointerdown', e => {
     let hit = false;
     if (it.type === 'sticker') {
       const w2 = (it.w * it.size) / 2, h2 = (it.h * it.size) / 2;
-      hit = (rx >= -w2 && rx <= w2 && ry >= -h2 && ry <= h2);
+      hit = rx >= -w2 && rx <= w2 && ry >= -h2 && ry <= h2;
     } else {
-      dCtx.font = `bold ${80 * it.size}px ${it.font}`;
+      dCtx.font = `700 ${80 * it.size}px '${it.font}', sans-serif`;
       const w2 = dCtx.measureText(it.text).width / 2;
       const h2 = (80 * it.size) / 2;
-      hit = (rx >= -w2 && rx <= w2 && ry >= -h2 && ry <= h2);
+      hit = rx >= -w2 && rx <= w2 && ry >= -h2 && ry <= h2;
     }
     if (hit) {
       dragItem = i;
@@ -1065,27 +2295,36 @@ document.getElementById('btnFlipItem').addEventListener('click', () => {
 document.getElementById('editColor').addEventListener('input', e => {
   if (state.selectedItemIndex > -1) { state.items[state.selectedItemIndex].color = e.target.value; drawDesign(); }
 });
+document.getElementById('btnDuplicateItem').addEventListener('click', () => {
+  const i = state.selectedItemIndex;
+  if (i < 0) return;
+  const clone = { ...state.items[i] };
+  clone.x += 40;
+  clone.y += 40;
+  state.items.push(clone);
+  selectItem(state.items.length - 1);
+  toast('Duplicated', 'success');
+});
 document.getElementById('btnDeleteItem').addEventListener('click', () => {
   if (state.selectedItemIndex > -1) {
     state.items.splice(state.selectedItemIndex, 1);
     selectItem(-1);
+    toast('Deleted');
   }
 });
 
-// ---------------------------------------------------------------------------
-// CHROMA UI
-// ---------------------------------------------------------------------------
+/* -------------------------------------------------------------------------
+   CHROMA UI
+   ------------------------------------------------------------------------- */
 function toggleChromaUI() {
   state.chromaEnabled = document.getElementById('chkChroma').checked;
   document.getElementById('chromaSettings').style.display = state.chromaEnabled ? 'block' : 'none';
 }
-
 function updateChromaMode() {
   state.chromaMode = document.querySelector('input[name="chromaMode"]:checked').value;
-  document.getElementById('chromaSingleWrap').style.display = (state.chromaMode === 'single') ? 'block' : 'none';
-  document.getElementById('chromaUniqueWrap').style.display = (state.chromaMode === 'unique') ? 'block' : 'none';
+  document.getElementById('chromaSingleWrap').style.display = state.chromaMode === 'single' ? 'block' : 'none';
+  document.getElementById('chromaUniqueWrap').style.display = state.chromaMode === 'unique' ? 'block' : 'none';
 }
-
 function renderChromaUI() {
   const container = document.getElementById('uniqueInputsContainer');
   container.innerHTML = '';
@@ -1094,23 +2333,36 @@ function renderChromaUI() {
 
   for (let i = 0; i < state.shotsTotal; i++) {
     const box = document.createElement('div');
-    box.className = 'unique-upload-box';
-    box.innerHTML = `<label style="margin-bottom:4px">Background for Shot ${i + 1}</label>
-                     <input type="file" accept="image/*" id="uniqueChromaFile_${i}">`;
+    box.style.cssText = 'background: var(--bg-subtle); padding:10px; border-radius:10px; margin-bottom:8px; border:1px dashed var(--border-strong);';
+    box.innerHTML = `<label class="field-label" style="margin-bottom:6px;">Shot ${i + 1}</label>
+                     <input type="file" accept="image/*,.heic,.heif,.webp,.gif,.jpg,.jpeg,.png" id="uniqueChromaFile_${i}" style="margin:0;">`;
     container.appendChild(box);
-    document.getElementById(`uniqueChromaFile_${i}`).addEventListener('change', e => {
-      loadImg(e.target.files[0], img => { state.chromaUniqueImgs[i] = img; });
+    document.getElementById(`uniqueChromaFile_${i}`).addEventListener('change', async e => {
+      const f = e.target.files[0];
+      if (!f) return;
+      try {
+        const img = await loadFileAsImage(f);
+        state.chromaUniqueImgs[i] = img;
+        toast(`Shot ${i + 1} background set`, 'success');
+      } catch (err) { toast(err.message, 'error'); }
+      e.target.value = '';
     });
   }
 }
-
-document.getElementById('fileChromaSingle').addEventListener('change', e => {
-  loadImg(e.target.files[0], img => { state.chromaSingleImg = img; });
+document.getElementById('fileChromaSingle').addEventListener('change', async e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  try {
+    const img = await loadFileAsImage(f);
+    state.chromaSingleImg = img;
+    toast('Chroma background set', 'success');
+  } catch (err) { toast(err.message, 'error'); }
+  e.target.value = '';
 });
 
-// ---------------------------------------------------------------------------
-// FINAL CAPTURE
-// ---------------------------------------------------------------------------
+/* -------------------------------------------------------------------------
+   CAPTURE
+   ------------------------------------------------------------------------- */
 function hexToRgb(hex) {
   const m = hex.replace('#', '');
   return {
@@ -1119,14 +2371,13 @@ function hexToRgb(hex) {
     b: parseInt(m.substring(4, 6), 16)
   };
 }
-
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 async function captureFinalFrame(shotIndex) {
   const video = getActiveVideo() || previewVideos.find(v => v.videoWidth > 0);
   if (!video || !video.videoWidth) return null;
 
-  processCanvas.width  = video.videoWidth;
+  processCanvas.width = video.videoWidth;
   processCanvas.height = video.videoHeight;
   pCtx.drawImage(video, 0, 0, processCanvas.width, processCanvas.height);
 
@@ -1138,7 +2389,7 @@ async function captureFinalFrame(shotIndex) {
     let customBgData = null;
     if (bgImg) {
       const tCanvas = document.createElement('canvas');
-      tCanvas.width  = processCanvas.width;
+      tCanvas.width = processCanvas.width;
       tCanvas.height = processCanvas.height;
       const tCtx = tCanvas.getContext('2d');
       drawCover(tCtx, bgImg, 0, 0, tCanvas.width, tCanvas.height, false);
@@ -1147,21 +2398,18 @@ async function captureFinalFrame(shotIndex) {
 
     const fg = pCtx.getImageData(0, 0, processCanvas.width, processCanvas.height);
     const key = hexToRgb(document.getElementById('chromaColor').value);
-    const th  = Number(document.getElementById('chromaIntensity').value);
+    const th = Number(document.getElementById('chromaIntensity').value);
     const th2 = th * th;
-
     const fgD = fg.data;
     const kr = key.r, kg = key.g, kb = key.b;
 
     for (let i = 0; i < fgD.length; i += 4) {
-      const dr = fgD[i]   - kr;
-      const dg = fgD[i+1] - kg;
-      const db = fgD[i+2] - kb;
+      const dr = fgD[i] - kr, dg = fgD[i+1] - kg, db = fgD[i+2] - kb;
       if ((dr*dr + dg*dg + db*db) < th2) {
         if (state.chromaMode === 'transparent' || !customBgData) {
           fgD[i+3] = 0;
         } else {
-          fgD[i]   = customBgData[i];
+          fgD[i] = customBgData[i];
           fgD[i+1] = customBgData[i+1];
           fgD[i+2] = customBgData[i+2];
           fgD[i+3] = customBgData[i+3];
@@ -1178,26 +2426,22 @@ async function captureFinalFrame(shotIndex) {
 }
 
 document.getElementById('btnStartSession').addEventListener('click', async () => {
-  if (!cameraReady) {
-    alert("Camera is not ready. Please go back to Step 1 and start the camera.");
-    return;
-  }
+  if (!cameraReady) { toast('Camera not ready', 'error'); return; }
 
   state.captures = [];
-  const btnBack   = document.getElementById('btnBackToChroma');
-  const btnStart  = document.getElementById('btnStartSession');
+  const btnBack = document.getElementById('btnBackToChroma');
+  const btnStart = document.getElementById('btnStartSession');
   const btnSwitch = document.getElementById('btnSwitchCamLive');
-
   btnBack.style.display = 'none';
   btnStart.style.display = 'none';
   btnSwitch.style.display = 'none';
 
-  const delay  = parseInt(document.getElementById('countdownSecs').value) || 3;
+  const delay = parseInt(document.getElementById('countdownSecs').value) || 3;
   const status = document.getElementById('captureStatus');
 
   for (let i = 0; i < state.shotsTotal; i++) {
     currentShotIdx = i;
-    status.innerText = `Taking photo ${i + 1} of ${state.shotsTotal}...`;
+    status.innerText = `Taking photo ${i + 1} of ${state.shotsTotal}…`;
 
     document.getElementById('countdownOverlay').style.display = 'flex';
     for (let s = delay; s > 0; s--) {
@@ -1208,38 +2452,83 @@ document.getElementById('btnStartSession').addEventListener('click', async () =>
 
     const flash = document.getElementById('flashOverlay');
     flash.style.opacity = '1';
-    setTimeout(() => flash.style.opacity = '0', 100);
+    setTimeout(() => flash.style.opacity = '0', 110);
 
     const img = await captureFinalFrame(i);
     if (img) state.captures.push(img);
-    await sleep(500);
+    await sleep(450);
   }
 
-  btnBack.style.display = 'block';
-  btnStart.style.display = 'block';
-  btnSwitch.style.display = 'block';
-  status.innerText = "Session Complete!";
+  btnBack.style.display = 'flex';
+  btnStart.style.display = 'flex';
+  btnSwitch.style.display = 'flex';
+  status.innerText = 'Session complete';
+  toast('All shots captured', 'success');
   goToStep(6);
 });
 
-// ---------------------------------------------------------------------------
-// RESULT
-// ---------------------------------------------------------------------------
+/* -------------------------------------------------------------------------
+   RESULT
+   ------------------------------------------------------------------------- */
 function renderFinalResult() { drawDesign(rCtx, true); }
 
 function exportFinalImage() {
   const a = document.createElement('a');
-  a.download = 'mediabox_booth_final.jpg';
+  a.download = `mediabox_booth_${Date.now()}.jpg`;
   a.href = resultCanvas.toDataURL('image/jpeg', 0.95);
   a.click();
 }
+document.getElementById('btnDownload').addEventListener('click', exportFinalImage);
 
-// ---------------------------------------------------------------------------
-// BOOT
-// ---------------------------------------------------------------------------
-applyPreset('4-grid');
-goToStep(1);
-setStatus('Not started', false);
+document.getElementById('btnShareImage').addEventListener('click', async () => {
+  try {
+    const blob = await new Promise(res => resultCanvas.toBlob(res, 'image/jpeg', 0.95));
+    const file = new File([blob], 'mediabox_booth.jpg', { type: 'image/jpeg' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: 'My PhotoBooth' });
+    } else {
+      toast('Sharing not supported — try downloading', 'error');
+    }
+  } catch (e) { /* user cancelled */ }
+});
+
+document.getElementById('btnPrintImage').addEventListener('click', () => {
+  const dataUrl = resultCanvas.toDataURL('image/jpeg', 0.95);
+  const win = window.open('', '_blank');
+  if (!win) { toast('Pop-up blocked', 'error'); return; }
+  win.document.write(`
+    <html><head><title>Print</title>
+    <style>
+      @page { size: 4in 6in; margin: 0; }
+      body { margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; height: 100vh; background: white; }
+      img { max-width: 100%; max-height: 100%; display: block; }
+    </style></head>
+    <body><img src="${dataUrl}" onload="window.print(); window.close();"></body></html>
+  `);
+  win.document.close();
+});
+
+/* -------------------------------------------------------------------------
+   BOOT
+   ------------------------------------------------------------------------- */
+async function boot() {
+  renderPresetGrid();
+  buildFontSelect();
+  applyPreset('4-grid');
+  goToStep(1);
+  setStatus('Not started');
+
+  // Auto-load any asset manifests (silent if not present)
+  tryLoadManifest('background');
+  tryLoadManifest('overlay');
+  tryLoadManifest('stickers');
+
+  // Ensure empty state shows if library empty
+  setTimeout(() => {
+    ['background', 'overlay', 'stickers'].forEach(k => renderGallery(k));
+  }, 100);
+}
+boot();
 </script>
 </body>
 </html>
