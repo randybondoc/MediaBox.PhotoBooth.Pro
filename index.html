@@ -13,28 +13,29 @@
     }
     * { box-sizing: border-box; }
     body { font-family: system-ui, -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-    
+
     .screen { display: none; flex-direction: column; height: 100%; overflow-y: auto; padding-bottom: 100px; }
     .screen.active { display: flex; }
-    
+
     header { padding: 16px; background: var(--card); border-bottom: 1px solid var(--border); text-align: center; flex-shrink: 0; }
     .app-brand { font-size: 0.75rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
     header h1 { margin: 0; font-size: 1.25rem; }
     header p { margin: 4px 0 0; font-size: 0.875rem; color: #64748b; }
 
     .content { padding: 16px; max-width: 600px; margin: 0 auto; width: 100%; flex: 1; }
-    
+
     .action-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); padding: 12px 16px 8px; border-top: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; z-index: 100; box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.05); }
     .buttons-wrap { display: flex; justify-content: center; gap: 12px; width: 100%; }
     .credits { font-size: 0.7rem; color: #94a3b8; margin-top: 10px; text-align: center; }
 
     button { padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: opacity 0.2s; }
     button:active { opacity: 0.8; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-primary { background: var(--primary); color: white; width: 100%; max-width: 300px; }
     .btn-success { background: var(--success); color: white; width: 100%; max-width: 300px; }
     .btn-secondary { background: #e2e8f0; color: #334155; }
     .btn-danger { background: var(--danger); color: white; }
-    
+
     .card { background: var(--card); padding: 16px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 16px; }
     .card-title { font-weight: 600; margin-bottom: 12px; font-size: 1.1rem; }
     label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 4px; color: #475569; }
@@ -42,29 +43,45 @@
     select, input[type="text"], input[type="number"], input[type="range"] { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 12px; font-size: 1rem; }
     .flex-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
     .hint { font-size: 0.75rem; color: #64748b; margin-top: -8px; margin-bottom: 12px; display: block; }
-    
+
     .preset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
     .preset-btn { border: 2px solid var(--border); background: transparent; padding: 8px; border-radius: 8px; color: var(--text); }
     .preset-btn.active { border-color: var(--primary); background: #eff6ff; }
 
     .canvas-container { position: relative; width: 100%; max-width: 400px; margin: 0 auto 16px; aspect-ratio: 4/3; background: #e2e8f0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
-    .design-container { aspect-ratio: 2/3; } /* For 4x6 vertical ratio */
+    .design-container { aspect-ratio: 2/3; }
     canvas { width: 100%; height: 100%; display: block; touch-action: none; }
-    
+
     #editMenu { display: none; background: #f8fafc; border: 1px solid var(--border); padding: 12px; border-radius: 8px; margin-bottom: 16px; }
-    
+
     #flashOverlay { position: absolute; inset: 0; background: white; opacity: 0; pointer-events: none; transition: opacity 0.1s; z-index: 50; }
     #countdownOverlay { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; font-size: 8rem; color: white; background: rgba(0,0,0,0.4); z-index: 40; font-weight: bold; text-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-    
+
     .file-input-wrapper { display: flex; gap: 8px; margin-bottom: 12px; }
     .file-input-wrapper input[type="file"] { flex: 1; padding: 6px; border: 1px solid var(--border); border-radius: 6px; }
     .unique-upload-box { background: #f1f5f9; padding: 10px; border-radius: 6px; margin-bottom: 8px; border: 1px dashed #cbd5e1; }
+
+    /* Camera source video: rendered but visually negligible.
+       Do NOT use display:none or z-index:-10 — Android needs it painted. */
+    #cameraFeed {
+      position: fixed;
+      top: 0; left: 0;
+      width: 8px; height: 8px;
+      opacity: 0.02;
+      pointer-events: none;
+      z-index: 1;
+      object-fit: cover;
+    }
+
+    .status-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #fee2e2; color: #b91c1c; margin-bottom: 12px; }
+    .status-pill.ready { background: #dcfce7; color: #15803d; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
   </style>
 </head>
 <body>
 
-  <!-- MOBILE CAMERA FIX: Instead of display:none, we make it invisible but technically rendered so iOS doesn't pause it -->
-  <video id="cameraFeed" autoplay playsinline muted style="position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; z-index: -10;"></video>
+  <!-- Camera source video. Must be painted (not display:none) for Android Chrome/WebView. -->
+  <video id="cameraFeed" autoplay playsinline muted></video>
 
   <!-- STEP 1: CAMERA SETUP -->
   <div id="step1" class="screen active">
@@ -75,24 +92,27 @@
     </header>
     <div class="content">
       <div class="card">
+        <div id="camStatusPill" class="status-pill"><span class="status-dot"></span><span id="camStatusText">Not started</span></div>
         <label>Select Camera</label>
-        <select id="camDevice"></select>
+        <select id="camDevice" disabled>
+          <option value="">Auto Select</option>
+        </select>
         <label>Facing Preference</label>
         <select id="camFacing">
           <option value="environment">Back (Rear) Camera</option>
           <option value="user">Front (Selfie) Camera</option>
         </select>
-        <button id="btnStartCamera" class="btn-secondary" style="width: 100%">Test Camera</button>
+        <button id="btnStartCamera" class="btn-primary" style="width: 100%">Start Camera</button>
       </div>
       <div class="canvas-container">
-        <canvas id="step1Canvas"></canvas>
+        <canvas id="step1Canvas" width="640" height="480"></canvas>
       </div>
     </div>
     <div class="action-bar">
       <div class="buttons-wrap">
-        <button class="btn-primary" onclick="goToStep(2)">Next: Layout Setup</button>
+        <button class="btn-primary" onclick="tryGoToStep2()">Next: Layout Setup</button>
       </div>
-      <div class="credits">v2.2 &bull; Created by randybondoc</div>
+      <div class="credits">v2.2.1 &bull; Created by randybondoc</div>
     </div>
   </div>
 
@@ -107,11 +127,11 @@
       <div class="card">
         <div class="card-title">Presets (4x6 Format)</div>
         <div class="preset-grid">
-          <button class="preset-btn" onclick="applyPreset('1')">1 Photo</button>
-          <button class="preset-btn active" onclick="applyPreset('4-grid')">2x2 Grid</button>
-          <button class="preset-btn" onclick="applyPreset('3-strip')">3 Strip</button>
-          <button class="preset-btn" onclick="applyPreset('4-strip')">4 Strip</button>
-          <button class="preset-btn" onclick="applyPreset('8-grid')">8 (2x4 Strip)</button>
+          <button class="preset-btn" data-preset="1" onclick="applyPreset('1')">1 Photo</button>
+          <button class="preset-btn" data-preset="4-grid" onclick="applyPreset('4-grid')">2x2 Grid</button>
+          <button class="preset-btn" data-preset="3-strip" onclick="applyPreset('3-strip')">3 Strip</button>
+          <button class="preset-btn" data-preset="4-strip" onclick="applyPreset('4-strip')">4 Strip</button>
+          <button class="preset-btn" data-preset="8-grid" onclick="applyPreset('8-grid')">8 (2x4 Strip)</button>
         </div>
         <span class="hint">Tip: You can drag the black boxes below to custom positions!</span>
       </div>
@@ -124,7 +144,7 @@
         <button class="btn-secondary" onclick="goToStep(1)">Back</button>
         <button class="btn-primary" onclick="goToStep(3)">Next: Design</button>
       </div>
-      <div class="credits">v2.2 &bull; Created by randybondoc</div>
+      <div class="credits">v2.2.1 &bull; Created by randybondoc</div>
     </div>
   </div>
 
@@ -136,7 +156,7 @@
       <p>Customize your output</p>
     </header>
     <div class="content">
-      
+
       <div class="canvas-container design-container">
         <canvas id="designCanvas" width="1200" height="1800"></canvas>
       </div>
@@ -208,7 +228,7 @@
         <button class="btn-secondary" onclick="goToStep(2)">Back</button>
         <button class="btn-primary" onclick="goToStep(4)">Next: Green Screen</button>
       </div>
-      <div class="credits">v2.2 &bull; Created by randybondoc</div>
+      <div class="credits">v2.2.1 &bull; Created by randybondoc</div>
     </div>
   </div>
 
@@ -220,14 +240,14 @@
       <p>Replace background of taken photos</p>
     </header>
     <div class="content">
-      
+
       <div class="canvas-container">
-        <canvas id="step4Canvas"></canvas>
+        <canvas id="step4Canvas" width="640" height="480"></canvas>
       </div>
 
       <div class="card" style="border: 2px solid #16a34a;">
         <div class="flex-row" style="margin-bottom:0;">
-            <input type="checkbox" id="chkChroma" style="width:20px; height:20px;" onchange="toggleChromaUI()"> 
+            <input type="checkbox" id="chkChroma" style="width:20px; height:20px;" onchange="toggleChromaUI()">
             <label style="font-weight:bold; font-size:1.1rem; color:#16a34a; margin:0;">Enable Green Screen</label>
         </div>
       </div>
@@ -244,17 +264,17 @@
 
           <div class="card">
             <div class="card-title">Background Replacement Mode</div>
-            
+
             <label class="radio-label">
-                <input type="radio" name="chromaMode" value="transparent" checked onchange="updateChromaMode()"> 
+                <input type="radio" name="chromaMode" value="transparent" checked onchange="updateChromaMode()">
                 1. Show Main Background (From Step 3)
             </label>
             <label class="radio-label">
-                <input type="radio" name="chromaMode" value="single" onchange="updateChromaMode()"> 
+                <input type="radio" name="chromaMode" value="single" onchange="updateChromaMode()">
                 2. Single Custom Image (For all shots)
             </label>
             <label class="radio-label">
-                <input type="radio" name="chromaMode" value="unique" onchange="updateChromaMode()"> 
+                <input type="radio" name="chromaMode" value="unique" onchange="updateChromaMode()">
                 3. Unique Custom Image (Per shot)
             </label>
 
@@ -276,7 +296,7 @@
         <button class="btn-secondary" onclick="goToStep(3)">Back</button>
         <button class="btn-primary" onclick="goToStep(5)">Next: Capture</button>
       </div>
-      <div class="credits">v2.2 &bull; Created by randybondoc</div>
+      <div class="credits">v2.2.1 &bull; Created by randybondoc</div>
     </div>
   </div>
 
@@ -288,9 +308,9 @@
       <p>Get ready!</p>
     </header>
     <div class="content" style="display:flex; flex-direction:column; justify-content:center;">
-      
+
       <div class="canvas-container" style="position:relative;">
-        <canvas id="step5Canvas"></canvas>
+        <canvas id="step5Canvas" width="640" height="480"></canvas>
         <div id="countdownOverlay">3</div>
         <div id="flashOverlay"></div>
       </div>
@@ -315,7 +335,7 @@
         <button class="btn-secondary" id="btnBackToChroma" onclick="goToStep(4)">Back</button>
         <button class="btn-primary" id="btnStartSession" style="background:var(--danger)">Start Session</button>
       </div>
-      <div class="credits">v2.2 &bull; Created by randybondoc</div>
+      <div class="credits">v2.2.1 &bull; Created by randybondoc</div>
     </div>
   </div>
 
@@ -330,7 +350,7 @@
       <div class="canvas-container design-container">
         <canvas id="resultCanvas" width="1200" height="1800"></canvas>
       </div>
-      
+
       <div style="display:flex; gap:12px; margin-bottom: 16px;">
         <button class="btn-secondary" onclick="goToStep(5)" style="flex:1">Reshoot</button>
       </div>
@@ -339,7 +359,7 @@
       <div class="buttons-wrap">
         <button class="btn-success" style="font-size: 1.1rem; padding: 12px 24px;" onclick="exportFinalImage()">Download 4x6</button>
       </div>
-      <div class="credits">v2.2 &bull; Created by randybondoc</div>
+      <div class="credits">v2.2.1 &bull; Created by randybondoc</div>
     </div>
   </div>
 
@@ -349,18 +369,29 @@
 /**
  * MediaBox Web PhotoBooth Pro v2.2.1
  * Created by randybondoc
+ *
+ * Camera subsystem rewritten for mobile robustness (Android Chrome / Samsung Internet /
+ * iOS Safari / desktop):
+ *  - Secure-context + API support checks
+ *  - getUserMedia() called from explicit user gesture
+ *  - enumerateDevices() only after permission is granted
+ *  - Wait for loadedmetadata + non-zero videoWidth/Height before declaring ready
+ *  - play() failures are treated as real camera failures (no silent swallow)
+ *  - Live preview loop tolerates "camera not ready" state
+ *  - Chroma-key processing throttled to ~20fps to avoid mobile CPU meltdown
  */
-const W = 1200, H = 1800; 
+const W = 1200, H = 1800;
+
 const state = {
   stream: null,
   shotsTotal: 4,
-  layoutBoxes: [], 
+  layoutBoxes: [],
   bgImg: null, bgFlip: false,
   overlayImg: null, overlayFlip: false,
-  items: [], 
-  captures: [], 
+  items: [],
+  captures: [],
   selectedItemIndex: -1,
-  
+
   chromaEnabled: false,
   chromaMode: 'transparent',
   chromaSingleImg: null,
@@ -368,7 +399,12 @@ const state = {
 };
 
 let livePreviewRAF = null;
-let currentShotIdx = 0; 
+let activePreviewCanvasId = null;
+let currentShotIdx = 0;
+
+// Camera runtime state
+let cameraReady = false;
+let cameraStarting = false;
 
 const cameraFeed = document.getElementById('cameraFeed');
 const layoutCanvas = document.getElementById('layoutCanvas');
@@ -380,136 +416,381 @@ const rCtx = resultCanvas.getContext('2d');
 const processCanvas = document.getElementById('processCanvas');
 const pCtx = processCanvas.getContext('2d', { willReadFrequently: true });
 
+// ---------------------------------------------------------------------------
+// NAVIGATION
+// ---------------------------------------------------------------------------
 function goToStep(step) {
   document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
-  document.getElementById('step' + step).classList.add('active');
-  
-  if(livePreviewRAF) cancelAnimationFrame(livePreviewRAF); 
-  
-  if(step === 1) { startLivePreview('step1Canvas', false); }
-  if(step === 2) { drawLayout(); }
-  if(step === 3) { state.selectedItemIndex = -1; closeEditMenu(); drawDesign(); }
-  if(step === 4) { renderChromaUI(); startLivePreview('step4Canvas', true); }
-  if(step === 5) { 
+  const target = document.getElementById('step' + step);
+  if (target) target.classList.add('active');
+
+  stopLivePreview();
+
+  if (step === 1) { startLivePreview('step1Canvas', false); }
+  if (step === 2) { drawLayout(); }
+  if (step === 3) { state.selectedItemIndex = -1; closeEditMenu(); drawDesign(); }
+  if (step === 4) { renderChromaUI(); startLivePreview('step4Canvas', true); }
+  if (step === 5) {
     document.getElementById('lblShotCount').innerText = state.layoutBoxes.length;
-    currentShotIdx = 0; 
+    currentShotIdx = 0;
     startLivePreview('step5Canvas', true);
   }
-  if(step === 6) { renderFinalResult(); }
+  if (step === 6) { renderFinalResult(); }
 }
 
-// --- CAMERA & LIVE PREVIEW ENGINE ---
-async function initDevices() {
-  try {
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    const videoDevs = devices.filter(d => d.kind === 'videoinput');
-    const sel = document.getElementById('camDevice');
-    sel.innerHTML = '<option value="">Auto Select</option>';
-    videoDevs.forEach((d, i) => {
-      sel.innerHTML += `<option value="${d.deviceId}">${d.label || 'Camera ' + (i+1)}</option>`;
-    });
-  } catch(e) {}
+function tryGoToStep2() {
+  if (!cameraReady) {
+    alert("Please start the camera first by tapping 'Start Camera'.");
+    return;
+  }
+  goToStep(2);
+}
+
+// ---------------------------------------------------------------------------
+// CAMERA SUBSYSTEM
+// ---------------------------------------------------------------------------
+function setStatus(text, ready) {
+  const pill = document.getElementById('camStatusPill');
+  const txt = document.getElementById('camStatusText');
+  if (!pill || !txt) return;
+  txt.textContent = text;
+  pill.classList.toggle('ready', !!ready);
+}
+
+function checkCameraSupport() {
+  if (!window.isSecureContext) {
+    alert("Camera requires a secure (HTTPS) context.\n\nOpen this page from an https:// URL or localhost — file:// and http:// will not work on most mobile browsers.");
+    return false;
+  }
+  if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+    alert("This browser does not support camera access (getUserMedia unavailable).");
+    return false;
+  }
+  return true;
+}
+
+function stopCamera() {
+  cameraReady = false;
+  if (state.stream) {
+    try { state.stream.getTracks().forEach(t => t.stop()); } catch (e) {}
+    state.stream = null;
+  }
+  try { cameraFeed.srcObject = null; } catch (e) {}
+  setStatus('Not started', false);
+}
+
+function waitForMetadata(video, timeoutMs = 15000) {
+  return new Promise((resolve, reject) => {
+    const start = Date.now();
+    const check = () => {
+      if (video.readyState >= 1 && video.videoWidth > 0 && video.videoHeight > 0) {
+        resolve();
+        return;
+      }
+      if (Date.now() - start > timeoutMs) {
+        reject(new Error("Timed out waiting for camera video frames. The camera may be in use by another app."));
+        return;
+      }
+      requestAnimationFrame(check);
+    };
+    check();
+  });
 }
 
 async function startCamera() {
-  if (state.stream) state.stream.getTracks().forEach(t => t.stop());
-  const deviceId = document.getElementById('camDevice').value;
-  const facing = document.getElementById('camFacing').value;
-  
-  let constraints = { video: { width: { ideal: 1280 }, height: { ideal: 720 } } };
-  if (deviceId) constraints.video.deviceId = { exact: deviceId };
-  else constraints.video.facingMode = { ideal: facing };
+  if (cameraStarting) return false;
+  if (!checkCameraSupport()) return false;
+
+  cameraStarting = true;
+  setStatus('Starting...', false);
 
   try {
-    state.stream = await navigator.mediaDevices.getUserMedia(constraints);
-    cameraFeed.srcObject = state.stream;
-    
-    // MOBILE FIX: Explicitly play the video stream
-    await cameraFeed.play().catch(e => console.warn("Play interrupted", e));
-    
-    initDevices(); 
-  } catch(e) { alert("Camera error: " + e.message); }
+    // Stop any existing stream cleanly before acquiring a new one
+    if (state.stream) {
+      try { state.stream.getTracks().forEach(t => t.stop()); } catch (e) {}
+      state.stream = null;
+    }
+
+    const deviceId = document.getElementById('camDevice').value;
+    const facing = document.getElementById('camFacing').value;
+
+    // Base mobile-friendly constraints
+    const baseVideo = {
+      width:  { ideal: 1280 },
+      height: { ideal: 720 }
+    };
+
+    let stream = null;
+
+    // Prefer a specific deviceId only if the user explicitly chose one
+    if (deviceId) {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: Object.assign({}, baseVideo, { deviceId: { exact: deviceId } }),
+          audio: false
+        });
+      } catch (err) {
+        console.warn("Exact deviceId failed, falling back to facingMode.", err);
+        stream = null;
+      }
+    }
+
+    // Fallback / default path: facingMode only (much more reliable on Android)
+    if (!stream) {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: Object.assign({}, baseVideo, { facingMode: { ideal: facing } }),
+        audio: false
+      });
+    }
+
+    state.stream = stream;
+
+    // Attach stream to the (technically rendered) video element
+    cameraFeed.srcObject = stream;
+
+    // Watch for the stream ending externally (e.g. another app grabs camera)
+    stream.getVideoTracks().forEach(track => {
+      track.onended = () => {
+        cameraReady = false;
+        setStatus('Camera stopped', false);
+      };
+    });
+
+    // Wait for metadata + real frame dimensions
+    await waitForMetadata(cameraFeed);
+
+    // play() failure is a real failure — no silent swallow
+    try {
+      await cameraFeed.play();
+    } catch (playErr) {
+      throw new Error("Camera stream acquired but playback failed: " + (playErr && playErr.message ? playErr.message : playErr));
+    }
+
+    // Final verification
+    if (!cameraFeed.videoWidth || !cameraFeed.videoHeight) {
+      await new Promise(r => setTimeout(r, 300));
+      if (!cameraFeed.videoWidth || !cameraFeed.videoHeight) {
+        throw new Error("Camera started but no video frames were received.");
+      }
+    }
+
+    cameraReady = true;
+    setStatus('Camera ready', true);
+
+    // Now that permission is granted, device labels are available
+    await initDevices();
+    document.getElementById('camDevice').disabled = false;
+
+    return true;
+
+  } catch (e) {
+    cameraReady = false;
+    setStatus('Camera error', false);
+    alert("Camera error: " + (e && e.message ? e.message : e));
+    return false;
+  } finally {
+    cameraStarting = false;
+  }
+}
+
+async function initDevices() {
+  try {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const videoDevs = devices.filter(d => d.kind === 'videoinput');
+    const sel = document.getElementById('camDevice');
+    const currentVal = sel.value;
+    sel.innerHTML = '<option value="">Auto Select</option>';
+    videoDevs.forEach((d, i) => {
+      const opt = document.createElement('option');
+      opt.value = d.deviceId;
+      opt.textContent = d.label || ('Camera ' + (i + 1));
+      sel.appendChild(opt);
+    });
+    if (currentVal) sel.value = currentVal;
+  } catch (e) {
+    console.warn("enumerateDevices failed:", e);
+  }
 }
 
 document.getElementById('btnStartCamera').addEventListener('click', startCamera);
-document.getElementById('camFacing').addEventListener('change', () => { document.getElementById('camDevice').value = ""; startCamera(); });
-document.getElementById('btnSwitchCamLive').addEventListener('click', async () => {
-    const facingSel = document.getElementById('camFacing');
-    facingSel.value = facingSel.value === 'user' ? 'environment' : 'user';
-    document.getElementById('camDevice').value = "";
-    await startCamera();
+
+document.getElementById('camFacing').addEventListener('change', () => {
+  // Changing facing preference resets the explicit device selection
+  document.getElementById('camDevice').value = "";
+  if (cameraReady || state.stream) startCamera();
 });
 
+document.getElementById('btnSwitchCamLive').addEventListener('click', async () => {
+  const facingSel = document.getElementById('camFacing');
+  facingSel.value = (facingSel.value === 'user') ? 'environment' : 'user';
+  document.getElementById('camDevice').value = "";
+  await startCamera();
+});
+
+// ---------------------------------------------------------------------------
+// LIVE PREVIEW ENGINE
+// ---------------------------------------------------------------------------
 function drawChecker(ctx, w, h) {
-    const size = 20;
-    for(let y=0; y<h; y+=size) {
-        for(let x=0; x<w; x+=size) {
-            ctx.fillStyle = ((x/size + Math.floor(y/size)) % 2 === 0) ? '#e2e8f0' : '#ffffff';
-            ctx.fillRect(x,y,size,size);
-        }
+  const size = 20;
+  for (let y = 0; y < h; y += size) {
+    for (let x = 0; x < w; x += size) {
+      ctx.fillStyle = ((x / size + Math.floor(y / size)) % 2 === 0) ? '#e2e8f0' : '#ffffff';
+      ctx.fillRect(x, y, size, size);
     }
+  }
+}
+
+function drawWaiting(ctx, canvas) {
+  if (!canvas.width)  canvas.width  = 640;
+  if (!canvas.height) canvas.height = 480;
+  ctx.fillStyle = '#e2e8f0';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = 'bold 48px system-ui, sans-serif';
+  ctx.fillText('📷', canvas.width / 2, canvas.height / 2 - 40);
+  ctx.fillStyle = '#475569';
+  ctx.font = 'bold 22px system-ui, sans-serif';
+  ctx.fillText('Camera not started', canvas.width / 2, canvas.height / 2 + 15);
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '16px system-ui, sans-serif';
+  ctx.fillText('Go to Step 1 and tap "Start Camera"', canvas.width / 2, canvas.height / 2 + 45);
+}
+
+function stopLivePreview() {
+  if (livePreviewRAF) {
+    cancelAnimationFrame(livePreviewRAF);
+    livePreviewRAF = null;
+  }
+  activePreviewCanvasId = null;
 }
 
 function startLivePreview(canvasId, useChroma) {
-    const canvas = document.getElementById(canvasId);
-    if(!canvas) return;
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    
-    function loop() {
-        if (cameraFeed.readyState >= 2 && cameraFeed.videoWidth > 0) {
-            canvas.width = 640; 
-            canvas.height = Math.round(640 * (cameraFeed.videoHeight / cameraFeed.videoWidth));
-            
-            if (!useChroma || !state.chromaEnabled) {
-                drawCover(ctx, cameraFeed, 0, 0, canvas.width, canvas.height, false);
-            } else {
-                let bgImg = null;
-                if (state.chromaMode === 'single') bgImg = state.chromaSingleImg;
-                else if (state.chromaMode === 'unique') bgImg = state.chromaUniqueImgs[currentShotIdx];
-                else if (state.chromaMode === 'transparent') bgImg = state.bgImg;
+  stopLivePreview();
+  activePreviewCanvasId = canvasId;
 
-                if (bgImg) drawCover(ctx, bgImg, 0, 0, canvas.width, canvas.height, false);
-                else drawChecker(ctx, canvas.width, canvas.height);
-                
-                const bgData = ctx.getImageData(0,0,canvas.width, canvas.height).data;
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-                processCanvas.width = canvas.width; processCanvas.height = canvas.height;
-                drawCover(pCtx, cameraFeed, 0, 0, processCanvas.width, processCanvas.height, false);
-                const fg = pCtx.getImageData(0,0,processCanvas.width, processCanvas.height);
-                
-                const key = hexToRgb(document.getElementById('chromaColor').value);
-                const th = Number(document.getElementById('chromaIntensity').value);
+  // Chroma processing throttle (~20fps) so we don't melt mid-range Android CPUs.
+  const CHROMA_INTERVAL_MS = 1000 / 20;
+  let lastChromaTime = 0;
 
-                for(let i=0; i<fg.data.length; i+=4){
-                    const r=fg.data[i], g=fg.data[i+1], b=fg.data[i+2];
-                    if(Math.sqrt((r-key.r)**2+(g-key.g)**2+(b-key.b)**2) < th) {
-                        fg.data[i] = bgData[i];
-                        fg.data[i+1] = bgData[i+1];
-                        fg.data[i+2] = bgData[i+2];
-                        fg.data[i+3] = bgData[i+3];
-                    }
-                }
-                ctx.putImageData(fg, 0, 0);
-            }
-        }
-        livePreviewRAF = requestAnimationFrame(loop);
+  function loop(ts) {
+    if (activePreviewCanvasId !== canvasId) return; // superseded
+
+    if (!cameraReady || cameraFeed.readyState < 2 || !cameraFeed.videoWidth) {
+      drawWaiting(ctx, canvas);
+      livePreviewRAF = requestAnimationFrame(loop);
+      return;
     }
-    loop();
+
+    // Match canvas to camera aspect ratio (preview width fixed at 640)
+    const targetW = 640;
+    const targetH = Math.round(640 * (cameraFeed.videoHeight / cameraFeed.videoWidth));
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+      canvas.width  = targetW;
+      canvas.height = targetH;
+    }
+
+    if (!useChroma || !state.chromaEnabled) {
+      drawCover(ctx, cameraFeed, 0, 0, canvas.width, canvas.height, false);
+    } else {
+      const now = ts || performance.now();
+      if (now - lastChromaTime >= CHROMA_INTERVAL_MS) {
+        lastChromaTime = now;
+
+        let bgImg = null;
+        if (state.chromaMode === 'single') bgImg = state.chromaSingleImg;
+        else if (state.chromaMode === 'unique') bgImg = state.chromaUniqueImgs[currentShotIdx];
+        else if (state.chromaMode === 'transparent') bgImg = state.bgImg;
+
+        if (bgImg) {
+          drawCover(ctx, bgImg, 0, 0, canvas.width, canvas.height, false);
+        } else {
+          drawChecker(ctx, canvas.width, canvas.height);
+        }
+
+        const bgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+        processCanvas.width  = canvas.width;
+        processCanvas.height = canvas.height;
+        drawCover(pCtx, cameraFeed, 0, 0, processCanvas.width, processCanvas.height, false);
+        const fg = pCtx.getImageData(0, 0, processCanvas.width, processCanvas.height);
+
+        const key = hexToRgb(document.getElementById('chromaColor').value);
+        const th  = Number(document.getElementById('chromaIntensity').value);
+
+        const fgD = fg.data;
+        const bgD = bgData;
+        const kr = key.r, kg = key.g, kb = key.b;
+        const th2 = th * th;
+        for (let i = 0; i < fgD.length; i += 4) {
+          const dr = fgD[i]   - kr;
+          const dg = fgD[i+1] - kg;
+          const db = fgD[i+2] - kb;
+          if ((dr*dr + dg*dg + db*db) < th2) {
+            fgD[i]   = bgD[i];
+            fgD[i+1] = bgD[i+1];
+            fgD[i+2] = bgD[i+2];
+            fgD[i+3] = bgD[i+3];
+          }
+        }
+        ctx.putImageData(fg, 0, 0);
+      }
+      // else: skip frame — keep the last processed image on-screen
+    }
+
+    livePreviewRAF = requestAnimationFrame(loop);
+  }
+
+  livePreviewRAF = requestAnimationFrame(loop);
 }
 
-// --- LAYOUT ---
+// ---------------------------------------------------------------------------
+// LAYOUT
+// ---------------------------------------------------------------------------
 function applyPreset(type) {
-  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  document.querySelectorAll('.preset-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.preset === type);
+  });
+
   state.layoutBoxes = [];
-  if(type === '1') state.layoutBoxes.push({x: 100, y: 150, w: 1000, h: 1500});
-  else if(type === '4-grid') state.layoutBoxes = [{x: 60, y: 60, w: 510, h: 810}, {x: 630, y: 60, w: 510, h: 810}, {x: 60, y: 930, w: 510, h: 810}, {x: 630, y: 930, w: 510, h: 810}];
-  else if(type === '3-strip') state.layoutBoxes = [{x: 100, y: 100, w: 1000, h: 500}, {x: 100, y: 650, w: 1000, h: 500}, {x: 100, y: 1200, w: 1000, h: 500}];
-  else if(type === '4-strip') state.layoutBoxes = [{x: 100, y: 80, w: 1000, h: 380}, {x: 100, y: 500, w: 1000, h: 380}, {x: 100, y: 920, w: 1000, h: 380}, {x: 100, y: 1340, w: 1000, h: 380}];
-  else if(type === '8-grid') {
-    for(let r=0; r<4; r++) for(let c=0; c<2; c++) state.layoutBoxes.push({x: c*550 + 60, y: r*420 + 60, w: 490, h: 380});
+  if (type === '1') state.layoutBoxes.push({x: 100, y: 150, w: 1000, h: 1500});
+  else if (type === '4-grid') state.layoutBoxes = [
+    {x: 60, y: 60, w: 510, h: 810},
+    {x: 630, y: 60, w: 510, h: 810},
+    {x: 60, y: 930, w: 510, h: 810},
+    {x: 630, y: 930, w: 510, h: 810}
+  ];
+  else if (type === '3-strip') state.layoutBoxes = [
+    {x: 100, y: 100, w: 1000, h: 500},
+    {x: 100, y: 650, w: 1000, h: 500},
+    {x: 100, y: 1200, w: 1000, h: 500}
+  ];
+  else if (type === '4-strip') state.layoutBoxes = [
+    {x: 100, y: 80, w: 1000, h: 380},
+    {x: 100, y: 500, w: 1000, h: 380},
+    {x: 100, y: 920, w: 1000, h: 380},
+    {x: 100, y: 1340, w: 1000, h: 380}
+  ];
+  else if (type === '8-grid') {
+    for (let r = 0; r < 4; r++) {
+      for (let c = 0; c < 2; c++) {
+        state.layoutBoxes.push({x: c * 550 + 60, y: r * 420 + 60, w: 490, h: 380});
+      }
+    }
   }
+
   state.shotsTotal = state.layoutBoxes.length;
+
+  // Resize chroma unique array to match new shot count
+  while (state.chromaUniqueImgs.length < state.shotsTotal) state.chromaUniqueImgs.push(null);
+  state.chromaUniqueImgs = state.chromaUniqueImgs.slice(0, state.shotsTotal);
+
   drawLayout();
 }
 
@@ -519,88 +800,121 @@ function drawLayout() {
   state.layoutBoxes.forEach((b, i) => {
     lCtx.fillRect(b.x, b.y, b.w, b.h);
     lCtx.fillStyle = '#ffffff'; lCtx.font = "bold 80px Arial"; lCtx.textAlign = "center";
-    lCtx.fillText(i+1, b.x + b.w/2, b.y + b.h/2 + 30);
+    lCtx.fillText(i + 1, b.x + b.w / 2, b.y + b.h / 2 + 30);
     lCtx.fillStyle = '#1e293b';
   });
 }
 
-let draggingBox = -1, dragBoxOffset = {x:0, y:0};
+let draggingBox = -1, dragBoxOffset = {x: 0, y: 0};
 layoutCanvas.addEventListener('pointerdown', e => {
   const p = getCanvasPos(e, layoutCanvas);
-  draggingBox = state.layoutBoxes.findIndex(b => p.x >= b.x && p.x <= b.x+b.w && p.y >= b.y && p.y <= b.y+b.h);
-  if(draggingBox > -1) dragBoxOffset = { x: p.x - state.layoutBoxes[draggingBox].x, y: p.y - state.layoutBoxes[draggingBox].y };
+  draggingBox = state.layoutBoxes.findIndex(b => p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h);
+  if (draggingBox > -1) dragBoxOffset = { x: p.x - state.layoutBoxes[draggingBox].x, y: p.y - state.layoutBoxes[draggingBox].y };
 });
 layoutCanvas.addEventListener('pointermove', e => {
-  if(draggingBox > -1) {
+  if (draggingBox > -1) {
     const p = getCanvasPos(e, layoutCanvas);
-    state.layoutBoxes[draggingBox].x = p.x - dragBoxOffset.x; state.layoutBoxes[draggingBox].y = p.y - dragBoxOffset.y; drawLayout();
+    state.layoutBoxes[draggingBox].x = p.x - dragBoxOffset.x;
+    state.layoutBoxes[draggingBox].y = p.y - dragBoxOffset.y;
+    drawLayout();
   }
 });
 layoutCanvas.addEventListener('pointerup', () => draggingBox = -1);
+layoutCanvas.addEventListener('pointercancel', () => draggingBox = -1);
 
-// --- DESIGN ENGINE ---
+// ---------------------------------------------------------------------------
+// DESIGN ENGINE
+// ---------------------------------------------------------------------------
 function getCanvasPos(evt, canvas) {
   const rect = canvas.getBoundingClientRect();
-  return { x: (evt.clientX - rect.left) * (W / rect.width), y: (evt.clientY - rect.top) * (H / rect.height) };
+  return {
+    x: (evt.clientX - rect.left) * (W / rect.width),
+    y: (evt.clientY - rect.top)  * (H / rect.height)
+  };
 }
 
 function loadImg(file, callback) {
-  if(!file) return;
+  if (!file) return;
   const img = new Image();
   img.onload = () => callback(img);
   img.src = URL.createObjectURL(file);
 }
 
-document.getElementById('fileBg').addEventListener('change', e => loadImg(e.target.files[0], img => { state.bgImg = img; drawDesign(); }));
-document.getElementById('fileOverlay').addEventListener('change', e => loadImg(e.target.files[0], img => { state.overlayImg = img; drawDesign(); }));
-document.getElementById('fileSticker').addEventListener('change', e => loadImg(e.target.files[0], img => { 
-  state.items.push({ type: 'sticker', img: img, x: W/2, y: H/2, size: 1, rotation: 0, flipX: false, w: img.width, h: img.height });
-  e.target.value = ""; drawDesign(); 
-}));
+document.getElementById('fileBg').addEventListener('change', e =>
+  loadImg(e.target.files[0], img => { state.bgImg = img; drawDesign(); }));
 
-function clearBg() { state.bgImg = null; document.getElementById('fileBg').value=""; drawDesign(); }
-function clearOverlay() { state.overlayImg = null; document.getElementById('fileOverlay').value=""; drawDesign(); }
+document.getElementById('fileOverlay').addEventListener('change', e =>
+  loadImg(e.target.files[0], img => { state.overlayImg = img; drawDesign(); }));
+
+document.getElementById('fileSticker').addEventListener('change', e => {
+  loadImg(e.target.files[0], img => {
+    state.items.push({
+      type: 'sticker', img: img, x: W / 2, y: H / 2,
+      size: 1, rotation: 0, flipX: false, w: img.width, h: img.height
+    });
+    e.target.value = "";
+    drawDesign();
+  });
+});
+
+function clearBg() { state.bgImg = null; document.getElementById('fileBg').value = ""; drawDesign(); }
+function clearOverlay() { state.overlayImg = null; document.getElementById('fileOverlay').value = ""; drawDesign(); }
 function toggleFlipBg() { state.bgFlip = document.getElementById('chkFlipBg').checked; drawDesign(); }
 function toggleFlipOverlay() { state.overlayFlip = document.getElementById('chkFlipOverlay').checked; drawDesign(); }
+
 function addText() {
   const txt = document.getElementById('textInput').value.trim();
-  if(!txt) return;
-  state.items.push({ type: 'text', text: txt, x: W/2, y: H/2, size: 1, rotation: 0, flipX: false, color: document.getElementById('textColor').value, font: document.getElementById('textFont').value });
-  document.getElementById('textInput').value = ""; drawDesign();
+  if (!txt) return;
+  state.items.push({
+    type: 'text', text: txt, x: W / 2, y: H / 2,
+    size: 1, rotation: 0, flipX: false,
+    color: document.getElementById('textColor').value,
+    font: document.getElementById('textFont').value
+  });
+  document.getElementById('textInput').value = "";
+  drawDesign();
 }
 
 function drawDesign(ctx = dCtx, isFinal = false) {
-  ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,W,H);
-  if(state.bgImg) drawCover(ctx, state.bgImg, 0, 0, W, H, state.bgFlip);
-  
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
+  if (state.bgImg) drawCover(ctx, state.bgImg, 0, 0, W, H, state.bgFlip);
+
   state.layoutBoxes.forEach((b, i) => {
     ctx.save();
-    if(isFinal && state.captures[i]) {
-       drawCover(ctx, state.captures[i], b.x, b.y, b.w, b.h, false);
+    if (isFinal && state.captures[i]) {
+      drawCover(ctx, state.captures[i], b.x, b.y, b.w, b.h, false);
     } else {
-       ctx.fillStyle = '#cbd5e1'; ctx.fillRect(b.x, b.y, b.w, b.h);
-       ctx.fillStyle = '#ffffff'; ctx.font = "bold 60px Arial"; ctx.textAlign = "center";
-       ctx.fillText("Photo " + (i+1), b.x + b.w/2, b.y + b.h/2 + 20);
+      ctx.fillStyle = '#cbd5e1'; ctx.fillRect(b.x, b.y, b.w, b.h);
+      ctx.fillStyle = '#ffffff'; ctx.font = "bold 60px Arial"; ctx.textAlign = "center";
+      ctx.fillText("Photo " + (i + 1), b.x + b.w / 2, b.y + b.h / 2 + 20);
     }
     ctx.restore();
   });
 
-  if(state.overlayImg) drawCover(ctx, state.overlayImg, 0, 0, W, H, state.overlayFlip);
+  if (state.overlayImg) drawCover(ctx, state.overlayImg, 0, 0, W, H, state.overlayFlip);
 
   state.items.forEach((it, i) => {
-    ctx.save(); ctx.translate(it.x, it.y);
-    if(it.rotation) ctx.rotate(it.rotation * Math.PI / 180);
-    if(it.flipX) ctx.scale(-1, 1);
-    
-    if(it.type === 'sticker') {
-      const dw = it.w * it.size, dh = it.h * it.size; ctx.drawImage(it.img, -dw/2, -dh/2, dw, dh);
-      if(!isFinal && i === state.selectedItemIndex) drawDashedBox(ctx, -dw/2, -dh/2, dw, dh);
-    } else if(it.type === 'text') {
-      const fSize = 80 * it.size; ctx.font = `bold ${fSize}px ${it.font}`; ctx.fillStyle = it.color; ctx.strokeStyle = 'rgba(0,0,0,0.5)';
-      ctx.lineWidth = Math.max(4, 4 * it.size); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.strokeText(it.text, 0, 0); ctx.fillText(it.text, 0, 0);
-      if(!isFinal && i === state.selectedItemIndex) {
-        const met = ctx.measureText(it.text); drawDashedBox(ctx, -met.width/2 - 10, -fSize/2 - 10, met.width + 20, fSize + 20);
+    ctx.save();
+    ctx.translate(it.x, it.y);
+    if (it.rotation) ctx.rotate(it.rotation * Math.PI / 180);
+    if (it.flipX) ctx.scale(-1, 1);
+
+    if (it.type === 'sticker') {
+      const dw = it.w * it.size, dh = it.h * it.size;
+      ctx.drawImage(it.img, -dw / 2, -dh / 2, dw, dh);
+      if (!isFinal && i === state.selectedItemIndex) drawDashedBox(ctx, -dw / 2, -dh / 2, dw, dh);
+    } else if (it.type === 'text') {
+      const fSize = 80 * it.size;
+      ctx.font = `bold ${fSize}px ${it.font}`;
+      ctx.fillStyle = it.color;
+      ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+      ctx.lineWidth = Math.max(4, 4 * it.size);
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.strokeText(it.text, 0, 0);
+      ctx.fillText(it.text, 0, 0);
+      if (!isFinal && i === state.selectedItemIndex) {
+        const met = ctx.measureText(it.text);
+        drawDashedBox(ctx, -met.width / 2 - 10, -fSize / 2 - 10, met.width + 20, fSize + 20);
       }
     }
     ctx.restore();
@@ -609,138 +923,278 @@ function drawDesign(ctx = dCtx, isFinal = false) {
 
 function drawCover(ctx, img, x, y, w, h, flip) {
   ctx.save();
-  const r = Math.max(w/img.width, h/img.height); const nw = img.width*r, nh = img.height*r; const cx = x + (w-nw)/2, cy = y + (h-nh)/2;
-  if (flip) { ctx.translate(x + w, y); ctx.scale(-1, 1); ctx.drawImage(img, (w-nw)/2, (h-nh)/2, nw, nh); } 
-  else { ctx.drawImage(img, cx, cy, nw, nh); }
+  const r = Math.max(w / img.width, h / img.height);
+  const nw = img.width * r, nh = img.height * r;
+  if (flip) {
+    ctx.translate(x + w, y);
+    ctx.scale(-1, 1);
+    ctx.drawImage(img, (w - nw) / 2, (h - nh) / 2, nw, nh);
+  } else {
+    const cx = x + (w - nw) / 2, cy = y + (h - nh) / 2;
+    ctx.drawImage(img, cx, cy, nw, nh);
+  }
   ctx.restore();
 }
-function drawDashedBox(ctx, x, y, w, h) { ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 4; ctx.setLineDash([15, 15]); ctx.strokeRect(x,y,w,h); }
 
-let dragItem = -1, itemOffset = {x:0, y:0};
+function drawDashedBox(ctx, x, y, w, h) {
+  ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 4;
+  ctx.setLineDash([15, 15]);
+  ctx.strokeRect(x, y, w, h);
+}
+
+let dragItem = -1, itemOffset = {x: 0, y: 0};
+
 designCanvas.addEventListener('pointerdown', e => {
   const p = getCanvasPos(e, designCanvas);
-  for(let i = state.items.length - 1; i >= 0; i--) {
-    const it = state.items[i]; const rad = -(it.rotation || 0) * Math.PI / 180;
-    const lx = p.x - it.x, ly = p.y - it.y; const rx = lx * Math.cos(rad) - ly * Math.sin(rad); const ry = lx * Math.sin(rad) + ly * Math.cos(rad);
-    
+  for (let i = state.items.length - 1; i >= 0; i--) {
+    const it = state.items[i];
+    const rad = -(it.rotation || 0) * Math.PI / 180;
+    const lx = p.x - it.x, ly = p.y - it.y;
+    const rx = lx * Math.cos(rad) - ly * Math.sin(rad);
+    const ry = lx * Math.sin(rad) + ly * Math.cos(rad);
+
     let hit = false;
-    if(it.type === 'sticker') { const w2 = (it.w * it.size)/2, h2 = (it.h * it.size)/2; hit = (rx >= -w2 && rx <= w2 && ry >= -h2 && ry <= h2); } 
-    else { dCtx.font = `bold ${80 * it.size}px ${it.font}`; const w2 = dCtx.measureText(it.text).width / 2, h2 = (80 * it.size) / 2; hit = (rx >= -w2 && rx <= w2 && ry >= -h2 && ry <= h2); }
-    if(hit) { dragItem = i; itemOffset = { x: p.x - it.x, y: p.y - it.y }; selectItem(i); return; }
+    if (it.type === 'sticker') {
+      const w2 = (it.w * it.size) / 2, h2 = (it.h * it.size) / 2;
+      hit = (rx >= -w2 && rx <= w2 && ry >= -h2 && ry <= h2);
+    } else {
+      dCtx.font = `bold ${80 * it.size}px ${it.font}`;
+      const w2 = dCtx.measureText(it.text).width / 2;
+      const h2 = (80 * it.size) / 2;
+      hit = (rx >= -w2 && rx <= w2 && ry >= -h2 && ry <= h2);
+    }
+    if (hit) {
+      dragItem = i;
+      itemOffset = { x: p.x - it.x, y: p.y - it.y };
+      selectItem(i);
+      return;
+    }
   }
-  selectItem(-1); 
+  selectItem(-1);
 });
-designCanvas.addEventListener('pointermove', e => { if(dragItem > -1) { const p = getCanvasPos(e, designCanvas); state.items[dragItem].x = p.x - itemOffset.x; state.items[dragItem].y = p.y - itemOffset.y; drawDesign(); } });
+
+designCanvas.addEventListener('pointermove', e => {
+  if (dragItem > -1) {
+    const p = getCanvasPos(e, designCanvas);
+    state.items[dragItem].x = p.x - itemOffset.x;
+    state.items[dragItem].y = p.y - itemOffset.y;
+    drawDesign();
+  }
+});
 designCanvas.addEventListener('pointerup', () => dragItem = -1);
+designCanvas.addEventListener('pointercancel', () => dragItem = -1);
 
 function selectItem(idx) {
-  state.selectedItemIndex = idx; const menu = document.getElementById('editMenu');
-  if(idx === -1) { menu.style.display = 'none'; drawDesign(); return; }
-  const it = state.items[idx]; menu.style.display = 'block'; document.getElementById('editTitle').innerText = it.type === 'text' ? 'Edit Text' : 'Edit Sticker';
-  document.getElementById('editSize').value = it.size; document.getElementById('editRotation').value = it.rotation || 0;
-  if(it.type === 'text') { document.getElementById('editColorWrap').style.display = 'block'; document.getElementById('editColor').value = it.color; } 
-  else { document.getElementById('editColorWrap').style.display = 'none'; }
+  state.selectedItemIndex = idx;
+  const menu = document.getElementById('editMenu');
+  if (idx === -1) { menu.style.display = 'none'; drawDesign(); return; }
+  const it = state.items[idx];
+  menu.style.display = 'block';
+  document.getElementById('editTitle').innerText = it.type === 'text' ? 'Edit Text' : 'Edit Sticker';
+  document.getElementById('editSize').value = it.size;
+  document.getElementById('editRotation').value = it.rotation || 0;
+  if (it.type === 'text') {
+    document.getElementById('editColorWrap').style.display = 'block';
+    document.getElementById('editColor').value = it.color;
+  } else {
+    document.getElementById('editColorWrap').style.display = 'none';
+  }
   drawDesign();
 }
+
 function closeEditMenu() { document.getElementById('editMenu').style.display = 'none'; }
-document.getElementById('editSize').addEventListener('input', e => { if(state.selectedItemIndex > -1) { state.items[state.selectedItemIndex].size = parseFloat(e.target.value); drawDesign(); }});
-document.getElementById('editRotation').addEventListener('input', e => { if(state.selectedItemIndex > -1) { state.items[state.selectedItemIndex].rotation = parseInt(e.target.value); drawDesign(); }});
-document.getElementById('btnFlipItem').addEventListener('click', () => { if(state.selectedItemIndex > -1) { state.items[state.selectedItemIndex].flipX = !state.items[state.selectedItemIndex].flipX; drawDesign(); }});
-document.getElementById('editColor').addEventListener('input', e => { if(state.selectedItemIndex > -1) { state.items[state.selectedItemIndex].color = e.target.value; drawDesign(); }});
-document.getElementById('btnDeleteItem').addEventListener('click', () => { if(state.selectedItemIndex > -1) { state.items.splice(state.selectedItemIndex, 1); selectItem(-1); }});
 
-// --- CHROMA UI ---
-function toggleChromaUI() { state.chromaEnabled = document.getElementById('chkChroma').checked; document.getElementById('chromaSettings').style.display = state.chromaEnabled ? 'block' : 'none'; }
+document.getElementById('editSize').addEventListener('input', e => {
+  if (state.selectedItemIndex > -1) { state.items[state.selectedItemIndex].size = parseFloat(e.target.value); drawDesign(); }
+});
+document.getElementById('editRotation').addEventListener('input', e => {
+  if (state.selectedItemIndex > -1) { state.items[state.selectedItemIndex].rotation = parseInt(e.target.value); drawDesign(); }
+});
+document.getElementById('btnFlipItem').addEventListener('click', () => {
+  if (state.selectedItemIndex > -1) {
+    state.items[state.selectedItemIndex].flipX = !state.items[state.selectedItemIndex].flipX;
+    drawDesign();
+  }
+});
+document.getElementById('editColor').addEventListener('input', e => {
+  if (state.selectedItemIndex > -1) { state.items[state.selectedItemIndex].color = e.target.value; drawDesign(); }
+});
+document.getElementById('btnDeleteItem').addEventListener('click', () => {
+  if (state.selectedItemIndex > -1) {
+    state.items.splice(state.selectedItemIndex, 1);
+    selectItem(-1);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// CHROMA UI
+// ---------------------------------------------------------------------------
+function toggleChromaUI() {
+  state.chromaEnabled = document.getElementById('chkChroma').checked;
+  document.getElementById('chromaSettings').style.display = state.chromaEnabled ? 'block' : 'none';
+}
+
 function updateChromaMode() {
-    state.chromaMode = document.querySelector('input[name="chromaMode"]:checked').value;
-    document.getElementById('chromaSingleWrap').style.display = (state.chromaMode === 'single') ? 'block' : 'none';
-    document.getElementById('chromaUniqueWrap').style.display = (state.chromaMode === 'unique') ? 'block' : 'none';
+  state.chromaMode = document.querySelector('input[name="chromaMode"]:checked').value;
+  document.getElementById('chromaSingleWrap').style.display = (state.chromaMode === 'single') ? 'block' : 'none';
+  document.getElementById('chromaUniqueWrap').style.display = (state.chromaMode === 'unique') ? 'block' : 'none';
 }
-function renderChromaUI() {
-    const container = document.getElementById('uniqueInputsContainer'); container.innerHTML = '';
-    while(state.chromaUniqueImgs.length < state.shotsTotal) state.chromaUniqueImgs.push(null);
-    state.chromaUniqueImgs = state.chromaUniqueImgs.slice(0, state.shotsTotal);
-    for(let i=0; i<state.shotsTotal; i++) {
-        const box = document.createElement('div'); box.className = 'unique-upload-box';
-        box.innerHTML = `<label style="margin-bottom:4px">Background for Shot ${i+1}</label><input type="file" accept="image/*" id="uniqueChromaFile_${i}">`;
-        container.appendChild(box);
-        document.getElementById(`uniqueChromaFile_${i}`).addEventListener('change', e => { loadImg(e.target.files[0], img => { state.chromaUniqueImgs[i] = img; }); });
-    }
-}
-document.getElementById('fileChromaSingle').addEventListener('change', e => { loadImg(e.target.files[0], img => { state.chromaSingleImg = img; }); });
 
-// --- FINAL CAPTURE ALGORITHM ---
-function hexToRgb(hex){ const m=hex.replace('#',''); return {r:parseInt(m.substring(0,2),16), g:parseInt(m.substring(2,4),16), b:parseInt(m.substring(4,6),16)}; }
+function renderChromaUI() {
+  const container = document.getElementById('uniqueInputsContainer');
+  container.innerHTML = '';
+  while (state.chromaUniqueImgs.length < state.shotsTotal) state.chromaUniqueImgs.push(null);
+  state.chromaUniqueImgs = state.chromaUniqueImgs.slice(0, state.shotsTotal);
+
+  for (let i = 0; i < state.shotsTotal; i++) {
+    const box = document.createElement('div');
+    box.className = 'unique-upload-box';
+    box.innerHTML = `<label style="margin-bottom:4px">Background for Shot ${i + 1}</label>
+                     <input type="file" accept="image/*" id="uniqueChromaFile_${i}">`;
+    container.appendChild(box);
+    document.getElementById(`uniqueChromaFile_${i}`).addEventListener('change', e => {
+      loadImg(e.target.files[0], img => { state.chromaUniqueImgs[i] = img; });
+    });
+  }
+}
+
+document.getElementById('fileChromaSingle').addEventListener('change', e => {
+  loadImg(e.target.files[0], img => { state.chromaSingleImg = img; });
+});
+
+// ---------------------------------------------------------------------------
+// FINAL CAPTURE
+// ---------------------------------------------------------------------------
+function hexToRgb(hex) {
+  const m = hex.replace('#', '');
+  return {
+    r: parseInt(m.substring(0, 2), 16),
+    g: parseInt(m.substring(2, 4), 16),
+    b: parseInt(m.substring(4, 6), 16)
+  };
+}
+
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 async function captureFinalFrame(shotIndex) {
-  if(!cameraFeed.videoWidth) return null;
-  processCanvas.width = cameraFeed.videoWidth; processCanvas.height = cameraFeed.videoHeight;
+  if (!cameraReady || !cameraFeed.videoWidth) return null;
+
+  processCanvas.width  = cameraFeed.videoWidth;
+  processCanvas.height = cameraFeed.videoHeight;
   pCtx.drawImage(cameraFeed, 0, 0, processCanvas.width, processCanvas.height);
-  
-  if(state.chromaEnabled) {
+
+  if (state.chromaEnabled) {
     let bgImg = null;
-    if(state.chromaMode === 'single') bgImg = state.chromaSingleImg;
-    else if(state.chromaMode === 'unique') bgImg = state.chromaUniqueImgs[shotIndex];
-    
+    if (state.chromaMode === 'single') bgImg = state.chromaSingleImg;
+    else if (state.chromaMode === 'unique') bgImg = state.chromaUniqueImgs[shotIndex];
+
     let customBgData = null;
     if (bgImg) {
-        const tCanvas = document.createElement('canvas'); tCanvas.width = processCanvas.width; tCanvas.height = processCanvas.height;
-        drawCover(tCanvas.getContext('2d'), bgImg, 0, 0, tCanvas.width, tCanvas.height, false);
-        customBgData = tCanvas.getContext('2d').getImageData(0,0,tCanvas.width, tCanvas.height).data;
+      const tCanvas = document.createElement('canvas');
+      tCanvas.width  = processCanvas.width;
+      tCanvas.height = processCanvas.height;
+      const tCtx = tCanvas.getContext('2d');
+      drawCover(tCtx, bgImg, 0, 0, tCanvas.width, tCanvas.height, false);
+      customBgData = tCtx.getImageData(0, 0, tCanvas.width, tCanvas.height).data;
     }
-    
-    const fg = pCtx.getImageData(0,0,processCanvas.width, processCanvas.height);
+
+    const fg = pCtx.getImageData(0, 0, processCanvas.width, processCanvas.height);
     const key = hexToRgb(document.getElementById('chromaColor').value);
-    const th = Number(document.getElementById('chromaIntensity').value);
-    
-    for(let i=0; i<fg.data.length; i+=4){
-        const r=fg.data[i], g=fg.data[i+1], b=fg.data[i+2];
-        if(Math.sqrt((r-key.r)**2+(g-key.g)**2+(b-key.b)**2) < th) {
-            if (state.chromaMode === 'transparent' || !customBgData) {
-                fg.data[i+3] = 0; 
-            } else {
-                fg.data[i] = customBgData[i]; fg.data[i+1] = customBgData[i+1]; fg.data[i+2] = customBgData[i+2]; fg.data[i+3] = customBgData[i+3];
-            }
+    const th  = Number(document.getElementById('chromaIntensity').value);
+    const th2 = th * th;
+
+    const fgD = fg.data;
+    const kr = key.r, kg = key.g, kb = key.b;
+
+    for (let i = 0; i < fgD.length; i += 4) {
+      const dr = fgD[i]   - kr;
+      const dg = fgD[i+1] - kg;
+      const db = fgD[i+2] - kb;
+      if ((dr*dr + dg*dg + db*db) < th2) {
+        if (state.chromaMode === 'transparent' || !customBgData) {
+          fgD[i+3] = 0;
+        } else {
+          fgD[i]   = customBgData[i];
+          fgD[i+1] = customBgData[i+1];
+          fgD[i+2] = customBgData[i+2];
+          fgD[i+3] = customBgData[i+3];
         }
+      }
     }
-    pCtx.putImageData(fg,0,0);
+    pCtx.putImageData(fg, 0, 0);
   }
-  
-  const img = new Image(); img.src = processCanvas.toDataURL('image/png'); await new Promise(r => img.onload = r); return img;
+
+  const img = new Image();
+  img.src = processCanvas.toDataURL('image/png');
+  await new Promise(r => { img.onload = r; });
+  return img;
 }
 
 document.getElementById('btnStartSession').addEventListener('click', async () => {
+  if (!cameraReady) {
+    alert("Camera is not ready. Please go back to Step 1 and start the camera.");
+    return;
+  }
+
   state.captures = [];
-  document.getElementById('btnBackToChroma').style.display = 'none'; document.getElementById('btnStartSession').style.display = 'none'; document.getElementById('btnSwitchCamLive').style.display = 'none';
-  const delay = parseInt(document.getElementById('countdownSecs').value) || 3;
+  const btnBack   = document.getElementById('btnBackToChroma');
+  const btnStart  = document.getElementById('btnStartSession');
+  const btnSwitch = document.getElementById('btnSwitchCamLive');
+
+  btnBack.style.display = 'none';
+  btnStart.style.display = 'none';
+  btnSwitch.style.display = 'none';
+
+  const delay  = parseInt(document.getElementById('countdownSecs').value) || 3;
   const status = document.getElementById('captureStatus');
 
-  for(let i=0; i<state.shotsTotal; i++) {
-    currentShotIdx = i; 
-    status.innerText = `Taking photo ${i+1} of ${state.shotsTotal}...`;
-    
+  for (let i = 0; i < state.shotsTotal; i++) {
+    currentShotIdx = i;
+    status.innerText = `Taking photo ${i + 1} of ${state.shotsTotal}...`;
+
     document.getElementById('countdownOverlay').style.display = 'flex';
-    for(let s=delay; s>0; s--) { document.getElementById('countdownOverlay').innerText = s; await sleep(1000); }
+    for (let s = delay; s > 0; s--) {
+      document.getElementById('countdownOverlay').innerText = s;
+      await sleep(1000);
+    }
     document.getElementById('countdownOverlay').style.display = 'none';
-    
-    document.getElementById('flashOverlay').style.opacity = '1'; setTimeout(() => document.getElementById('flashOverlay').style.opacity = '0', 100);
-    const img = await captureFinalFrame(i); if(img) state.captures.push(img);
-    await sleep(500); 
+
+    const flash = document.getElementById('flashOverlay');
+    flash.style.opacity = '1';
+    setTimeout(() => flash.style.opacity = '0', 100);
+
+    const img = await captureFinalFrame(i);
+    if (img) state.captures.push(img);
+    await sleep(500);
   }
-  
-  document.getElementById('btnBackToChroma').style.display = 'block'; document.getElementById('btnStartSession').style.display = 'block'; document.getElementById('btnSwitchCamLive').style.display = 'block';
+
+  btnBack.style.display = 'block';
+  btnStart.style.display = 'block';
+  btnSwitch.style.display = 'block';
   status.innerText = "Session Complete!";
   goToStep(6);
 });
 
-// --- RESULT ---
+// ---------------------------------------------------------------------------
+// RESULT
+// ---------------------------------------------------------------------------
 function renderFinalResult() { drawDesign(rCtx, true); }
-function exportFinalImage() { const a = document.createElement('a'); a.download = 'mediabox_booth_final.jpg'; a.href = resultCanvas.toDataURL('image/jpeg', 0.95); a.click(); }
 
-initDevices();
+function exportFinalImage() {
+  const a = document.createElement('a');
+  a.download = 'mediabox_booth_final.jpg';
+  a.href = resultCanvas.toDataURL('image/jpeg', 0.95);
+  a.click();
+}
+
+// ---------------------------------------------------------------------------
+// BOOT
+// ---------------------------------------------------------------------------
+// Do NOT touch enumerateDevices() or getUserMedia() at load.
+// Wait for the user to tap "Start Camera".
 applyPreset('4-grid');
-goToStep(1); 
+goToStep(1);
+setStatus('Not started', false);
 </script>
 </body>
 </html>
