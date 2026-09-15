@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <title>MediaBox PhotoBooth v2.2</title>
+  <title>MediaBox PhotoBooth v2.3</title>
   <style>
     :root {
       --primary: #2563eb; --primary-hover: #1d4ed8;
@@ -43,9 +43,9 @@
     .preset-btn { border: 2px solid var(--border); background: transparent; padding: 8px; border-radius: 8px; color: var(--text); }
     .preset-btn.active { border-color: var(--primary); background: #eff6ff; }
 
-    .canvas-container { position: relative; width: 100%; max-width: 400px; margin: 0 auto 16px; aspect-ratio: 2/3; background: #e2e8f0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+    .canvas-container { position: relative; width: 100%; max-width: 400px; margin: 0 auto 16px; aspect-ratio: 4/3; background: #e2e8f0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+    .design-container { aspect-ratio: 2/3; } /* For 4x6 vertical ratio */
     canvas { width: 100%; height: 100%; display: block; touch-action: none; }
-    video { width: 100%; height: 100%; object-fit: cover; background: #000; display: block; }
     
     #editMenu { display: none; background: #f8fafc; border: 1px solid var(--border); padding: 12px; border-radius: 8px; margin-bottom: 16px; }
     
@@ -54,11 +54,13 @@
     
     .file-input-wrapper { display: flex; gap: 8px; margin-bottom: 12px; }
     .file-input-wrapper input[type="file"] { flex: 1; padding: 6px; border: 1px solid var(--border); border-radius: 6px; }
-    
     .unique-upload-box { background: #f1f5f9; padding: 10px; border-radius: 6px; margin-bottom: 8px; border: 1px dashed #cbd5e1; }
   </style>
 </head>
 <body>
+
+  <!-- Hidden continuous camera feed source -->
+  <video id="cameraFeed" autoplay playsinline muted style="display:none;"></video>
 
   <!-- STEP 1: CAMERA SETUP -->
   <div id="step1" class="screen active">
@@ -74,8 +76,8 @@
         </select>
         <button id="btnStartCamera" class="btn-secondary" style="width: 100%">Test Camera</button>
       </div>
-      <div class="canvas-container" style="aspect-ratio: 4/3; max-width:100%;">
-        <video id="previewVideo" autoplay playsinline muted></video>
+      <div class="canvas-container">
+        <canvas id="step1Canvas"></canvas>
       </div>
     </div>
     <div class="action-bar">
@@ -98,7 +100,7 @@
         </div>
         <span class="hint">Tip: You can drag the black boxes below to custom positions!</span>
       </div>
-      <div class="canvas-container">
+      <div class="canvas-container design-container">
         <canvas id="layoutCanvas" width="1200" height="1800"></canvas>
       </div>
     </div>
@@ -113,7 +115,7 @@
     <header><h1>Step 3: Design & Decor</h1><p>Customize your output</p></header>
     <div class="content">
       
-      <div class="canvas-container">
+      <div class="canvas-container design-container">
         <canvas id="designCanvas" width="1200" height="1800"></canvas>
       </div>
 
@@ -141,7 +143,7 @@
           <button class="btn-secondary" onclick="clearBg()">Clear</button>
         </div>
         <div class="flex-row">
-            <input type="checkbox" id="chkFlipBg" onchange="toggleFlipBg()"> <label>Mirror Background Image</label>
+            <input type="checkbox" id="chkFlipBg" onchange="toggleFlipBg()"> <label>Mirror Background</label>
         </div>
       </div>
 
@@ -153,7 +155,7 @@
           <button class="btn-secondary" onclick="clearOverlay()">Clear</button>
         </div>
         <div class="flex-row">
-            <input type="checkbox" id="chkFlipOverlay" onchange="toggleFlipOverlay()"> <label>Mirror Overlay Image</label>
+            <input type="checkbox" id="chkFlipOverlay" onchange="toggleFlipOverlay()"> <label>Mirror Overlay</label>
         </div>
       </div>
 
@@ -185,11 +187,16 @@
     </div>
   </div>
 
-  <!-- STEP 4: CHROMA KEY (NEW DEDICATED PAGE) -->
+  <!-- STEP 4: CHROMA KEY (LIVE PREVIEW) -->
   <div id="step4" class="screen">
     <header><h1>Step 4: Green Screen Setup</h1><p>Replace background of taken photos</p></header>
     <div class="content">
       
+      <!-- Live Preview for Chroma setup -->
+      <div class="canvas-container">
+        <canvas id="step4Canvas"></canvas>
+      </div>
+
       <div class="card" style="border: 2px solid #16a34a;">
         <div class="flex-row" style="margin-bottom:0;">
             <input type="checkbox" id="chkChroma" style="width:20px; height:20px;" onchange="toggleChromaUI()"> 
@@ -200,42 +207,38 @@
       <div id="chromaSettings" style="display:none;">
           <div class="card">
             <div class="card-title">Key Color & Intensity</div>
-            <span class="hint">Select the color of your physical background (usually bright green).</span>
+            <span class="hint">Select the color of your background (watch the preview change!).</span>
             <div class="flex-row">
               <input type="color" id="chromaColor" value="#00ff00" style="height:50px; width:60px;">
-              <input type="range" id="chromaIntensity" min="0" max="200" value="80" style="flex:1;">
+              <input type="range" id="chromaIntensity" min="0" max="200" value="100" style="flex:1;">
             </div>
           </div>
 
           <div class="card">
             <div class="card-title">Background Replacement Mode</div>
-            <span class="hint">What should replace the green screen?</span>
             
             <label class="radio-label">
                 <input type="radio" name="chromaMode" value="transparent" checked onchange="updateChromaMode()"> 
-                1. Show Main Background (Transparent)
+                1. Show Main Background (From Step 3)
             </label>
             <label class="radio-label">
                 <input type="radio" name="chromaMode" value="single" onchange="updateChromaMode()"> 
-                2. Single Custom Image (Applies to all shots)
+                2. Single Custom Image (For all shots)
             </label>
             <label class="radio-label">
                 <input type="radio" name="chromaMode" value="unique" onchange="updateChromaMode()"> 
                 3. Unique Custom Image (Per shot)
             </label>
 
-            <!-- Mode 2: Single Image Input -->
             <div id="chromaSingleWrap" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
                 <label>Upload Single Background</label>
                 <input type="file" id="fileChromaSingle" accept="image/*">
             </div>
 
-            <!-- Mode 3: Unique Images Input -->
             <div id="chromaUniqueWrap" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
                 <label>Upload Background Per Shot</label>
                 <div id="uniqueInputsContainer"></div>
             </div>
-
           </div>
       </div>
 
@@ -246,14 +249,14 @@
     </div>
   </div>
 
-
   <!-- STEP 5: CAPTURE -->
   <div id="step5" class="screen">
     <header><h1>Step 5: Photo Session</h1><p>Get ready!</p></header>
     <div class="content" style="display:flex; flex-direction:column; justify-content:center;">
       
-      <div class="canvas-container" style="max-width: 100%; aspect-ratio: 4/3; margin-bottom: 16px;">
-        <video id="captureVideo" autoplay playsinline muted></video>
+      <!-- Live Preview for actual session -->
+      <div class="canvas-container" style="position:relative;">
+        <canvas id="step5Canvas"></canvas>
         <div id="countdownOverlay">3</div>
         <div id="flashOverlay"></div>
       </div>
@@ -283,14 +286,13 @@
   <div id="step6" class="screen">
     <header><h1>Step 6: Your Masterpiece</h1><p>Save and Share</p></header>
     <div class="content">
-      <div class="canvas-container">
+      <div class="canvas-container design-container">
         <canvas id="resultCanvas" width="1200" height="1800"></canvas>
       </div>
       
       <div style="display:flex; gap:12px; margin-bottom: 16px;">
         <button class="btn-secondary" onclick="goToStep(5)" style="flex:1">Reshoot</button>
       </div>
-
     </div>
     <div class="action-bar" style="padding: 24px 16px;">
       <button class="btn-success" style="font-size: 1.1rem; padding: 16px;" onclick="exportFinalImage()">Download 4x6</button>
@@ -301,7 +303,7 @@
 
 <script>
 /**
- * MediaBox PhotoBooth v2.2
+ * MediaBox PhotoBooth v2.3 - LIVE PREVIEW FIX
  */
 const W = 1200, H = 1800; 
 const state = {
@@ -314,15 +316,16 @@ const state = {
   captures: [], 
   selectedItemIndex: -1,
   
-  // NEW: Chroma State
   chromaEnabled: false,
   chromaMode: 'transparent',
   chromaSingleImg: null,
   chromaUniqueImgs: []
 };
 
-const previewVideo = document.getElementById('previewVideo');
-const captureVideo = document.getElementById('captureVideo');
+let livePreviewRAF = null;
+let currentShotIdx = 0; // Tracks live background swaps during Step 5
+
+const cameraFeed = document.getElementById('cameraFeed');
 const layoutCanvas = document.getElementById('layoutCanvas');
 const lCtx = layoutCanvas.getContext('2d');
 const designCanvas = document.getElementById('designCanvas');
@@ -330,23 +333,27 @@ const dCtx = designCanvas.getContext('2d');
 const resultCanvas = document.getElementById('resultCanvas');
 const rCtx = resultCanvas.getContext('2d');
 const processCanvas = document.getElementById('processCanvas');
-const pCtx = processCanvas.getContext('2d');
+const pCtx = processCanvas.getContext('2d', { willReadFrequently: true });
 
 function goToStep(step) {
   document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
   document.getElementById('step' + step).classList.add('active');
   
+  if(livePreviewRAF) cancelAnimationFrame(livePreviewRAF); // Stop previous feed
+  
+  if(step === 1) { startLivePreview('step1Canvas', false); }
   if(step === 2) { drawLayout(); }
   if(step === 3) { state.selectedItemIndex = -1; closeEditMenu(); drawDesign(); }
-  if(step === 4) { renderChromaUI(); } // Refresh UI based on layout selection
+  if(step === 4) { renderChromaUI(); startLivePreview('step4Canvas', true); }
   if(step === 5) { 
     document.getElementById('lblShotCount').innerText = state.layoutBoxes.length;
-    if(state.stream) captureVideo.srcObject = state.stream;
+    currentShotIdx = 0; // reset for live preview loop
+    startLivePreview('step5Canvas', true);
   }
   if(step === 6) { renderFinalResult(); }
 }
 
-// --- CAMERA ---
+// --- CAMERA & LIVE PREVIEW ENGINE ---
 async function initDevices() {
   try {
     const devices = await navigator.mediaDevices.enumerateDevices();
@@ -356,7 +363,7 @@ async function initDevices() {
     videoDevs.forEach((d, i) => {
       sel.innerHTML += `<option value="${d.deviceId}">${d.label || 'Camera ' + (i+1)}</option>`;
     });
-  } catch(e) { console.warn('Device enum failed'); }
+  } catch(e) {}
 }
 
 async function startCamera() {
@@ -370,11 +377,11 @@ async function startCamera() {
 
   try {
     state.stream = await navigator.mediaDevices.getUserMedia(constraints);
-    previewVideo.srcObject = state.stream;
-    captureVideo.srcObject = state.stream;
+    cameraFeed.srcObject = state.stream;
     initDevices(); 
   } catch(e) { alert("Camera error: " + e.message); }
 }
+
 document.getElementById('btnStartCamera').addEventListener('click', startCamera);
 document.getElementById('camFacing').addEventListener('change', () => { document.getElementById('camDevice').value = ""; startCamera(); });
 document.getElementById('btnSwitchCamLive').addEventListener('click', async () => {
@@ -384,6 +391,67 @@ document.getElementById('btnSwitchCamLive').addEventListener('click', async () =
     await startCamera();
 });
 
+function drawChecker(ctx, w, h) {
+    const size = 20;
+    for(let y=0; y<h; y+=size) {
+        for(let x=0; x<w; x+=size) {
+            ctx.fillStyle = ((x/size + Math.floor(y/size)) % 2 === 0) ? '#e2e8f0' : '#ffffff';
+            ctx.fillRect(x,y,size,size);
+        }
+    }
+}
+
+// The core rendering loop for live preview (Shows chroma working in real-time)
+function startLivePreview(canvasId, useChroma) {
+    const canvas = document.getElementById(canvasId);
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    
+    function loop() {
+        if (cameraFeed.readyState >= 2 && cameraFeed.videoWidth > 0) {
+            // Lock preview resolution for performance
+            canvas.width = 640; 
+            canvas.height = Math.round(640 * (cameraFeed.videoHeight / cameraFeed.videoWidth));
+            
+            if (!useChroma || !state.chromaEnabled) {
+                drawCover(ctx, cameraFeed, 0, 0, canvas.width, canvas.height, false);
+            } else {
+                // 1. Draw Intended Background First
+                let bgImg = null;
+                if (state.chromaMode === 'single') bgImg = state.chromaSingleImg;
+                else if (state.chromaMode === 'unique') bgImg = state.chromaUniqueImgs[currentShotIdx];
+                else if (state.chromaMode === 'transparent') bgImg = state.bgImg;
+
+                if (bgImg) drawCover(ctx, bgImg, 0, 0, canvas.width, canvas.height, false);
+                else drawChecker(ctx, canvas.width, canvas.height);
+                
+                const bgData = ctx.getImageData(0,0,canvas.width, canvas.height).data;
+
+                // 2. Draw Camera frame to process canvas
+                processCanvas.width = canvas.width; processCanvas.height = canvas.height;
+                drawCover(pCtx, cameraFeed, 0, 0, processCanvas.width, processCanvas.height, false);
+                const fg = pCtx.getImageData(0,0,processCanvas.width, processCanvas.height);
+                
+                const key = hexToRgb(document.getElementById('chromaColor').value);
+                const th = Number(document.getElementById('chromaIntensity').value);
+
+                // 3. Pixel Math
+                for(let i=0; i<fg.data.length; i+=4){
+                    const r=fg.data[i], g=fg.data[i+1], b=fg.data[i+2];
+                    if(Math.sqrt((r-key.r)**2+(g-key.g)**2+(b-key.b)**2) < th) {
+                        fg.data[i] = bgData[i];
+                        fg.data[i+1] = bgData[i+1];
+                        fg.data[i+2] = bgData[i+2];
+                        fg.data[i+3] = bgData[i+3];
+                    }
+                }
+                ctx.putImageData(fg, 0, 0);
+            }
+        }
+        livePreviewRAF = requestAnimationFrame(loop);
+    }
+    loop();
+}
 
 // --- LAYOUT ---
 function applyPreset(type) {
@@ -422,13 +490,10 @@ layoutCanvas.addEventListener('pointerdown', e => {
 layoutCanvas.addEventListener('pointermove', e => {
   if(draggingBox > -1) {
     const p = getCanvasPos(e, layoutCanvas);
-    state.layoutBoxes[draggingBox].x = p.x - dragBoxOffset.x;
-    state.layoutBoxes[draggingBox].y = p.y - dragBoxOffset.y;
-    drawLayout();
+    state.layoutBoxes[draggingBox].x = p.x - dragBoxOffset.x; state.layoutBoxes[draggingBox].y = p.y - dragBoxOffset.y; drawLayout();
   }
 });
 layoutCanvas.addEventListener('pointerup', () => draggingBox = -1);
-
 
 // --- DESIGN ENGINE ---
 function getCanvasPos(evt, canvas) {
@@ -454,15 +519,10 @@ function clearBg() { state.bgImg = null; document.getElementById('fileBg').value
 function clearOverlay() { state.overlayImg = null; document.getElementById('fileOverlay').value=""; drawDesign(); }
 function toggleFlipBg() { state.bgFlip = document.getElementById('chkFlipBg').checked; drawDesign(); }
 function toggleFlipOverlay() { state.overlayFlip = document.getElementById('chkFlipOverlay').checked; drawDesign(); }
-
 function addText() {
   const txt = document.getElementById('textInput').value.trim();
   if(!txt) return;
-  state.items.push({
-    type: 'text', text: txt, x: W/2, y: H/2, size: 1, rotation: 0, flipX: false,
-    color: document.getElementById('textColor').value, 
-    font: document.getElementById('textFont').value
-  });
+  state.items.push({ type: 'text', text: txt, x: W/2, y: H/2, size: 1, rotation: 0, flipX: false, color: document.getElementById('textColor').value, font: document.getElementById('textFont').value });
   document.getElementById('textInput').value = ""; drawDesign();
 }
 
@@ -485,25 +545,19 @@ function drawDesign(ctx = dCtx, isFinal = false) {
   if(state.overlayImg) drawCover(ctx, state.overlayImg, 0, 0, W, H, state.overlayFlip);
 
   state.items.forEach((it, i) => {
-    ctx.save();
-    ctx.translate(it.x, it.y);
+    ctx.save(); ctx.translate(it.x, it.y);
     if(it.rotation) ctx.rotate(it.rotation * Math.PI / 180);
     if(it.flipX) ctx.scale(-1, 1);
     
     if(it.type === 'sticker') {
-      const dw = it.w * it.size, dh = it.h * it.size;
-      ctx.drawImage(it.img, -dw/2, -dh/2, dw, dh);
+      const dw = it.w * it.size, dh = it.h * it.size; ctx.drawImage(it.img, -dw/2, -dh/2, dw, dh);
       if(!isFinal && i === state.selectedItemIndex) drawDashedBox(ctx, -dw/2, -dh/2, dw, dh);
     } else if(it.type === 'text') {
-      const fSize = 80 * it.size;
-      ctx.font = `bold ${fSize}px ${it.font}`;
-      ctx.fillStyle = it.color; ctx.strokeStyle = 'rgba(0,0,0,0.5)';
-      ctx.lineWidth = Math.max(4, 4 * it.size);
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      const fSize = 80 * it.size; ctx.font = `bold ${fSize}px ${it.font}`; ctx.fillStyle = it.color; ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+      ctx.lineWidth = Math.max(4, 4 * it.size); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.strokeText(it.text, 0, 0); ctx.fillText(it.text, 0, 0);
       if(!isFinal && i === state.selectedItemIndex) {
-        const met = ctx.measureText(it.text);
-        drawDashedBox(ctx, -met.width/2 - 10, -fSize/2 - 10, met.width + 20, fSize + 20);
+        const met = ctx.measureText(it.text); drawDashedBox(ctx, -met.width/2 - 10, -fSize/2 - 10, met.width + 20, fSize + 20);
       }
     }
     ctx.restore();
@@ -512,58 +566,34 @@ function drawDesign(ctx = dCtx, isFinal = false) {
 
 function drawCover(ctx, img, x, y, w, h, flip) {
   ctx.save();
-  const r = Math.max(w/img.width, h/img.height);
-  const nw = img.width*r, nh = img.height*r;
-  const cx = x + (w-nw)/2, cy = y + (h-nh)/2;
+  const r = Math.max(w/img.width, h/img.height); const nw = img.width*r, nh = img.height*r; const cx = x + (w-nw)/2, cy = y + (h-nh)/2;
   if (flip) { ctx.translate(x + w, y); ctx.scale(-1, 1); ctx.drawImage(img, (w-nw)/2, (h-nh)/2, nw, nh); } 
   else { ctx.drawImage(img, cx, cy, nw, nh); }
   ctx.restore();
 }
+function drawDashedBox(ctx, x, y, w, h) { ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 4; ctx.setLineDash([15, 15]); ctx.strokeRect(x,y,w,h); }
 
-function drawDashedBox(ctx, x, y, w, h) {
-  ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 4; ctx.setLineDash([15, 15]); ctx.strokeRect(x,y,w,h);
-}
-
-// Editor Interaction
 let dragItem = -1, itemOffset = {x:0, y:0};
 designCanvas.addEventListener('pointerdown', e => {
   const p = getCanvasPos(e, designCanvas);
   for(let i = state.items.length - 1; i >= 0; i--) {
-    const it = state.items[i];
-    const rad = -(it.rotation || 0) * Math.PI / 180;
-    const lx = p.x - it.x, ly = p.y - it.y;
-    const rx = lx * Math.cos(rad) - ly * Math.sin(rad);
-    const ry = lx * Math.sin(rad) + ly * Math.cos(rad);
+    const it = state.items[i]; const rad = -(it.rotation || 0) * Math.PI / 180;
+    const lx = p.x - it.x, ly = p.y - it.y; const rx = lx * Math.cos(rad) - ly * Math.sin(rad); const ry = lx * Math.sin(rad) + ly * Math.cos(rad);
     
     let hit = false;
-    if(it.type === 'sticker') {
-      const w2 = (it.w * it.size)/2, h2 = (it.h * it.size)/2;
-      hit = (rx >= -w2 && rx <= w2 && ry >= -h2 && ry <= h2);
-    } else {
-      dCtx.font = `bold ${80 * it.size}px ${it.font}`;
-      const w2 = dCtx.measureText(it.text).width / 2, h2 = (80 * it.size) / 2;
-      hit = (rx >= -w2 && rx <= w2 && ry >= -h2 && ry <= h2);
-    }
-    
+    if(it.type === 'sticker') { const w2 = (it.w * it.size)/2, h2 = (it.h * it.size)/2; hit = (rx >= -w2 && rx <= w2 && ry >= -h2 && ry <= h2); } 
+    else { dCtx.font = `bold ${80 * it.size}px ${it.font}`; const w2 = dCtx.measureText(it.text).width / 2, h2 = (80 * it.size) / 2; hit = (rx >= -w2 && rx <= w2 && ry >= -h2 && ry <= h2); }
     if(hit) { dragItem = i; itemOffset = { x: p.x - it.x, y: p.y - it.y }; selectItem(i); return; }
   }
   selectItem(-1); 
 });
-designCanvas.addEventListener('pointermove', e => {
-  if(dragItem > -1) {
-    const p = getCanvasPos(e, designCanvas);
-    state.items[dragItem].x = p.x - itemOffset.x; state.items[dragItem].y = p.y - itemOffset.y; drawDesign();
-  }
-});
+designCanvas.addEventListener('pointermove', e => { if(dragItem > -1) { const p = getCanvasPos(e, designCanvas); state.items[dragItem].x = p.x - itemOffset.x; state.items[dragItem].y = p.y - itemOffset.y; drawDesign(); } });
 designCanvas.addEventListener('pointerup', () => dragItem = -1);
 
 function selectItem(idx) {
-  state.selectedItemIndex = idx;
-  const menu = document.getElementById('editMenu');
+  state.selectedItemIndex = idx; const menu = document.getElementById('editMenu');
   if(idx === -1) { menu.style.display = 'none'; drawDesign(); return; }
-  const it = state.items[idx];
-  menu.style.display = 'block';
-  document.getElementById('editTitle').innerText = it.type === 'text' ? 'Edit Text' : 'Edit Sticker';
+  const it = state.items[idx]; menu.style.display = 'block'; document.getElementById('editTitle').innerText = it.type === 'text' ? 'Edit Text' : 'Edit Sticker';
   document.getElementById('editSize').value = it.size; document.getElementById('editRotation').value = it.rotation || 0;
   if(it.type === 'text') { document.getElementById('editColorWrap').style.display = 'block'; document.getElementById('editColor').value = it.color; } 
   else { document.getElementById('editColorWrap').style.display = 'none'; }
@@ -576,143 +606,98 @@ document.getElementById('btnFlipItem').addEventListener('click', () => { if(stat
 document.getElementById('editColor').addEventListener('input', e => { if(state.selectedItemIndex > -1) { state.items[state.selectedItemIndex].color = e.target.value; drawDesign(); }});
 document.getElementById('btnDeleteItem').addEventListener('click', () => { if(state.selectedItemIndex > -1) { state.items.splice(state.selectedItemIndex, 1); selectItem(-1); }});
 
-
-// --- NEW: CHROMA KEY SETUP ---
-function toggleChromaUI() {
-    state.chromaEnabled = document.getElementById('chkChroma').checked;
-    document.getElementById('chromaSettings').style.display = state.chromaEnabled ? 'block' : 'none';
-}
-
+// --- CHROMA UI ---
+function toggleChromaUI() { state.chromaEnabled = document.getElementById('chkChroma').checked; document.getElementById('chromaSettings').style.display = state.chromaEnabled ? 'block' : 'none'; }
 function updateChromaMode() {
     state.chromaMode = document.querySelector('input[name="chromaMode"]:checked').value;
     document.getElementById('chromaSingleWrap').style.display = (state.chromaMode === 'single') ? 'block' : 'none';
     document.getElementById('chromaUniqueWrap').style.display = (state.chromaMode === 'unique') ? 'block' : 'none';
 }
-
 function renderChromaUI() {
-    const container = document.getElementById('uniqueInputsContainer');
-    container.innerHTML = '';
-    
-    // Ensure array is right size
+    const container = document.getElementById('uniqueInputsContainer'); container.innerHTML = '';
     while(state.chromaUniqueImgs.length < state.shotsTotal) state.chromaUniqueImgs.push(null);
     state.chromaUniqueImgs = state.chromaUniqueImgs.slice(0, state.shotsTotal);
-
     for(let i=0; i<state.shotsTotal; i++) {
-        const box = document.createElement('div');
-        box.className = 'unique-upload-box';
-        box.innerHTML = `<label style="margin-bottom:4px">Background for Shot ${i+1}</label>
-                         <input type="file" accept="image/*" id="uniqueChromaFile_${i}">`;
+        const box = document.createElement('div'); box.className = 'unique-upload-box';
+        box.innerHTML = `<label style="margin-bottom:4px">Background for Shot ${i+1}</label><input type="file" accept="image/*" id="uniqueChromaFile_${i}">`;
         container.appendChild(box);
-        
-        document.getElementById(`uniqueChromaFile_${i}`).addEventListener('change', e => {
-            loadImg(e.target.files[0], img => { state.chromaUniqueImgs[i] = img; });
-        });
+        document.getElementById(`uniqueChromaFile_${i}`).addEventListener('change', e => { loadImg(e.target.files[0], img => { state.chromaUniqueImgs[i] = img; }); });
     }
 }
+document.getElementById('fileChromaSingle').addEventListener('change', e => { loadImg(e.target.files[0], img => { state.chromaSingleImg = img; }); });
 
-document.getElementById('fileChromaSingle').addEventListener('change', e => {
-    loadImg(e.target.files[0], img => { state.chromaSingleImg = img; });
-});
-
-
-// --- CAPTURE ALGORITHM ---
+// --- FINAL CAPTURE ALGORITHM ---
 function hexToRgb(hex){ const m=hex.replace('#',''); return {r:parseInt(m.substring(0,2),16), g:parseInt(m.substring(2,4),16), b:parseInt(m.substring(4,6),16)}; }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-async function captureFrame(shotIndex) {
-  const vid = document.getElementById('captureVideo');
-  if(!vid.videoWidth) return null;
-  processCanvas.width = vid.videoWidth; processCanvas.height = vid.videoHeight;
-  pCtx.drawImage(vid, 0, 0, processCanvas.width, processCanvas.height);
+async function captureFinalFrame(shotIndex) {
+  if(!cameraFeed.videoWidth) return null;
+  processCanvas.width = cameraFeed.videoWidth; processCanvas.height = cameraFeed.videoHeight;
+  pCtx.drawImage(cameraFeed, 0, 0, processCanvas.width, processCanvas.height);
   
   if(state.chromaEnabled) {
+    let bgImg = null;
+    if(state.chromaMode === 'single') bgImg = state.chromaSingleImg;
+    else if(state.chromaMode === 'unique') bgImg = state.chromaUniqueImgs[shotIndex];
+    
+    let customBgData = null;
+    if (bgImg) {
+        const tCanvas = document.createElement('canvas'); tCanvas.width = processCanvas.width; tCanvas.height = processCanvas.height;
+        drawCover(tCanvas.getContext('2d'), bgImg, 0, 0, tCanvas.width, tCanvas.height, false);
+        customBgData = tCanvas.getContext('2d').getImageData(0,0,tCanvas.width, tCanvas.height).data;
+    }
+    
     const fg = pCtx.getImageData(0,0,processCanvas.width, processCanvas.height);
     const key = hexToRgb(document.getElementById('chromaColor').value);
     const th = Number(document.getElementById('chromaIntensity').value);
     
-    // Optional: Prepare replacement background data
-    let bgData = null;
-    if (state.chromaMode !== 'transparent') {
-        const temp = document.createElement('canvas');
-        temp.width = processCanvas.width; temp.height = processCanvas.height;
-        const tCtx = temp.getContext('2d');
-        
-        let customBg = null;
-        if(state.chromaMode === 'single') customBg = state.chromaSingleImg;
-        if(state.chromaMode === 'unique') customBg = state.chromaUniqueImgs[shotIndex];
-        
-        if (customBg) {
-            drawCover(tCtx, customBg, 0, 0, temp.width, temp.height, false);
-            bgData = tCtx.getImageData(0,0,temp.width, temp.height).data;
-        }
-    }
-
-    // Process Pixels
     for(let i=0; i<fg.data.length; i+=4){
-      const r=fg.data[i], g=fg.data[i+1], b=fg.data[i+2];
-      if(Math.sqrt((r-key.r)**2+(g-key.g)**2+(b-key.b)**2) < th) {
-        if (state.chromaMode === 'transparent' || !bgData) {
-            fg.data[i+3] = 0; // Turn alpha to 0
-        } else {
-            // Replace with custom background pixel
-            fg.data[i] = bgData[i];
-            fg.data[i+1] = bgData[i+1];
-            fg.data[i+2] = bgData[i+2];
-            fg.data[i+3] = bgData[i+3];
+        const r=fg.data[i], g=fg.data[i+1], b=fg.data[i+2];
+        if(Math.sqrt((r-key.r)**2+(g-key.g)**2+(b-key.b)**2) < th) {
+            if (state.chromaMode === 'transparent' || !customBgData) {
+                fg.data[i+3] = 0; // Pokes hole for designCanvas bgImg
+            } else {
+                fg.data[i] = customBgData[i]; fg.data[i+1] = customBgData[i+1]; fg.data[i+2] = customBgData[i+2]; fg.data[i+3] = customBgData[i+3];
+            }
         }
-      }
     }
     pCtx.putImageData(fg,0,0);
   }
   
-  const img = new Image();
-  img.src = processCanvas.toDataURL('image/png');
-  await new Promise(r => img.onload = r);
-  return img;
+  const img = new Image(); img.src = processCanvas.toDataURL('image/png'); await new Promise(r => img.onload = r); return img;
 }
 
 document.getElementById('btnStartSession').addEventListener('click', async () => {
   state.captures = [];
-  document.getElementById('btnBackToChroma').style.display = 'none';
-  document.getElementById('btnStartSession').style.display = 'none';
-  document.getElementById('btnSwitchCamLive').style.display = 'none';
-  
+  document.getElementById('btnBackToChroma').style.display = 'none'; document.getElementById('btnStartSession').style.display = 'none'; document.getElementById('btnSwitchCamLive').style.display = 'none';
   const delay = parseInt(document.getElementById('countdownSecs').value) || 3;
   const status = document.getElementById('captureStatus');
 
   for(let i=0; i<state.shotsTotal; i++) {
+    currentShotIdx = i; // Updates the live preview background automatically!
     status.innerText = `Taking photo ${i+1} of ${state.shotsTotal}...`;
+    
     document.getElementById('countdownOverlay').style.display = 'flex';
     for(let s=delay; s>0; s--) { document.getElementById('countdownOverlay').innerText = s; await sleep(1000); }
     document.getElementById('countdownOverlay').style.display = 'none';
     
-    document.getElementById('flashOverlay').style.opacity = '1';
-    setTimeout(() => document.getElementById('flashOverlay').style.opacity = '0', 100);
-    
-    // Pass the shot index to captureFrame to handle unique chroma backgrounds
-    const img = await captureFrame(i);
-    if(img) state.captures.push(img);
+    document.getElementById('flashOverlay').style.opacity = '1'; setTimeout(() => document.getElementById('flashOverlay').style.opacity = '0', 100);
+    const img = await captureFinalFrame(i); if(img) state.captures.push(img);
     await sleep(500); 
   }
   
-  document.getElementById('btnBackToChroma').style.display = 'block';
-  document.getElementById('btnStartSession').style.display = 'block';
-  document.getElementById('btnSwitchCamLive').style.display = 'block';
+  document.getElementById('btnBackToChroma').style.display = 'block'; document.getElementById('btnStartSession').style.display = 'block'; document.getElementById('btnSwitchCamLive').style.display = 'block';
   status.innerText = "Session Complete!";
   goToStep(6);
 });
 
 // --- RESULT ---
 function renderFinalResult() { drawDesign(rCtx, true); }
-function exportFinalImage() {
-  const a = document.createElement('a');
-  a.download = 'mediabox_booth_final.jpg';
-  a.href = resultCanvas.toDataURL('image/jpeg', 0.95);
-  a.click();
-}
+function exportFinalImage() { const a = document.createElement('a'); a.download = 'mediabox_booth_final.jpg'; a.href = resultCanvas.toDataURL('image/jpeg', 0.95); a.click(); }
 
 initDevices();
 applyPreset('4-grid');
+goToStep(1); // initialize first screen explicitly
 </script>
 </body>
 </html>
