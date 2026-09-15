@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <title>MediaBox Web PhotoBooth Pro v2.2.1</title>
+  <title>MediaBox Web PhotoBooth Pro v2.2.1b</title>
   <style>
     :root {
       --primary: #2563eb; --primary-hover: #1d4ed8;
@@ -52,8 +52,6 @@
     .design-container { aspect-ratio: 2/3; background: #e2e8f0; }
     .canvas-container canvas { position: relative; z-index: 1; width: 100%; height: 100%; display: block; touch-action: none; }
 
-    /* Real, visible preview video inside the canvas container.
-       object-fit: cover matches what drawCover() does on canvas. */
     .canvas-container .preview-video {
       position: absolute;
       inset: 0;
@@ -62,7 +60,7 @@
       object-fit: cover;
       z-index: 0;
       background: #0f172a;
-      transform: translateZ(0); /* force GPU layer on Android */
+      transform: translateZ(0);
     }
 
     #editMenu { display: none; background: #f8fafc; border: 1px solid var(--border); padding: 12px; border-radius: 8px; margin-bottom: 16px; }
@@ -111,7 +109,7 @@
       <div class="buttons-wrap">
         <button class="btn-primary" onclick="tryGoToStep2()">Next: Layout Setup</button>
       </div>
-      <div class="credits">v2.2.1 &bull; Created by randybondoc</div>
+      <div class="credits">v2.2.1b &bull; Created by randybondoc</div>
     </div>
   </div>
 
@@ -143,7 +141,7 @@
         <button class="btn-secondary" onclick="goToStep(1)">Back</button>
         <button class="btn-primary" onclick="goToStep(3)">Next: Design</button>
       </div>
-      <div class="credits">v2.2.1 &bull; Created by randybondoc</div>
+      <div class="credits">v2.2.1b &bull; Created by randybondoc</div>
     </div>
   </div>
 
@@ -227,7 +225,7 @@
         <button class="btn-secondary" onclick="goToStep(2)">Back</button>
         <button class="btn-primary" onclick="goToStep(4)">Next: Green Screen</button>
       </div>
-      <div class="credits">v2.2.1 &bull; Created by randybondoc</div>
+      <div class="credits">v2.2.1b &bull; Created by randybondoc</div>
     </div>
   </div>
 
@@ -296,7 +294,7 @@
         <button class="btn-secondary" onclick="goToStep(3)">Back</button>
         <button class="btn-primary" onclick="goToStep(5)">Next: Capture</button>
       </div>
-      <div class="credits">v2.2.1 &bull; Created by randybondoc</div>
+      <div class="credits">v2.2.1b &bull; Created by randybondoc</div>
     </div>
   </div>
 
@@ -336,7 +334,7 @@
         <button class="btn-secondary" id="btnBackToChroma" onclick="goToStep(4)">Back</button>
         <button class="btn-primary" id="btnStartSession" style="background:var(--danger)">Start Session</button>
       </div>
-      <div class="credits">v2.2.1 &bull; Created by randybondoc</div>
+      <div class="credits">v2.2.1b &bull; Created by randybondoc</div>
     </div>
   </div>
 
@@ -360,7 +358,7 @@
       <div class="buttons-wrap">
         <button class="btn-success" style="font-size: 1.1rem; padding: 12px 24px;" onclick="exportFinalImage()">Download 4x6</button>
       </div>
-      <div class="credits">v2.2.1 &bull; Created by randybondoc</div>
+      <div class="credits">v2.2.1b &bull; Created by randybondoc</div>
     </div>
   </div>
 
@@ -368,21 +366,17 @@
 
 <script>
 /**
- * MediaBox Web PhotoBooth Pro v2.2.1
+ * MediaBox Web PhotoBooth Pro v2.2.1b
  * Created by randybondoc
  *
- * Camera subsystem rewritten for mobile robustness.
- * KEY CHANGES in this revision:
- *  - The camera <video> is now a REAL, VISIBLE, properly-sized element inside
- *    each preview container (not an 8x8 hidden stub). Android Chrome and
- *    Samsung Internet will not reliably decode frames for essentially-invisible
- *    videos — the video must be in the render tree at normal size.
- *  - The chroma-key <canvas> sits on TOP of the video as a transparent overlay.
- *    When chroma is off, we simply clear the canvas so the live video shows through.
- *  - drawCover() now reads videoWidth/videoHeight for <video> sources.
- *    (Previously it read .width/.height which for a <video> is the HTML
- *    attribute default — 300x150 — producing a completely wrong transform.)
- *  - Multiple preview videos all share the same MediaStream.
+ * Changes in v2.2.1b (performance pass):
+ *  - Only the ACTIVE screen's preview video plays. Hidden screens' videos are
+ *    paused so Android isn't decoding the same stream three times over.
+ *  - Chroma-key preview canvas processes at 320px wide instead of 640px
+ *    (4x less pixel work; visually identical at preview size).
+ *  - Chroma-key throttle lowered to ~12fps so the CPU pixel loop no longer
+ *    starves the camera decoder. Non-chroma previews still run at RAF speed.
+ *  - Final capture still uses full camera resolution and full quality.
  */
 const W = 1200, H = 1800;
 
@@ -434,7 +428,16 @@ function goToStep(step) {
 
   stopLivePreview();
 
-  // Resume preview videos that live inside this screen
+  // Big Android perf win: pause every preview video that isn't in the
+  // newly-active screen so we aren't decoding the same stream N times.
+  previewVideos.forEach(v => {
+    const inActiveScreen = target && target.contains(v);
+    if (!inActiveScreen) {
+      try { v.pause(); } catch (e) {}
+    }
+  });
+
+  // Resume only the active screen's video.
   if (target && state.stream) {
     target.querySelectorAll('video.preview-video').forEach(v => {
       if (v.srcObject !== state.stream) v.srcObject = state.stream;
@@ -558,12 +561,15 @@ async function startCamera() {
 
     state.stream = stream;
 
-    // Attach to EVERY preview video.
-    previewVideos.forEach(v => {
-      v.srcObject = stream;
-      const p = v.play();
-      if (p && p.catch) p.catch(err => console.warn("preview play() failed", err));
-    });
+    // Attach stream to EVERY preview video, but only *play* the active one.
+    // Paused hidden videos consume no decoder resources on Android.
+    previewVideos.forEach(v => { v.srcObject = stream; });
+
+    const activeVideo = getActiveVideo() || previewVideos[0];
+    const activePlay = activeVideo.play();
+    if (activePlay && activePlay.catch) {
+      activePlay.catch(err => console.warn("preview play() failed", err));
+    }
 
     stream.getVideoTracks().forEach(track => {
       track.onended = () => {
@@ -573,29 +579,19 @@ async function startCamera() {
     });
 
     // Wait for the *visible* preview video to have real frame dimensions.
-    // The currently active screen's video is the most likely to decode first.
-    const primaryVideo = getActiveVideo() || previewVideos[0];
-    await waitForMetadata(primaryVideo);
+    await waitForMetadata(activeVideo);
 
-    // play() is a real failure point, don't swallow.
     try {
-      await primaryVideo.play();
+      await activeVideo.play();
     } catch (playErr) {
       throw new Error("Camera stream acquired but playback failed: " + (playErr && playErr.message ? playErr.message : playErr));
     }
 
-    if (!primaryVideo.videoWidth || !primaryVideo.videoHeight) {
+    if (!activeVideo.videoWidth || !activeVideo.videoHeight) {
       await new Promise(r => setTimeout(r, 300));
-      if (!primaryVideo.videoWidth || !primaryVideo.videoHeight) {
+      if (!activeVideo.videoWidth || !activeVideo.videoHeight) {
         throw new Error("Camera started but no video frames were received.");
       }
-    }
-
-    // Also wait for the *currently active* preview video specifically
-    const active = getActiveVideo();
-    if (active && active !== primaryVideo) {
-      try { await waitForMetadata(active, 5000); } catch (e) { /* non-fatal */ }
-      try { await active.play(); } catch (e) {}
     }
 
     cameraReady = true;
@@ -709,14 +705,14 @@ function startLivePreview(canvasId, useChroma) {
   if (!canvas) return;
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-  // Chroma processing throttle (~20fps)
-  const CHROMA_INTERVAL_MS = 1000 / 20;
+  // Chroma processing throttle (~12fps). The pixel loop is heavy; running it
+  // slower keeps the camera decoder happy on mid-range Android.
+  const CHROMA_INTERVAL_MS = 1000 / 12;
   let lastChromaTime = 0;
 
   function loop(ts) {
     if (activePreviewCanvasId !== canvasId) return;
 
-    // --- Not ready: show opaque placeholder so the video behind is hidden ---
     if (!cameraReady || !state.stream) {
       drawWaiting(ctx, canvas);
       livePreviewRAF = requestAnimationFrame(loop);
@@ -730,15 +726,18 @@ function startLivePreview(canvasId, useChroma) {
       return;
     }
 
-    const targetW = 640;
-    const targetH = Math.round(640 * (video.videoHeight / video.videoWidth));
+    // Chroma preview runs at 320px wide (4x less pixel work than 640px).
+    // Non-chroma preview runs at 640px since it's just a clearRect.
+    const previewW = useChroma ? 320 : 640;
+    const targetW = previewW;
+    const targetH = Math.round(previewW * (video.videoHeight / video.videoWidth));
     if (canvas.width !== targetW || canvas.height !== targetH) {
       canvas.width  = targetW;
       canvas.height = targetH;
     }
 
     if (!useChroma || !state.chromaEnabled) {
-      // Clear the canvas so the *visible video underneath* shows through.
+      // Clear the canvas so the visible video underneath shows through.
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     } else {
       const now = ts || performance.now();
@@ -962,7 +961,7 @@ function drawDesign(ctx = dCtx, isFinal = false) {
   });
 }
 
-/* drawCover now correctly handles <video>, <img>, and ImageBitmap sources. */
+/* drawCover correctly handles <video>, <img>, and ImageBitmap sources. */
 function drawCover(ctx, src, x, y, w, h, flip) {
   const iw = src.videoWidth || src.naturalWidth || src.width;
   const ih = src.videoHeight || src.naturalHeight || src.height;
