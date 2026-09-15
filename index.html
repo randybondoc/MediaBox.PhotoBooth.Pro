@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <title>MediaBox Web PhotoBooth Pro v2.2</title>
+  <title>MediaBox Web PhotoBooth Pro v2.2.1</title>
   <style>
     :root {
       --primary: #2563eb; --primary-hover: #1d4ed8;
@@ -63,8 +63,8 @@
 </head>
 <body>
 
-  <!-- Hidden continuous camera feed source -->
-  <video id="cameraFeed" autoplay playsinline muted style="display:none;"></video>
+  <!-- MOBILE CAMERA FIX: Instead of display:none, we make it invisible but technically rendered so iOS doesn't pause it -->
+  <video id="cameraFeed" autoplay playsinline muted style="position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; z-index: -10;"></video>
 
   <!-- STEP 1: CAMERA SETUP -->
   <div id="step1" class="screen active">
@@ -347,7 +347,7 @@
 
 <script>
 /**
- * MediaBox Web PhotoBooth Pro v2.2
+ * MediaBox Web PhotoBooth Pro v2.2.1
  * Created by randybondoc
  */
 const W = 1200, H = 1800; 
@@ -423,6 +423,10 @@ async function startCamera() {
   try {
     state.stream = await navigator.mediaDevices.getUserMedia(constraints);
     cameraFeed.srcObject = state.stream;
+    
+    // MOBILE FIX: Explicitly play the video stream
+    await cameraFeed.play().catch(e => console.warn("Play interrupted", e));
+    
     initDevices(); 
   } catch(e) { alert("Camera error: " + e.message); }
 }
