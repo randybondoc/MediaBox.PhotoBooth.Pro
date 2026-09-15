@@ -2,927 +2,342 @@
 <html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <title>MediaBox Web PhotoBooth Pro v2.3</title>
-
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
+  <title>MediaBox Web PhotoBooth Pro v4</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700&family=Montserrat:wght@600;700&family=Playfair+Display:wght@700&family=Bebas+Neue&family=Lobster&family=Pacifico&family=Caveat:wght@700&family=Permanent+Marker&family=Righteous&family=Roboto+Mono:wght@600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
-
   <style>
-    /* =========================================================
-       DESIGN SYSTEM
-       ========================================================= */
     :root {
       --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-      --radius-xs: 6px;
-      --radius-sm: 10px;
-      --radius: 14px;
-      --radius-lg: 20px;
-      --radius-full: 999px;
+      --radius-xs: 6px; --radius-sm: 10px; --radius: 14px; --radius-lg: 20px; --radius-full: 999px;
       --transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
       --transition-slow: 320ms cubic-bezier(0.4, 0, 0.2, 1);
     }
-
     [data-theme="light"] {
-      --bg: #f5f7fb;
-      --bg-gradient: linear-gradient(160deg, #eef2ff 0%, #f5f7fb 40%);
-      --bg-elevated: #ffffff;
-      --bg-subtle: #f1f5f9;
-      --bg-sunken: #e9eef5;
-      --text: #0b1220;
-      --text-muted: #64748b;
-      --text-faint: #94a3b8;
-      --border: #e2e8f0;
-      --border-strong: #cbd5e1;
-      --primary: #6366f1;
-      --primary-hover: #4f46e5;
-      --primary-soft: #eef2ff;
-      --primary-soft-text: #4338ca;
-      --success: #10b981;
-      --success-soft: #ecfdf5;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --danger-soft: #fef2f2;
+      --bg: #f5f7fb; --bg-gradient: linear-gradient(160deg, #eef2ff 0%, #f5f7fb 40%);
+      --bg-elevated: #ffffff; --bg-subtle: #f1f5f9; --bg-sunken: #e9eef5;
+      --text: #0b1220; --text-muted: #64748b; --text-faint: #94a3b8;
+      --border: #e2e8f0; --border-strong: #cbd5e1;
+      --primary: #6366f1; --primary-hover: #4f46e5; --primary-soft: #eef2ff; --primary-soft-text: #4338ca;
+      --success: #10b981; --success-soft: #ecfdf5; --warning: #f59e0b;
+      --danger: #ef4444; --danger-soft: #fef2f2;
       --shadow-sm: 0 1px 2px rgba(15,23,42,0.06);
       --shadow: 0 4px 6px -1px rgba(15,23,42,0.08), 0 2px 4px -1px rgba(15,23,42,0.04);
       --shadow-lg: 0 20px 25px -5px rgba(15,23,42,0.1), 0 8px 10px -6px rgba(15,23,42,0.05);
       --ring: 0 0 0 3px rgba(99,102,241,0.25);
       --glass: rgba(255,255,255,0.7);
     }
-
     [data-theme="dark"] {
-      --bg: #0a0f1c;
-      --bg-gradient: linear-gradient(160deg, #111a35 0%, #0a0f1c 45%);
-      --bg-elevated: #131a2b;
-      --bg-subtle: #1a2338;
-      --bg-sunken: #0d1425;
-      --text: #f1f5f9;
-      --text-muted: #94a3b8;
-      --text-faint: #64748b;
-      --border: #232e47;
-      --border-strong: #354062;
-      --primary: #818cf8;
-      --primary-hover: #a5b4fc;
-      --primary-soft: #1e1b4b;
-      --primary-soft-text: #c7d2fe;
-      --success: #34d399;
-      --success-soft: #064e3b;
-      --warning: #fbbf24;
-      --danger: #f87171;
-      --danger-soft: #450a0a;
+      --bg: #0a0f1c; --bg-gradient: linear-gradient(160deg, #111a35 0%, #0a0f1c 45%);
+      --bg-elevated: #131a2b; --bg-subtle: #1a2338; --bg-sunken: #0d1425;
+      --text: #f1f5f9; --text-muted: #94a3b8; --text-faint: #64748b;
+      --border: #232e47; --border-strong: #354062;
+      --primary: #818cf8; --primary-hover: #a5b4fc; --primary-soft: #1e1b4b; --primary-soft-text: #c7d2fe;
+      --success: #34d399; --success-soft: #064e3b; --warning: #fbbf24;
+      --danger: #f87171; --danger-soft: #450a0a;
       --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
       --shadow: 0 4px 6px -1px rgba(0,0,0,0.5), 0 2px 4px -1px rgba(0,0,0,0.3);
       --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.6), 0 8px 10px -6px rgba(0,0,0,0.4);
       --ring: 0 0 0 3px rgba(129,140,248,0.3);
       --glass: rgba(19,26,43,0.75);
     }
-
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin:0; padding:0; height:100%; overflow:hidden; }
+    body { font-family: var(--font-sans); background: var(--bg); background-image: var(--bg-gradient); color: var(--text); display: flex; flex-direction: column; font-size: 15px; line-height: 1.5; transition: background var(--transition-slow), color var(--transition-slow); -webkit-font-smoothing: antialiased; }
 
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      overflow: hidden;
-    }
-
-    body {
-      font-family: var(--font-sans);
-      background: var(--bg);
-      background-image: var(--bg-gradient);
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      font-size: 15px;
-      line-height: 1.5;
-      transition: background var(--transition-slow), color var(--transition-slow);
-      -webkit-font-smoothing: antialiased;
-    }
-
-    /* =========================================================
-       LAYOUT SHELL
-       ========================================================= */
-    .app-shell {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
-
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      background: var(--glass);
-      backdrop-filter: saturate(180%) blur(14px);
-      -webkit-backdrop-filter: saturate(180%) blur(14px);
-      border-bottom: 1px solid var(--border);
-      position: relative;
-      z-index: 50;
-      flex-shrink: 0;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-    }
-
-    .brand-logo {
-      width: 32px;
-      height: 32px;
-      border-radius: 9px;
-      background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%);
-      display: grid;
-      place-items: center;
-      color: white;
-      font-weight: 800;
-      font-size: 15px;
-      box-shadow: var(--shadow-sm);
-      flex-shrink: 0;
-    }
-
+    .app-shell { display: flex; flex-direction: column; height: 100%; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--glass); backdrop-filter: saturate(180%) blur(14px); -webkit-backdrop-filter: saturate(180%) blur(14px); border-bottom: 1px solid var(--border); position: relative; z-index: 50; flex-shrink: 0; }
+    .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .brand-logo { width: 32px; height: 32px; border-radius: 9px; background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%); display: grid; place-items: center; color: white; font-weight: 800; font-size: 15px; box-shadow: var(--shadow-sm); flex-shrink: 0; }
     .brand-text { min-width: 0; }
-    .brand-title {
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      color: var(--text);
-    }
-    .brand-version {
-      font-size: 10px;
-      font-weight: 600;
-      color: var(--text-faint);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
-    .topbar-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .icon-btn {
-      width: 38px;
-      height: 38px;
-      border-radius: var(--radius-sm);
-      background: transparent;
-      border: 1px solid transparent;
-      color: var(--text-muted);
-      display: grid;
-      place-items: center;
-      cursor: pointer;
-      transition: all var(--transition);
-      padding: 0;
-      font-size: 18px;
-    }
-    .icon-btn:hover {
-      background: var(--bg-subtle);
-      color: var(--text);
-    }
+    .brand-title { font-size: 13px; font-weight: 700; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+    .brand-version { font-size: 10px; font-weight: 600; color: var(--text-faint); letter-spacing: 0.06em; text-transform: uppercase; }
+    .topbar-actions { display: flex; align-items: center; gap: 4px; }
+    .icon-btn { width: 38px; height: 38px; border-radius: var(--radius-sm); background: transparent; border: 1px solid transparent; color: var(--text-muted); display: grid; place-items: center; cursor: pointer; transition: all var(--transition); padding: 0; font-size: 18px; position: relative; }
+    .icon-btn:hover { background: var(--bg-subtle); color: var(--text); }
     .icon-btn:active { transform: scale(0.94); }
-
-    /* =========================================================
-       STEPPER
-       ========================================================= */
-    .stepper {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      padding: 10px 16px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      background: var(--bg-elevated);
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
-      position: relative;
-      z-index: 49;
+    .icon-btn.has-badge::after {
+      content: ''; position: absolute; top: 8px; right: 8px;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--primary); box-shadow: 0 0 0 2px var(--bg-elevated);
     }
+    .icon-btn.active { background: var(--primary-soft); color: var(--primary-soft-text); }
+
+    .stepper { display: flex; align-items: center; gap: 4px; padding: 10px 16px; overflow-x: auto; scrollbar-width: none; background: var(--bg-elevated); border-bottom: 1px solid var(--border); flex-shrink: 0; position: relative; z-index: 49; }
     .stepper::-webkit-scrollbar { display: none; }
-
-    .step-chip {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      border-radius: var(--radius-full);
-      background: transparent;
-      border: 1px solid transparent;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-faint);
-      white-space: nowrap;
-      cursor: pointer;
-      transition: all var(--transition);
-      flex-shrink: 0;
-    }
-    .step-chip .step-num {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: var(--bg-sunken);
-      color: var(--text-faint);
-      display: grid;
-      place-items: center;
-      font-size: 11px;
-      font-weight: 700;
-      transition: all var(--transition);
-    }
-    .step-chip.active {
-      background: var(--primary-soft);
-      color: var(--primary-soft-text);
-      border-color: transparent;
-    }
-    .step-chip.active .step-num {
-      background: var(--primary);
-      color: white;
-    }
-    .step-chip.done .step-num {
-      background: var(--success);
-      color: white;
-    }
+    .step-chip { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: var(--radius-full); background: transparent; border: 1px solid transparent; font-size: 12px; font-weight: 600; color: var(--text-faint); white-space: nowrap; cursor: pointer; transition: all var(--transition); flex-shrink: 0; font-family: inherit; }
+    .step-chip .step-num { width: 20px; height: 20px; border-radius: 50%; background: var(--bg-sunken); color: var(--text-faint); display: grid; place-items: center; font-size: 11px; font-weight: 700; transition: all var(--transition); }
+    .step-chip.active { background: var(--primary-soft); color: var(--primary-soft-text); }
+    .step-chip.active .step-num { background: var(--primary); color: white; }
+    .step-chip.done .step-num { background: var(--success); color: white; }
     .step-chip.done { color: var(--text-muted); }
 
-    /* =========================================================
-       SCREENS
-       ========================================================= */
-    .screen {
-      display: none;
-      flex-direction: column;
-      height: 100%;
-      overflow-y: auto;
-      overscroll-behavior: contain;
-      padding-bottom: 120px;
-    }
+    .screen { display: none; flex-direction: column; height: 100%; overflow-y: auto; overscroll-behavior: contain; padding-bottom: 120px; }
     .screen.active { display: flex; }
+    .screen-header { padding: 20px 20px 8px; max-width: 680px; margin: 0 auto; width: 100%; }
+    .screen-header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 4px; }
+    .screen-header p { font-size: 13.5px; color: var(--text-muted); margin: 0; }
+    .content { padding: 8px 20px 24px; max-width: 680px; margin: 0 auto; width: 100%; flex: 1; }
 
-    .screen-header {
-      padding: 20px 20px 8px;
-      max-width: 680px;
-      margin: 0 auto;
-      width: 100%;
-    }
-    .screen-header h1 {
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      margin: 0 0 4px;
-    }
-    .screen-header p {
-      font-size: 13.5px;
-      color: var(--text-muted);
-      margin: 0;
-    }
+    .card { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; box-shadow: var(--shadow-sm); transition: border-color var(--transition), background var(--transition); }
+    .card-title { font-size: 14px; font-weight: 700; margin: 0 0 4px; display: flex; align-items: center; gap: 8px; color: var(--text); }
+    .card-title .badge { font-size: 10px; font-weight: 700; background: var(--primary-soft); color: var(--primary-soft-text); padding: 2px 7px; border-radius: var(--radius-full); letter-spacing: 0.03em; text-transform: uppercase; }
+    .card-desc { font-size: 12.5px; color: var(--text-muted); margin: 0 0 12px; line-height: 1.5; }
 
-    .content {
-      padding: 8px 20px 24px;
-      max-width: 680px;
-      margin: 0 auto;
-      width: 100%;
-      flex: 1;
-    }
-
-    /* =========================================================
-       CARDS
-       ========================================================= */
-    .card {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      margin-bottom: 14px;
-      box-shadow: var(--shadow-sm);
-      transition: border-color var(--transition), background var(--transition);
-    }
-    .card-title {
-      font-size: 14px;
-      font-weight: 700;
-      margin: 0 0 4px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--text);
-    }
-    .card-title .badge {
-      font-size: 10px;
-      font-weight: 700;
-      background: var(--primary-soft);
-      color: var(--primary-soft-text);
-      padding: 2px 7px;
-      border-radius: var(--radius-full);
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-    }
-    .card-desc {
-      font-size: 12.5px;
-      color: var(--text-muted);
-      margin: 0 0 12px;
-      line-height: 1.5;
-    }
-
-    /* =========================================================
-       FORM CONTROLS
-       ========================================================= */
-    label.field-label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-      letter-spacing: 0.01em;
-    }
-
-    select, input[type="text"], input[type="number"], textarea {
-      width: 100%;
-      padding: 11px 12px;
-      background: var(--bg-subtle);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      font-family: inherit;
-      font-size: 14px;
-      color: var(--text);
-      transition: all var(--transition);
-      margin-bottom: 12px;
-      appearance: none;
-      -webkit-appearance: none;
-    }
-    select {
-      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
-      background-repeat: no-repeat;
-      background-position: right 12px center;
-      padding-right: 36px;
-    }
-    select:focus, input:focus, textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: var(--ring);
-      background: var(--bg-elevated);
-    }
+    label.field-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 0.01em; }
+    select, input[type="text"], input[type="number"], textarea { width: 100%; padding: 11px 12px; background: var(--bg-subtle); border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: inherit; font-size: 14px; color: var(--text); transition: all var(--transition); margin-bottom: 12px; appearance: none; -webkit-appearance: none; }
+    select { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+    select:focus, input:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: var(--ring); background: var(--bg-elevated); }
     select:disabled { opacity: 0.55; cursor: not-allowed; }
-
-    input[type="range"] {
-      width: 100%;
-      appearance: none;
-      -webkit-appearance: none;
-      height: 4px;
-      background: var(--bg-sunken);
-      border-radius: 999px;
-      margin: 10px 0 14px;
-      padding: 0;
-    }
-    input[type="range"]::-webkit-slider-thumb {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 20px; height: 20px;
-      border-radius: 50%;
-      background: var(--primary);
-      cursor: pointer;
-      border: 3px solid var(--bg-elevated);
-      box-shadow: var(--shadow);
-      transition: transform var(--transition);
-    }
+    input[type="range"] { width: 100%; appearance: none; -webkit-appearance: none; height: 4px; background: var(--bg-sunken); border-radius: 999px; margin: 10px 0 14px; padding: 0; }
+    input[type="range"]::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--primary); cursor: pointer; border: 3px solid var(--bg-elevated); box-shadow: var(--shadow); transition: transform var(--transition); }
     input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.15); }
-    input[type="range"]::-moz-range-thumb {
-      width: 20px; height: 20px;
-      border-radius: 50%;
-      background: var(--primary);
-      cursor: pointer;
-      border: 3px solid var(--bg-elevated);
-      box-shadow: var(--shadow);
-    }
-
-    input[type="color"] {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: var(--bg-subtle);
-      cursor: pointer;
-      padding: 2px;
-    }
+    input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: var(--primary); cursor: pointer; border: 3px solid var(--bg-elevated); box-shadow: var(--shadow); }
+    input[type="color"] { border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-subtle); cursor: pointer; padding: 2px; }
     input[type="color"]::-webkit-color-swatch-wrapper { padding: 2px; }
     input[type="color"]::-webkit-color-swatch { border: none; border-radius: 6px; }
-
-    input[type="checkbox"] {
-      width: 18px; height: 18px;
-      accent-color: var(--primary);
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-    input[type="radio"] {
-      accent-color: var(--primary);
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-
-    .check-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      background: var(--bg-subtle);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      transition: all var(--transition);
-      user-select: none;
-    }
+    input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; flex-shrink: 0; }
+    input[type="radio"] { accent-color: var(--primary); cursor: pointer; flex-shrink: 0; }
+    .check-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg-subtle); border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: all var(--transition); user-select: none; }
     .check-row:hover { border-color: var(--border-strong); }
     .check-row label { font-size: 13.5px; font-weight: 500; margin: 0; cursor: pointer; }
-
-    .radio-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--border);
-      margin-bottom: 8px;
-      cursor: pointer;
-      transition: all var(--transition);
-    }
+    .radio-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 8px; cursor: pointer; transition: all var(--transition); }
     .radio-row:hover { border-color: var(--border-strong); background: var(--bg-subtle); }
     .radio-row input { margin: 0; }
     .radio-row span { font-size: 13.5px; font-weight: 500; }
 
-    /* =========================================================
-       BUTTONS
-       ========================================================= */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 12px 18px;
-      border: none;
-      border-radius: var(--radius-sm);
-      font-family: inherit;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all var(--transition);
-      white-space: nowrap;
-      user-select: none;
-    }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 18px; border: none; border-radius: var(--radius-sm); font-family: inherit; font-weight: 600; font-size: 14px; cursor: pointer; transition: all var(--transition); white-space: nowrap; user-select: none; }
     .btn:active { transform: scale(0.97); }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-      box-shadow: 0 2px 8px rgba(99,102,241,0.3);
-    }
+    .btn-primary { background: var(--primary); color: white; box-shadow: 0 2px 8px rgba(99,102,241,0.3); }
     .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
-
-    .btn-success {
-      background: var(--success);
-      color: white;
-      box-shadow: 0 2px 8px rgba(16,185,129,0.3);
-    }
-
-    .btn-danger {
-      background: var(--danger);
-      color: white;
-    }
-
-    .btn-ghost {
-      background: var(--bg-subtle);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
+    .btn-success { background: var(--success); color: white; box-shadow: 0 2px 8px rgba(16,185,129,0.3); }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-ghost { background: var(--bg-subtle); color: var(--text); border: 1px solid var(--border); }
     .btn-ghost:hover:not(:disabled) { background: var(--bg-sunken); border-color: var(--border-strong); }
-
-    .btn-outline {
-      background: transparent;
-      color: var(--primary);
-      border: 1px solid var(--primary);
-    }
+    .btn-outline { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
     .btn-outline:hover:not(:disabled) { background: var(--primary-soft); }
-
     .btn-block { width: 100%; }
     .btn-sm { padding: 8px 14px; font-size: 13px; }
     .btn-icon { width: 38px; height: 38px; padding: 0; }
-
-    .btn-row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
+    .btn-row { display: flex; gap: 8px; margin-bottom: 12px; }
     .btn-row .btn { flex: 1; margin: 0; }
 
-    /* =========================================================
-       PRESET GRID
-       ========================================================= */
-    .preset-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    .preset-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 12px 6px 10px;
-      background: var(--bg-subtle);
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      color: var(--text-muted);
-      font-family: inherit;
-      font-size: 11.5px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all var(--transition);
-      text-align: center;
-    }
+    .preset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; margin-bottom: 12px; }
+    .preset-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 12px 6px 10px; background: var(--bg-subtle); border: 1.5px solid var(--border); border-radius: var(--radius); color: var(--text-muted); font-family: inherit; font-size: 11.5px; font-weight: 600; cursor: pointer; transition: all var(--transition); text-align: center; }
     .preset-btn:hover { border-color: var(--border-strong); color: var(--text); }
-    .preset-btn.active {
-      border-color: var(--primary);
-      background: var(--primary-soft);
-      color: var(--primary-soft-text);
-      box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
-    }
-    .preset-icon {
-      width: 44px;
-      height: 32px;
-      display: grid;
-      place-items: center;
-    }
+    .preset-btn.active { border-color: var(--primary); background: var(--primary-soft); color: var(--primary-soft-text); box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+    .preset-icon { width: 44px; height: 32px; display: grid; place-items: center; }
     .preset-icon svg { width: 100%; height: 100%; }
     .preset-btn.active .preset-icon svg [stroke] { stroke: var(--primary); }
-    .preset-btn.active .preset-icon svg [fill]:not([fill="none"]) { fill: var(--primary); }
 
-    /* =========================================================
-       CANVAS CONTAINER
-       ========================================================= */
-    .canvas-shell {
-      position: relative;
-      width: 100%;
-      max-width: 420px;
-      margin: 0 auto 16px;
-      aspect-ratio: 4 / 3;
-      background: #0a0f1c;
-      border-radius: var(--radius);
-      overflow: hidden;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-lg);
-    }
+    .canvas-shell { position: relative; width: 100%; max-width: 420px; margin: 0 auto 16px; aspect-ratio: 4 / 3; background: #0a0f1c; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow-lg); }
     .canvas-shell.tall { aspect-ratio: 2 / 3; background: var(--bg-sunken); }
+    .canvas-shell canvas { position: relative; z-index: 1; width: 100%; height: 100%; display: block; touch-action: none; }
+    .canvas-shell .preview-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; background: #0a0f1c; transform: translateZ(0); }
+    #flashOverlay { position: absolute; inset: 0; background: white; opacity: 0; pointer-events: none; transition: opacity 120ms; z-index: 50; }
+    #countdownOverlay { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; font-size: 140px; font-weight: 800; color: white; background: rgba(0,0,0,0.35); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 40; text-shadow: 0 4px 24px rgba(0,0,0,0.6); animation: countPulse 0.9s ease-in-out infinite; }
+    @keyframes countPulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.08); opacity: 0.85; } }
 
-    .canvas-shell canvas {
-      position: relative;
-      z-index: 1;
-      width: 100%;
-      height: 100%;
-      display: block;
-      touch-action: none;
-    }
-
-    .canvas-shell .preview-video {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      z-index: 0;
-      background: #0a0f1c;
-      transform: translateZ(0);
-    }
-
-    #flashOverlay {
-      position: absolute; inset: 0;
-      background: white; opacity: 0;
-      pointer-events: none;
-      transition: opacity 120ms;
-      z-index: 50;
-    }
-    #countdownOverlay {
-      position: absolute; inset: 0;
-      display: none; align-items: center; justify-content: center;
-      font-size: 140px; font-weight: 800; color: white;
-      background: rgba(0,0,0,0.35);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      z-index: 40;
-      text-shadow: 0 4px 24px rgba(0,0,0,0.6);
-      animation: countPulse 0.9s ease-in-out infinite;
-    }
-    @keyframes countPulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.08); opacity: 0.85; }
-    }
-
-    /* =========================================================
-       STATUS PILL / TOASTS
-       ========================================================= */
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      font-weight: 600;
-      padding: 7px 12px;
-      border-radius: var(--radius-full);
-      background: var(--bg-subtle);
-      color: var(--text-muted);
-      margin-bottom: 14px;
-      border: 1px solid var(--border);
-    }
+    .status-pill { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; padding: 7px 12px; border-radius: var(--radius-full); background: var(--bg-subtle); color: var(--text-muted); margin-bottom: 14px; border: 1px solid var(--border); }
     .status-pill.ready { background: var(--success-soft); color: var(--success); border-color: transparent; }
     .status-pill.error { background: var(--danger-soft); color: var(--danger); border-color: transparent; }
-    .status-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: currentColor;
-      box-shadow: 0 0 0 3px rgba(148,163,184,0.2);
-      animation: statusPulse 1.8s ease-in-out infinite;
-    }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 3px rgba(148,163,184,0.2); animation: statusPulse 1.8s ease-in-out infinite; }
     .status-pill.ready .status-dot { animation: none; box-shadow: 0 0 0 3px rgba(16,185,129,0.2); }
-    @keyframes statusPulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
+    @keyframes statusPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-    #toastContainer {
-      position: fixed;
-      bottom: calc(120px + env(safe-area-inset-bottom, 0px));
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 999;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      pointer-events: none;
-      width: min(92vw, 420px);
-    }
-
-    .toast {
-      background: var(--bg-elevated);
-      color: var(--text);
-      padding: 12px 16px;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-lg);
-      font-size: 13.5px;
-      font-weight: 500;
-      opacity: 0;
-      transform: translateY(12px);
-      transition: all var(--transition-slow);
-      pointer-events: auto;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    #toastContainer { position: fixed; bottom: calc(120px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); z-index: 999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; width: min(92vw, 420px); }
+    .toast { background: var(--bg-elevated); color: var(--text); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); box-shadow: var(--shadow-lg); font-size: 13.5px; font-weight: 500; opacity: 0; transform: translateY(12px); transition: all var(--transition-slow); pointer-events: auto; display: flex; align-items: center; gap: 10px; }
     .toast.show { opacity: 1; transform: translateY(0); }
     .toast-success { border-left: 3px solid var(--success); }
     .toast-error { border-left: 3px solid var(--danger); }
     .toast-info { border-left: 3px solid var(--primary); }
 
-    /* =========================================================
-       ACTION BAR (FIXED BOTTOM)
-       ========================================================= */
-    .action-bar {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      background: var(--glass);
-      backdrop-filter: saturate(180%) blur(20px);
-      -webkit-backdrop-filter: saturate(180%) blur(20px);
-      padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
-      border-top: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      z-index: 100;
-      gap: 6px;
-    }
+    .action-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--glass); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; z-index: 100; gap: 6px; }
     .action-bar .btn-row { width: 100%; max-width: 480px; margin: 0; }
-    .credits {
-      font-size: 10.5px;
-      color: var(--text-faint);
-      letter-spacing: 0.02em;
-    }
+    .credits { font-size: 10.5px; color: var(--text-faint); letter-spacing: 0.02em; display: inline-flex; align-items: center; gap: 6px; }
+    .credits button { background: none; border: none; color: var(--text-faint); font-family: inherit; font-size: inherit; font-weight: 600; cursor: pointer; padding: 0; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 2px; }
+    .credits button:hover { color: var(--text-muted); }
 
-    /* =========================================================
-       ASSET GALLERY
-       ========================================================= */
-    .asset-gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
-      gap: 6px;
-      margin-bottom: 12px;
-    }
-    .asset-thumb {
-      aspect-ratio: 1;
-      border-radius: var(--radius-xs);
-      overflow: hidden;
-      border: 2px solid var(--border);
-      cursor: pointer;
-      background: var(--bg-sunken);
-      background-size: cover;
-      background-position: center;
-      transition: all var(--transition);
-      position: relative;
-    }
+    .asset-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 6px; margin-bottom: 12px; }
+    .asset-thumb { aspect-ratio: 1; border-radius: var(--radius-xs); overflow: hidden; border: 2px solid var(--border); cursor: pointer; background: var(--bg-sunken); background-size: cover; background-position: center; transition: all var(--transition); position: relative; }
     .asset-thumb:hover { border-color: var(--border-strong); transform: scale(1.03); }
-    .asset-thumb.selected {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
-    }
-    .asset-thumb::after {
-      content: attr(data-name);
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.75), transparent);
-      color: white;
-      font-size: 9px;
-      font-weight: 600;
-      padding: 8px 4px 3px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      opacity: 0;
-      transition: opacity var(--transition);
-    }
+    .asset-thumb.selected { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.2); }
+    .asset-thumb::after { content: attr(data-name); position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.75), transparent); color: white; font-size: 9px; font-weight: 600; padding: 8px 4px 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0; transition: opacity var(--transition); }
     .asset-thumb:hover::after { opacity: 1; }
-
-    .empty-state {
-      padding: 20px 16px;
-      text-align: center;
-      color: var(--text-faint);
-      font-size: 12.5px;
-      background: var(--bg-subtle);
-      border: 1px dashed var(--border-strong);
-      border-radius: var(--radius-sm);
-      margin-bottom: 12px;
-    }
+    .empty-state { padding: 20px 16px; text-align: center; color: var(--text-faint); font-size: 12.5px; background: var(--bg-subtle); border: 1px dashed var(--border-strong); border-radius: var(--radius-sm); margin-bottom: 12px; }
     .empty-state-icon { font-size: 24px; margin-bottom: 6px; opacity: 0.6; }
 
-    /* =========================================================
-       EDIT PANEL
-       ========================================================= */
-    #editMenu {
-      display: none;
-      background: var(--primary-soft);
-      border: 1px solid transparent;
-      border-radius: var(--radius);
-      padding: 14px;
-      margin-bottom: 14px;
-      animation: slideIn 0.2s ease-out;
-    }
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(-6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    #editMenu { display: none; background: var(--primary-soft); border: 1px solid transparent; border-radius: var(--radius); padding: 14px; margin-bottom: 14px; animation: slideIn 0.2s ease-out; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
     #editMenu .card-title { color: var(--primary-soft-text); margin-bottom: 12px; }
 
-    /* =========================================================
-       FILE INPUT
-       ========================================================= */
-    .file-input-hidden {
-      position: absolute;
-      width: 1px; height: 1px;
-      opacity: 0;
-      pointer-events: none;
-    }
+    .file-input-hidden { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+    .chroma-toggle-card { border: 2px solid var(--success) !important; background: var(--success-soft) !important; }
+    .chroma-toggle-card .check-row { background: transparent; border: none; padding: 4px 0; }
 
-    .file-input-row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    /* =========================================================
-       STEP 4 CHROMA ACCENT
-       ========================================================= */
-    .chroma-toggle-card {
-      border: 2px solid var(--success) !important;
-      background: var(--success-soft) !important;
-    }
-    .chroma-toggle-card .check-row {
-      background: transparent;
-      border: none;
-      padding: 4px 0;
-    }
-
-    /* =========================================================
-       STEP 5 CAPTURE CONTROLS
-       ========================================================= */
-    .switch-camera-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 12px 14px;
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      margin-bottom: 12px;
-    }
+    .switch-camera-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 12px; }
     .switch-camera-row .info { flex: 1; min-width: 0; }
     .switch-camera-row .info .t { font-size: 13.5px; font-weight: 600; color: var(--text); margin: 0 0 2px; }
     .switch-camera-row .info .d { font-size: 11.5px; color: var(--text-muted); margin: 0; }
+    .result-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--success-soft); color: var(--success); border-radius: var(--radius-full); font-size: 11px; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.02em; }
 
-    /* =========================================================
-       RESULT SCREEN
-       ========================================================= */
-    .result-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      background: var(--success-soft);
-      color: var(--success);
-      border-radius: var(--radius-full);
-      font-size: 11px;
-      font-weight: 700;
-      margin-bottom: 12px;
-      letter-spacing: 0.02em;
-    }
-
-    /* =========================================================
-       SCROLLBAR (subtle)
-       ========================================================= */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
 
-    /* =========================================================
-       RESPONSIVE
-       ========================================================= */
-    @media (max-width: 380px) {
-      .content, .screen-header { padding-left: 14px; padding-right: 14px; }
-      .preset-grid { grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); }
-    }
+    @media (max-width: 380px) { .content, .screen-header { padding-left: 14px; padding-right: 14px; } .preset-grid { grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); } }
 
-    /* Theme toggle icon cross-fade */
-    .theme-icon-sun, .theme-icon-moon {
-      transition: opacity var(--transition), transform var(--transition);
-    }
+    .theme-icon-sun, .theme-icon-moon { transition: opacity var(--transition), transform var(--transition); }
     [data-theme="light"] .theme-icon-sun { opacity: 0; transform: scale(0.6); position: absolute; }
     [data-theme="light"] .theme-icon-moon { opacity: 1; transform: scale(1); }
     [data-theme="dark"] .theme-icon-sun { opacity: 1; transform: scale(1); }
     [data-theme="dark"] .theme-icon-moon { opacity: 0; transform: scale(0.6); position: absolute; }
     .theme-btn { position: relative; }
+
+    /* ============ PRESETS DROPDOWN ============ */
+    .topbar-menu { position: fixed; top: 58px; right: 12px; z-index: 200; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg); min-width: 240px; padding: 6px; display: none; animation: menuIn 0.18s ease-out; }
+    .topbar-menu.open { display: block; }
+    @keyframes menuIn { from { opacity: 0; transform: translateY(-6px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .topbar-menu-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius-xs); cursor: pointer; font-size: 13.5px; font-weight: 500; color: var(--text); transition: background var(--transition); }
+    .topbar-menu-item:hover { background: var(--bg-subtle); }
+    .topbar-menu-item.danger { color: var(--danger); }
+    .topbar-menu-item.danger svg { color: var(--danger); }
+    .topbar-menu-item svg { flex-shrink: 0; color: var(--text-muted); }
+    .topbar-menu-sep { height: 1px; background: var(--border); margin: 4px 0; border: none; }
+    .topbar-menu-label { padding: 8px 12px 4px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); }
+
+    /* ============ PRESET LIST ============ */
+    .preset-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+    .preset-list-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; background: var(--bg-subtle); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+    .preset-list-item .info { flex: 1; min-width: 0; }
+    .preset-list-item .info .t { font-size: 13px; font-weight: 600; color: var(--text); margin: 0 0 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .preset-list-item .info .d { font-size: 11px; color: var(--text-muted); margin: 0; }
+    .preset-list-item .actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    /* ============ INLINE MODAL ============ */
+    .modal-backdrop { position: fixed; inset: 0; z-index: 800; background: rgba(0,0,0,0.55); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.18s ease-out; }
+    .modal-backdrop.open { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .modal { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); max-width: 420px; width: 100%; padding: 22px; animation: modalIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    @keyframes modalIn { from { opacity: 0; transform: scale(0.94) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    .modal h3 { margin: 0 0 6px; font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
+    .modal p { margin: 0 0 16px; font-size: 13px; color: var(--text-muted); }
+    .modal input { margin-bottom: 16px; }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+    /* ============ DEVELOPER PAGE ============ */
+    #developerPage { position: fixed; inset: 0; z-index: 900; background: #0a0a0a; color: #f5f5f7; display: none; flex-direction: column; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; overflow: hidden; }
+    #developerPage.open { display: flex; }
+    .dev-topbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: rgba(18,18,18,0.92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
+    .dev-topbar-title { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 14px; letter-spacing: -0.01em; }
+    .dev-topbar-title .dot { width: 8px; height: 8px; border-radius: 50%; background: #3498db; box-shadow: 0 0 10px #3498db; }
+    .dev-topbar-title .muted { color: rgba(255,255,255,0.5); font-weight: 500; font-size: 12px; }
+    .dev-close { width: 38px; height: 38px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #fff; cursor: pointer; display: grid; place-items: center; transition: background .2s; }
+    .dev-close:hover { background: rgba(255,255,255,0.12); }
+    .dev-content { flex: 1; overflow-y: auto; padding: 20px; }
+    .dev-content::-webkit-scrollbar { width: 8px; }
+    .dev-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+
+    .dev-hero { max-width: 680px; margin: 0 auto 24px; padding: 32px 24px; background: linear-gradient(135deg, rgba(52,152,219,0.15) 0%, rgba(46,204,113,0.08) 100%); border: 1px solid rgba(52,152,219,0.3); border-radius: 20px; text-align: center; position: relative; overflow: hidden; }
+    .dev-hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 30% 20%, rgba(52,152,219,0.15), transparent 60%); pointer-events: none; }
+    .dev-hero-logo { width: 72px; height: 72px; border-radius: 18px; background: linear-gradient(135deg, #3498db 0%, #2ecc71 100%); display: grid; place-items: center; font-size: 30px; font-weight: 800; color: #fff; margin: 0 auto 16px; box-shadow: 0 12px 32px rgba(52,152,219,0.4); }
+    .dev-hero h1 { font-size: 26px; font-weight: 800; margin: 0 0 4px; letter-spacing: -0.03em; }
+    .dev-hero .tagline { font-size: 14px; color: rgba(255,255,255,0.6); margin: 0 0 14px; }
+    .dev-hero .version-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(52,152,219,0.2); color: #3498db; padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: 0.05em; border: 1px solid rgba(52,152,219,0.3); }
+    .dev-hero .version-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #2ecc71; box-shadow: 0 0 8px #2ecc71; }
+
+    .dev-section { max-width: 680px; margin: 0 auto 20px; }
+    .dev-section-title { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.5); margin: 0 0 12px 4px; }
+    .dev-section-title::before { content: ''; width: 3px; height: 14px; background: #3498db; border-radius: 2px; }
+    .dev-card { background: rgba(18,18,18,0.92); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 18px; margin-bottom: 10px; }
+    .dev-card-accent { border-left: 3px solid #3498db; }
+    .dev-card-accent-green { border-left: 3px solid #2ecc71; }
+    .dev-about { font-size: 14px; line-height: 1.65; color: rgba(255,255,255,0.78); margin: 0; }
+
+    .dev-features { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+    .dev-feature { display: flex; align-items: flex-start; gap: 12px; background: rgba(18,18,18,0.92); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 14px; transition: border-color .2s, transform .2s; }
+    .dev-feature:hover { border-color: rgba(52,152,219,0.4); transform: translateY(-2px); }
+    .dev-feature-icon { width: 34px; height: 34px; border-radius: 9px; background: rgba(52,152,219,0.15); color: #3498db; display: grid; place-items: center; flex-shrink: 0; font-size: 17px; }
+    .dev-feature-body { min-width: 0; }
+    .dev-feature-title { font-size: 13.5px; font-weight: 700; margin: 0 0 3px; color: #fff; }
+    .dev-feature-desc { font-size: 12px; color: rgba(255,255,255,0.5); margin: 0; line-height: 1.45; }
+
+    .dev-creator { display: flex; align-items: center; gap: 16px; }
+    .dev-avatar { width: 56px; height: 56px; border-radius: 14px; background: linear-gradient(135deg, #3498db 0%, #a855f7 100%); display: grid; place-items: center; color: #fff; font-size: 22px; font-weight: 800; flex-shrink: 0; box-shadow: 0 8px 20px rgba(52,152,219,0.3); }
+    .dev-creator-info h3 { margin: 0 0 2px; font-size: 16px; font-weight: 700; }
+    .dev-creator-info p { margin: 0; font-size: 12.5px; color: rgba(255,255,255,0.55); }
+
+    .dev-bmc { background: linear-gradient(135deg, rgba(255,221,0,0.12) 0%, rgba(255,129,0,0.08) 100%); border: 1px solid rgba(255,221,0,0.3); border-radius: 14px; padding: 18px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .dev-bmc-icon { font-size: 32px; flex-shrink: 0; }
+    .dev-bmc-body { flex: 1; min-width: 200px; }
+    .dev-bmc-body h3 { margin: 0 0 4px; font-size: 15px; font-weight: 700; color: #ffdd00; }
+    .dev-bmc-body p { margin: 0; font-size: 12.5px; color: rgba(255,255,255,0.7); line-height: 1.5; }
+    .dev-bmc-btn { background: #ffdd00; color: #1a1a1a; padding: 10px 18px; border-radius: 10px; border: none; font-weight: 700; font-size: 13px; cursor: pointer; transition: transform .15s, box-shadow .15s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .dev-bmc-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(255,221,0,0.3); }
+    .dev-bmc-btn:active { transform: translateY(0); }
+
+    .dev-qr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+    .dev-qr-card { background: rgba(18,18,18,0.92); border: 1px solid rgba(255,255,255,0.07); border-top: 3px solid var(--qr-color, #3498db); border-radius: 12px; padding: 14px; text-align: center; transition: transform .2s, box-shadow .2s; }
+    .dev-qr-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,0.5); }
+    .dev-qr-image { width: 100%; aspect-ratio: 1; background: #fff; border-radius: 8px; padding: 8px; display: grid; place-items: center; margin-bottom: 10px; overflow: hidden; }
+    .dev-qr-image img { max-width: 100%; max-height: 100%; display: block; border-radius: 4px; }
+    .dev-qr-image .qr-placeholder { color: #94a3b8; font-size: 11px; font-weight: 600; text-align: center; padding: 8px; }
+    .dev-qr-name { font-size: 12.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; background: rgba(255,255,255,0.05); border: 1px solid var(--qr-color, #3498db); color: var(--qr-color, #3498db); }
+    .dev-qr-name .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .dev-qr-sub { font-size: 10.5px; color: rgba(255,255,255,0.4); margin-top: 6px; }
+
+    .dev-footer { max-width: 680px; margin: 24px auto 12px; text-align: center; font-size: 11.5px; color: rgba(255,255,255,0.35); padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .dev-footer strong { color: rgba(255,255,255,0.6); font-weight: 600; }
   </style>
 </head>
 <body>
 
 <div class="app-shell">
-
-  <!-- ============================= TOPBAR ============================= -->
   <div class="topbar">
     <div class="brand">
       <div class="brand-logo">M</div>
       <div class="brand-text">
         <div class="brand-title">MediaBox PhotoBooth</div>
-        <div class="brand-version">Pro v2.3</div>
+        <div class="brand-version">Pro v4</div>
       </div>
     </div>
     <div class="topbar-actions">
+      <button class="icon-btn" id="btnPresetsMenu" title="Presets" aria-label="Presets">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8l6 6z"/><polyline points="14 2 14 8 20 8"/></svg>
+      </button>
       <button class="icon-btn theme-btn" id="btnThemeToggle" title="Toggle theme" aria-label="Toggle theme">
         <svg class="theme-icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         <svg class="theme-icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
       </button>
+      <button class="icon-btn" id="btnDeveloper" title="Developer" aria-label="Developer">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      </button>
     </div>
   </div>
 
-  <!-- ============================= STEPPER ============================= -->
   <div class="stepper" id="stepper"></div>
 
-  <!-- ============================= STEP 1 ============================= -->
+  <!-- STEP 1 -->
   <div id="step1" class="screen active">
-    <div class="screen-header">
-      <h1>Camera Access</h1>
-      <p>Grant permission and pick your camera to begin.</p>
-    </div>
+    <div class="screen-header"><h1>Camera Access</h1><p>Grant permission and pick your camera to begin.</p></div>
     <div class="content">
       <div class="card">
         <div id="camStatusPill" class="status-pill"><span class="status-dot"></span><span id="camStatusText">Not started</span></div>
-
         <label class="field-label">Select Camera</label>
-        <select id="camDevice" disabled>
-          <option value="">Auto Select</option>
-        </select>
-
+        <select id="camDevice" disabled><option value="">Auto Select</option></select>
         <label class="field-label">Facing Preference</label>
         <select id="camFacing">
           <option value="environment">Back (Rear) Camera</option>
           <option value="user">Front (Selfie) Camera</option>
         </select>
-
         <button id="btnStartCamera" class="btn btn-primary btn-block">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
           Start Camera
         </button>
       </div>
-
       <div class="canvas-shell">
         <video id="step1Video" class="preview-video" autoplay playsinline muted></video>
         <canvas id="step1Canvas" width="640" height="480"></canvas>
@@ -930,51 +345,77 @@
     </div>
     <div class="action-bar">
       <div class="btn-row">
-        <button class="btn btn-primary btn-block" onclick="tryGoToStep2()">
-          Continue to Layout
+        <button class="btn btn-primary btn-block" onclick="tryGoToStep2()">Continue to Layout
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </button>
       </div>
-      <div class="credits">Created by randybondoc</div>
+      <div class="credits">
+        <span>Created by randybondoc</span>
+        <span>·</span>
+        <button onclick="openDeveloperPage()">Developer</button>
+      </div>
     </div>
   </div>
 
-  <!-- ============================= STEP 2 ============================= -->
+  <!-- STEP 2 -->
   <div id="step2" class="screen">
-    <div class="screen-header">
-      <h1>Photo Layout</h1>
-      <p>Choose how your photos will be arranged on the 4×6 print.</p>
-    </div>
+    <div class="screen-header"><h1>Photo Layout</h1><p>Choose how your photos will be arranged on the 4×6 print.</p></div>
     <div class="content">
       <div class="card">
         <div class="card-title">Layout Presets <span class="badge">4×6</span></div>
         <p class="card-desc">All presets use equal margins and gaps so the print always looks centered.</p>
         <div class="preset-grid" id="presetGrid"></div>
       </div>
-      <div class="canvas-shell tall">
-        <canvas id="layoutCanvas" width="1200" height="1800"></canvas>
-      </div>
+      <div class="canvas-shell tall"><canvas id="layoutCanvas" width="1200" height="1800"></canvas></div>
     </div>
     <div class="action-bar">
       <div class="btn-row">
         <button class="btn btn-ghost" onclick="goToStep(1)">Back</button>
         <button class="btn btn-primary" onclick="goToStep(3)">Design</button>
       </div>
-      <div class="credits">Created by randybondoc</div>
+      <div class="credits">
+        <span>Created by randybondoc</span>
+        <span>·</span>
+        <button onclick="openDeveloperPage()">Developer</button>
+      </div>
     </div>
   </div>
 
-  <!-- ============================= STEP 3 ============================= -->
+  <!-- STEP 3 -->
   <div id="step3" class="screen">
-    <div class="screen-header">
-      <h1>Design &amp; Decor</h1>
-      <p>Layer backgrounds, overlays, stickers, and text on your print.</p>
-    </div>
+    <div class="screen-header"><h1>Design &amp; Decor</h1><p>Layer backgrounds, overlays, stickers, and text on your print.</p></div>
     <div class="content">
 
-      <div class="canvas-shell tall">
-        <canvas id="designCanvas" width="1200" height="1800"></canvas>
+      <div class="card">
+        <div class="card-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8l6 6z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Design Presets
+        </div>
+        <p class="card-desc">Save the entire design as a reusable template. Reload it later and tweak just a few details — perfect for recurring events.</p>
+        <div class="btn-row" style="margin-bottom:8px;">
+          <button class="btn btn-primary btn-sm" id="btnSavePreset">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Save File
+          </button>
+          <button class="btn btn-ghost btn-sm" id="btnLoadPreset">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Load File
+          </button>
+        </div>
+        <div class="btn-row" style="margin-bottom:0;">
+          <button class="btn btn-outline btn-sm" id="btnQuickSavePreset">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/></svg>
+            Quick Save to Device
+          </button>
+        </div>
+        <input type="file" id="presetFileInput" class="file-input-hidden" accept=".json,application/json">
+        <div id="presetListWrap" style="display:none;">
+          <label class="field-label" style="margin-top:14px;">Saved presets on this device</label>
+          <div class="preset-list" id="presetList"></div>
+        </div>
       </div>
+
+      <div class="canvas-shell tall"><canvas id="designCanvas" width="1200" height="1800"></canvas></div>
 
       <div id="editMenu">
         <div class="card-title" id="editTitle">Edit Selected Item</div>
@@ -993,88 +434,64 @@
         </div>
       </div>
 
-      <!-- BACKGROUND -->
       <div class="card">
         <div class="card-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
           Background
         </div>
         <p class="card-desc">The base image behind all photos.</p>
-
-        <div id="bgGalleryEmpty" class="empty-state" style="display:none;">
-          <div class="empty-state-icon">🖼️</div>
-          No presets found in <code>background/</code> folder.
-        </div>
+        <div id="bgGalleryEmpty" class="empty-state" style="display:none;"><div class="empty-state-icon">🖼️</div>No presets found in <code>background/</code> folder.</div>
         <div class="asset-gallery" id="bgGallery"></div>
-
         <input type="file" id="fileBg" class="file-input-hidden" accept="image/*,.heic,.heif,.webp,.gif,.jpg,.jpeg,.png">
         <input type="file" id="fileBgFolder" class="file-input-hidden" webkitdirectory directory multiple>
-
         <div class="btn-row">
           <button class="btn btn-ghost btn-sm" onclick="document.getElementById('fileBg').click()">Choose File</button>
           <button class="btn btn-ghost btn-sm" onclick="document.getElementById('fileBgFolder').click()">Load Folder</button>
           <button class="btn btn-ghost btn-sm" onclick="clearBg()">Clear</button>
         </div>
-
         <div class="check-row">
           <input type="checkbox" id="chkFlipBg" onchange="toggleFlipBg()">
           <label for="chkFlipBg">Mirror background</label>
         </div>
       </div>
 
-      <!-- OVERLAY -->
       <div class="card">
         <div class="card-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="8" y="8" width="8" height="8" rx="1"/></svg>
           Overlay / Frame
         </div>
         <p class="card-desc">Transparent PNG frame that sits on top of the photos.</p>
-
-        <div id="overlayGalleryEmpty" class="empty-state" style="display:none;">
-          <div class="empty-state-icon">✨</div>
-          No presets found in <code>overlay/</code> folder.
-        </div>
+        <div id="overlayGalleryEmpty" class="empty-state" style="display:none;"><div class="empty-state-icon">✨</div>No presets found in <code>overlay/</code> folder.</div>
         <div class="asset-gallery" id="overlayGallery"></div>
-
         <input type="file" id="fileOverlay" class="file-input-hidden" accept="image/png,image/webp,image/gif,.png,.webp,.gif">
         <input type="file" id="fileOverlayFolder" class="file-input-hidden" webkitdirectory directory multiple>
-
         <div class="btn-row">
           <button class="btn btn-ghost btn-sm" onclick="document.getElementById('fileOverlay').click()">Choose File</button>
           <button class="btn btn-ghost btn-sm" onclick="document.getElementById('fileOverlayFolder').click()">Load Folder</button>
           <button class="btn btn-ghost btn-sm" onclick="clearOverlay()">Clear</button>
         </div>
-
         <div class="check-row">
           <input type="checkbox" id="chkFlipOverlay" onchange="toggleFlipOverlay()">
           <label for="chkFlipOverlay">Mirror overlay</label>
         </div>
       </div>
 
-      <!-- STICKERS -->
       <div class="card">
         <div class="card-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-3.5L6 21l1.5-7.5L2 9h7z"/></svg>
           Stickers &amp; Graphics
         </div>
         <p class="card-desc">Tap a sticker to add it, then drag on the canvas to reposition.</p>
-
-        <div id="stickerGalleryEmpty" class="empty-state" style="display:none;">
-          <div class="empty-state-icon">🎨</div>
-          No presets found in <code>stickers/</code> folder.
-        </div>
+        <div id="stickerGalleryEmpty" class="empty-state" style="display:none;"><div class="empty-state-icon">🎨</div>No presets found in <code>stickers/</code> folder.</div>
         <div class="asset-gallery" id="stickerGallery"></div>
-
         <input type="file" id="fileSticker" class="file-input-hidden" accept="image/*,.heic,.heif,.webp,.gif,.jpg,.jpeg,.png">
         <input type="file" id="fileStickerFolder" class="file-input-hidden" webkitdirectory directory multiple>
-
         <div class="btn-row">
           <button class="btn btn-ghost btn-sm" onclick="document.getElementById('fileSticker').click()">Choose File</button>
           <button class="btn btn-ghost btn-sm" onclick="document.getElementById('fileStickerFolder').click()">Load Folder</button>
         </div>
       </div>
 
-      <!-- TEXT -->
       <div class="card">
         <div class="card-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
@@ -1095,30 +512,28 @@
         <button class="btn btn-ghost" onclick="goToStep(2)">Back</button>
         <button class="btn btn-primary" onclick="goToStep(4)">Green Screen</button>
       </div>
-      <div class="credits">Created by randybondoc</div>
+      <div class="credits">
+        <span>Created by randybondoc</span>
+        <span>·</span>
+        <button onclick="openDeveloperPage()">Developer</button>
+      </div>
     </div>
   </div>
 
-  <!-- ============================= STEP 4 ============================= -->
+  <!-- STEP 4 -->
   <div id="step4" class="screen">
-    <div class="screen-header">
-      <h1>Green Screen</h1>
-      <p>Optional: replace the background of your shots in real time.</p>
-    </div>
+    <div class="screen-header"><h1>Green Screen</h1><p>Optional: replace the background of your shots in real time.</p></div>
     <div class="content">
-
       <div class="canvas-shell">
         <video id="step4Video" class="preview-video" autoplay playsinline muted></video>
         <canvas id="step4Canvas" width="640" height="480"></canvas>
       </div>
-
       <div class="card chroma-toggle-card">
         <div class="check-row">
           <input type="checkbox" id="chkChroma" onchange="toggleChromaUI()">
           <label for="chkChroma" style="font-weight:700; color: var(--success);">Enable Green Screen</label>
         </div>
       </div>
-
       <div id="chromaSettings" style="display:none;">
         <div class="card">
           <div class="card-title">Key Color &amp; Intensity</div>
@@ -1128,28 +543,15 @@
             <input type="range" id="chromaIntensity" min="0" max="200" value="100" style="flex:1;">
           </div>
         </div>
-
         <div class="card">
           <div class="card-title">Background Replacement</div>
-
-          <label class="radio-row">
-            <input type="radio" name="chromaMode" value="transparent" checked onchange="updateChromaMode()">
-            <span>Use design background (Step 3)</span>
-          </label>
-          <label class="radio-row">
-            <input type="radio" name="chromaMode" value="single" onchange="updateChromaMode()">
-            <span>Single custom image (all shots)</span>
-          </label>
-          <label class="radio-row">
-            <input type="radio" name="chromaMode" value="unique" onchange="updateChromaMode()">
-            <span>Unique custom image (per shot)</span>
-          </label>
-
+          <label class="radio-row"><input type="radio" name="chromaMode" value="transparent" checked onchange="updateChromaMode()"><span>Use design background (Step 3)</span></label>
+          <label class="radio-row"><input type="radio" name="chromaMode" value="single" onchange="updateChromaMode()"><span>Single custom image (all shots)</span></label>
+          <label class="radio-row"><input type="radio" name="chromaMode" value="unique" onchange="updateChromaMode()"><span>Unique custom image (per shot)</span></label>
           <div id="chromaSingleWrap" style="display:none; margin-top:14px;">
             <label class="field-label">Upload single background</label>
             <input type="file" id="fileChromaSingle" accept="image/*,.heic,.heif,.webp,.gif,.jpg,.jpeg,.png">
           </div>
-
           <div id="chromaUniqueWrap" style="display:none; margin-top:14px;">
             <label class="field-label">Upload per-shot backgrounds</label>
             <div id="uniqueInputsContainer"></div>
@@ -1162,39 +564,32 @@
         <button class="btn btn-ghost" onclick="goToStep(3)">Back</button>
         <button class="btn btn-primary" onclick="goToStep(5)">Capture</button>
       </div>
-      <div class="credits">Created by randybondoc</div>
+      <div class="credits">
+        <span>Created by randybondoc</span>
+        <span>·</span>
+        <button onclick="openDeveloperPage()">Developer</button>
+      </div>
     </div>
   </div>
 
-  <!-- ============================= STEP 5 ============================= -->
+  <!-- STEP 5 -->
   <div id="step5" class="screen">
-    <div class="screen-header">
-      <h1>Photo Session</h1>
-      <p>Get ready — the countdown starts when you tap Start Session.</p>
-    </div>
+    <div class="screen-header"><h1>Photo Session</h1><p>Get ready — the countdown starts when you tap Start Session.</p></div>
     <div class="content">
-
       <div class="canvas-shell" style="position:relative;">
         <video id="step5Video" class="preview-video" autoplay playsinline muted></video>
         <canvas id="step5Canvas" width="640" height="480"></canvas>
         <div id="countdownOverlay">3</div>
         <div id="flashOverlay"></div>
       </div>
-
       <div class="switch-camera-row">
-        <div class="info">
-          <p class="t">Camera feed</p>
-          <p class="d">Wrong lens? Swap it here.</p>
-        </div>
+        <div class="info"><p class="t">Camera feed</p><p class="d">Wrong lens? Swap it here.</p></div>
         <button id="btnSwitchCamLive" class="btn btn-ghost btn-sm">Switch</button>
       </div>
-
       <div class="card">
         <label class="field-label">Countdown timer (seconds)</label>
         <input type="number" id="countdownSecs" value="3" min="1" max="10">
-        <p id="captureStatus" style="text-align:center; font-weight:600; color: var(--primary); margin:0;">
-          Ready for <span id="lblShotCount">4</span> shots
-        </p>
+        <p id="captureStatus" style="text-align:center; font-weight:600; color: var(--primary); margin:0;">Ready for <span id="lblShotCount">4</span> shots</p>
       </div>
     </div>
     <div class="action-bar">
@@ -1202,24 +597,20 @@
         <button class="btn btn-ghost" id="btnBackToChroma" onclick="goToStep(4)">Back</button>
         <button class="btn btn-danger" id="btnStartSession">Start Session</button>
       </div>
-      <div class="credits">Created by randybondoc</div>
+      <div class="credits">
+        <span>Created by randybondoc</span>
+        <span>·</span>
+        <button onclick="openDeveloperPage()">Developer</button>
+      </div>
     </div>
   </div>
 
-  <!-- ============================= STEP 6 ============================= -->
+  <!-- STEP 6 -->
   <div id="step6" class="screen">
-    <div class="screen-header">
-      <h1>Your Masterpiece</h1>
-      <p>Download it, share it, or print it.</p>
-    </div>
+    <div class="screen-header"><h1>Your Masterpiece</h1><p>Download it, share it, or print it.</p></div>
     <div class="content">
-      <div class="result-badge">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        Ready to export
-      </div>
-      <div class="canvas-shell tall">
-        <canvas id="resultCanvas" width="1200" height="1800"></canvas>
-      </div>
+      <div class="result-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Ready to export</div>
+      <div class="canvas-shell tall"><canvas id="resultCanvas" width="1200" height="1800"></canvas></div>
       <div class="btn-row">
         <button class="btn btn-ghost" onclick="goToStep(5)">Reshoot</button>
         <button class="btn btn-ghost" onclick="goToStep(3)">Edit Design</button>
@@ -1238,10 +629,160 @@
           Download 4×6
         </button>
       </div>
-      <div class="credits">Created by randybondoc</div>
+      <div class="credits">
+        <span>Created by randybondoc</span>
+        <span>·</span>
+        <button onclick="openDeveloperPage()">Developer</button>
+      </div>
     </div>
   </div>
+</div>
 
+<!-- PRESETS MENU -->
+<div class="topbar-menu" id="presetsMenu">
+  <div class="topbar-menu-label">Design Presets</div>
+  <div class="topbar-menu-item" id="menuSavePreset">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+    Save to file
+  </div>
+  <div class="topbar-menu-item" id="menuLoadPreset">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Load from file
+  </div>
+  <div class="topbar-menu-item" id="menuQuickSave">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/></svg>
+    Quick save to device
+  </div>
+  <hr class="topbar-menu-sep">
+  <div class="topbar-menu-item danger" id="menuClearSaved">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+    Clear all quick saves
+  </div>
+</div>
+
+<!-- INLINE MODAL for preset naming -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal" role="dialog" aria-modal="true">
+    <h3 id="modalTitle">Save preset</h3>
+    <p id="modalDesc">Give this design a name so you can find it later.</p>
+    <input type="text" id="modalInput" placeholder="e.g. Maria's 30th Birthday" maxlength="60" autocomplete="off">
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="modalCancel">Cancel</button>
+      <button class="btn btn-primary" id="modalConfirm">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- DEVELOPER PAGE -->
+<div id="developerPage">
+  <div class="dev-topbar">
+    <div class="dev-topbar-title">
+      <span class="dot"></span>
+      Developer <span class="muted">&middot; MediaBox PhotoBooth Pro</span>
+    </div>
+    <button class="dev-close" id="devClose" aria-label="Close">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <div class="dev-content">
+    <div class="dev-hero">
+      <div class="dev-hero-logo">M</div>
+      <h1>MediaBox PhotoBooth Pro</h1>
+      <p class="tagline">A complete browser-based photo booth — no install, no backend, works offline.</p>
+      <span class="version-badge">Version 4</span>
+    </div>
+
+    <div class="dev-section">
+      <div class="dev-section-title">About the app</div>
+      <div class="dev-card dev-card-accent">
+        <p class="dev-about">
+          MediaBox PhotoBooth Pro turns any phone, tablet, or laptop with a camera into a full photo booth.
+          It captures multi-shot sessions, applies live chroma-key green screen processing, composes them
+          onto a 4×6 print layout, and lets you decorate the result with backgrounds, transparent overlays,
+          stickers, and text before exporting. Save entire design templates as presets to reuse for recurring
+          events. Everything runs locally in the browser — your photos never leave your device.
+        </p>
+      </div>
+    </div>
+
+    <div class="dev-section">
+      <div class="dev-section-title">Features</div>
+      <div class="dev-features">
+        <div class="dev-feature">
+          <div class="dev-feature-icon">📷</div>
+          <div class="dev-feature-body"><p class="dev-feature-title">Live camera preview</p><p class="dev-feature-desc">Front/back switching, device picker, and automatic permission flow.</p></div>
+        </div>
+        <div class="dev-feature">
+          <div class="dev-feature-icon">🧩</div>
+          <div class="dev-feature-body"><p class="dev-feature-title">7 layout presets</p><p class="dev-feature-desc">1-photo, 1-landscape, 2, 2×2, 3-strip, 4-strip, and 2×4 strip — all symmetrical.</p></div>
+        </div>
+        <div class="dev-feature">
+          <div class="dev-feature-icon">💚</div>
+          <div class="dev-feature-body"><p class="dev-feature-title">Green screen (chroma key)</p><p class="dev-feature-desc">Live CPU-based keying with adjustable tolerance and per-shot backgrounds.</p></div>
+        </div>
+        <div class="dev-feature">
+          <div class="dev-feature-icon">🎨</div>
+          <div class="dev-feature-body"><p class="dev-feature-title">Design layer</p><p class="dev-feature-desc">Backgrounds, overlays, draggable stickers, and multi-font text on a real 4×6 canvas.</p></div>
+        </div>
+        <div class="dev-feature">
+          <div class="dev-feature-icon">💾</div>
+          <div class="dev-feature-body"><p class="dev-feature-title">Save &amp; load presets</p><p class="dev-feature-desc">Store a full design template and reuse it for recurring events.</p></div>
+        </div>
+        <div class="dev-feature">
+          <div class="dev-feature-icon">📁</div>
+          <div class="dev-feature-body"><p class="dev-feature-title">Folder asset library</p><p class="dev-feature-desc">Auto-loads <code>background/</code>, <code>overlay/</code>, and <code>stickers/</code> folders plus any local folder you pick.</p></div>
+        </div>
+        <div class="dev-feature">
+          <div class="dev-feature-icon">🖼️</div>
+          <div class="dev-feature-body"><p class="dev-feature-title">Format support</p><p class="dev-feature-desc">PNG, JPG, WebP, GIF, plus HEIC/HEIF via a lazy-loaded decoder.</p></div>
+        </div>
+        <div class="dev-feature">
+          <div class="dev-feature-icon">🌗</div>
+          <div class="dev-feature-body"><p class="dev-feature-title">Dark &amp; light mode</p><p class="dev-feature-desc">System-aware theme with a manual toggle that remembers your choice.</p></div>
+        </div>
+        <div class="dev-feature">
+          <div class="dev-feature-icon">📤</div>
+          <div class="dev-feature-body"><p class="dev-feature-title">Share &amp; print</p><p class="dev-feature-desc">Native share sheet, print-optimized output, and one-tap JPG download.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dev-section">
+      <div class="dev-section-title">Creator &amp; Developer</div>
+      <div class="dev-card dev-card-accent-green">
+        <div class="dev-creator">
+          <div class="dev-avatar">R</div>
+          <div class="dev-creator-info">
+            <h3>randybondoc</h3>
+            <p>Designer, developer, and maintainer of MediaBox Web PhotoBooth Pro.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dev-section">
+      <div class="dev-section-title">Buy me a coffee</div>
+      <div class="dev-bmc">
+        <div class="dev-bmc-icon">☕</div>
+        <div class="dev-bmc-body">
+          <h3>Support development</h3>
+          <p>MediaBox is free and always will be. If it made your event a little more fun, consider buying me a coffee — every cup helps keep the app updated.</p>
+        </div>
+        <a class="dev-bmc-btn" href="https://www.buymeacoffee.com/randybondoc" target="_blank" rel="noopener">☕ Buy Me a Coffee</a>
+      </div>
+    </div>
+
+    <div class="dev-section">
+      <div class="dev-section-title">Scan &amp; support</div>
+      <div class="dev-qr-grid" id="qrGrid"></div>
+    </div>
+
+    <div class="dev-footer">
+      <strong>MediaBox PhotoBooth Pro v4</strong><br>
+      © <span id="devYear"></span> randybondoc &middot; Built with love for events everywhere.
+    </div>
+  </div>
 </div>
 
 <div id="toastContainer"></div>
@@ -1249,131 +790,63 @@
 
 <script>
 /* =========================================================================
-   MediaBox Web PhotoBooth Pro v2.3
+   MediaBox Web PhotoBooth Pro v4
    Created by randybondoc
 
-   New in v2.3:
-    - Modern UI with design tokens, dark/light theme toggle
-    - Symmetrical layout presets (equal margins & gaps) + 1 Landscape
-    - Folder-based asset loading (background/, overlay/, stickers/)
-    - Expanded font library (Google Fonts + system fonts)
-    - HEIC/WebP/GIF/JPG/PNG support (HEIC via lazy-loaded CDN decoder)
-    - Toasts, share sheet, print, edit panel with duplicate
-    - Perf: only active screen's video decodes; chroma preview at 320px @ 12fps
+   v4 additions over v3:
+    - Save / Load full design presets (file + localStorage quick saves)
+    - Developer page (styled like the video player) with app info, features,
+      creator, Buy Me a Coffee, and colour-coded QR codes loaded from dbank/
+    - Developer button in topbar (info icon) + Developer link in every footer
+    - Inline modal for preset naming (no more prompt() dialogs)
+    - Image sources are tracked so presets can re-resolve them automatically
    ========================================================================= */
 
 const W = 1200, H = 1800;
 
-/* -------------------------------------------------------------------------
-   LAYOUT PRESETS — all symmetrical (equal margins, equal gaps)
-   ------------------------------------------------------------------------- */
 const LAYOUT_PRESETS = {
-  '1-photo': {
-    label: '1 Photo',
-    icon: '<svg viewBox="0 0 44 32" fill="none"><rect x="4" y="2" width="36" height="28" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>',
-    boxes: [{ x: 60, y: 60, w: 1080, h: 1680 }]
-  },
-  '1-landscape': {
-    label: '1 Landscape',
-    icon: '<svg viewBox="0 0 44 32" fill="none"><rect x="2" y="6" width="40" height="20" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>',
-    boxes: [{ x: 60, y: 495, w: 1080, h: 810 }]
-  },
-  '2-grid': {
-    label: '2 Photos',
-    icon: '<svg viewBox="0 0 44 32" fill="none"><rect x="4" y="2" width="36" height="12.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="4" y="17.5" width="36" height="12.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>',
-    boxes: [
-      { x: 60, y: 60,  w: 1080, h: 820 },
-      { x: 60, y: 920, w: 1080, h: 820 }
-    ]
-  },
-  '4-grid': {
-    label: '2×2 Grid',
-    icon: '<svg viewBox="0 0 44 32" fill="none"><rect x="4" y="2" width="16" height="12.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="24" y="2" width="16" height="12.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="4" y="17.5" width="16" height="12.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="24" y="17.5" width="16" height="12.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>',
-    boxes: [
-      { x: 60,  y: 60,  w: 520, h: 820 },
-      { x: 620, y: 60,  w: 520, h: 820 },
-      { x: 60,  y: 920, w: 520, h: 820 },
-      { x: 620, y: 920, w: 520, h: 820 }
-    ]
-  },
-  '3-strip': {
-    label: '3 Strip',
-    icon: '<svg viewBox="0 0 44 32" fill="none"><rect x="4" y="2" width="36" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="4" y="12" width="36" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="4" y="22" width="36" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>',
-    boxes: [
-      { x: 60, y: 60,   w: 1080, h: 540 },
-      { x: 60, y: 630,  w: 1080, h: 540 },
-      { x: 60, y: 1200, w: 1080, h: 540 }
-    ]
-  },
-  '4-strip': {
-    label: '4 Strip',
-    icon: '<svg viewBox="0 0 44 32" fill="none"><rect x="9" y="2" width="26" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="9.4" width="26" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="16.8" width="26" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="24.2" width="26" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>',
-    boxes: [
-      { x: 150, y: 60,   w: 900, h: 405 },
-      { x: 150, y: 485,  w: 900, h: 405 },
-      { x: 150, y: 910,  w: 900, h: 405 },
-      { x: 150, y: 1335, w: 900, h: 405 }
-    ]
-  },
-  '8-grid': {
-    label: '2×4 Strip',
-    icon: '<svg viewBox="0 0 44 32" fill="none"><rect x="6" y="2" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="24" y="2" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="6" y="9.4" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="24" y="9.4" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="6" y="16.8" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="24" y="16.8" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="6" y="24.2" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="24" y="24.2" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>',
-    boxes: (() => {
-      const boxes = [];
-      const margin = 60, gap = 30;
-      const cw = (1080 - gap) / 2;   // 525
-      const ch = (1680 - 3 * gap) / 4; // ~397
-      for (let r = 0; r < 4; r++) {
-        for (let c = 0; c < 2; c++) {
-          boxes.push({
-            x: margin + c * (cw + gap),
-            y: margin + r * (ch + gap),
-            w: cw, h: ch
-          });
-        }
-      }
-      return boxes;
-    })()
-  }
+  '1-photo': { label: '1 Photo', icon: '<svg viewBox="0 0 44 32" fill="none"><rect x="4" y="2" width="36" height="28" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>', boxes: [{ x: 60, y: 60, w: 1080, h: 1680 }] },
+  '1-landscape': { label: '1 Landscape', icon: '<svg viewBox="0 0 44 32" fill="none"><rect x="2" y="6" width="40" height="20" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>', boxes: [{ x: 60, y: 495, w: 1080, h: 810 }] },
+  '2-grid': { label: '2 Photos', icon: '<svg viewBox="0 0 44 32" fill="none"><rect x="4" y="2" width="36" height="12.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="4" y="17.5" width="36" height="12.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>', boxes: [{ x: 60, y: 60, w: 1080, h: 820 }, { x: 60, y: 920, w: 1080, h: 820 }] },
+  '4-grid': { label: '2×2 Grid', icon: '<svg viewBox="0 0 44 32" fill="none"><rect x="4" y="2" width="16" height="12.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="24" y="2" width="16" height="12.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="4" y="17.5" width="16" height="12.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="24" y="17.5" width="16" height="12.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>', boxes: [{ x: 60, y: 60, w: 520, h: 820 }, { x: 620, y: 60, w: 520, h: 820 }, { x: 60, y: 920, w: 520, h: 820 }, { x: 620, y: 920, w: 520, h: 820 }] },
+  '3-strip': { label: '3 Strip', icon: '<svg viewBox="0 0 44 32" fill="none"><rect x="4" y="2" width="36" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="4" y="12" width="36" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="4" y="22" width="36" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>', boxes: [{ x: 60, y: 60, w: 1080, h: 540 }, { x: 60, y: 630, w: 1080, h: 540 }, { x: 60, y: 1200, w: 1080, h: 540 }] },
+  '4-strip': { label: '4 Strip', icon: '<svg viewBox="0 0 44 32" fill="none"><rect x="9" y="2" width="26" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="9.4" width="26" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="16.8" width="26" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="24.2" width="26" height="6" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>', boxes: [{ x: 150, y: 60, w: 900, h: 405 }, { x: 150, y: 485, w: 900, h: 405 }, { x: 150, y: 910, w: 900, h: 405 }, { x: 150, y: 1335, w: 900, h: 405 }] },
+  '8-grid': { label: '2×4 Strip', icon: '<svg viewBox="0 0 44 32" fill="none"><rect x="6" y="2" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="24" y="2" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="6" y="9.4" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="24" y="9.4" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="6" y="16.8" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="24" y="16.8" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="6" y="24.2" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="24" y="24.2" width="14" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>',
+    boxes: (() => { const b = []; const m = 60, g = 30; const cw = (1080 - g) / 2; const ch = (1680 - 3 * g) / 4; for (let r = 0; r < 4; r++) for (let c = 0; c < 2; c++) b.push({ x: m + c * (cw + g), y: m + r * (ch + g), w: cw, h: ch }); return b; })() }
 };
 
-/* -------------------------------------------------------------------------
-   FONTS
-   ------------------------------------------------------------------------- */
 const FONT_GROUPS = [
   { label: 'Sans-Serif', fonts: ['Inter', 'Poppins', 'Montserrat', 'Arial', 'Helvetica', 'Verdana', 'Tahoma', 'Trebuchet MS', 'system-ui'] },
-  { label: 'Serif',      fonts: ['Playfair Display', 'Georgia', 'Times New Roman', 'Garamond', 'Palatino'] },
-  { label: 'Display',    fonts: ['Bebas Neue', 'Righteous', 'Impact', 'Lobster', 'Pacifico', 'Permanent Marker', 'Caveat'] },
-  { label: 'Monospace',  fonts: ['Roboto Mono', 'Courier New', 'monospace'] },
-  { label: 'Handwriting',fonts: ['Dancing Script', 'cursive'] }
+  { label: 'Serif', fonts: ['Playfair Display', 'Georgia', 'Times New Roman', 'Garamond', 'Palatino'] },
+  { label: 'Display', fonts: ['Bebas Neue', 'Righteous', 'Impact', 'Lobster', 'Pacifico', 'Permanent Marker', 'Caveat'] },
+  { label: 'Monospace', fonts: ['Roboto Mono', 'Courier New', 'monospace'] },
+  { label: 'Handwriting', fonts: ['Dancing Script', 'cursive'] }
 ];
 
-/* -------------------------------------------------------------------------
-   STATE
-   ------------------------------------------------------------------------- */
+const DEFAULT_QR_CODES = [
+  { name: 'Buy Me a Coffee', file: 'buymeacoffee.png', color: '#FFDD00', sub: 'Support the dev' },
+  { name: 'GCash', file: 'gcash.png', color: '#0072FF', sub: 'PH e-wallet' },
+  { name: 'PayMaya', file: 'paymaya.png', color: '#00C853', sub: 'PH e-wallet' },
+  { name: 'PayPal', file: 'paypal.png', color: '#003087', sub: 'International' },
+  { name: 'GitHub', file: 'github.png', color: '#8B5CF6', sub: 'Source & issues' },
+  { name: 'Facebook', file: 'facebook.png', color: '#1877F2', sub: 'Follow updates' }
+];
+
 const state = {
   stream: null,
   currentPreset: '4-grid',
   layoutBoxes: [],
   shotsTotal: 4,
-
   bgImg: null, bgFlip: false,
   overlayImg: null, overlayFlip: false,
   items: [],
   captures: [],
   selectedItemIndex: -1,
-
   chromaEnabled: false,
   chromaMode: 'transparent',
   chromaSingleImg: null,
   chromaUniqueImgs: [],
-
-  // Asset library loaded from folders
-  library: {
-    background: [],   // [{ name, url }]
-    overlay:    [],
-    stickers:   []
-  }
+  library: { background: [], overlay: [], stickers: [] }
 };
 
 let livePreviewRAF = null;
@@ -1382,9 +855,6 @@ let currentShotIdx = 0;
 let cameraReady = false;
 let cameraStarting = false;
 
-/* -------------------------------------------------------------------------
-   DOM
-   ------------------------------------------------------------------------- */
 const layoutCanvas = document.getElementById('layoutCanvas');
 const lCtx = layoutCanvas.getContext('2d');
 const designCanvas = document.getElementById('designCanvas');
@@ -1400,9 +870,9 @@ const previewVideos = [
   document.getElementById('step5Video')
 ];
 
-/* -------------------------------------------------------------------------
+/* =========================================================================
    TOASTS
-   ------------------------------------------------------------------------- */
+   ========================================================================= */
 function toast(msg, type = 'info') {
   const container = document.getElementById('toastContainer');
   const el = document.createElement('div');
@@ -1410,33 +880,60 @@ function toast(msg, type = 'info') {
   el.textContent = msg;
   container.appendChild(el);
   requestAnimationFrame(() => el.classList.add('show'));
-  setTimeout(() => {
-    el.classList.remove('show');
-    setTimeout(() => el.remove(), 350);
-  }, 2800);
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 350); }, 2800);
 }
 
-/* -------------------------------------------------------------------------
+/* =========================================================================
+   MODAL
+   ========================================================================= */
+let modalResolve = null;
+function showModal({ title, desc, placeholder, defaultValue = '', confirmLabel = 'Save' }) {
+  return new Promise(resolve => {
+    const backdrop = document.getElementById('modalBackdrop');
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalDesc').textContent = desc;
+    const inp = document.getElementById('modalInput');
+    inp.placeholder = placeholder || '';
+    inp.value = defaultValue;
+    document.getElementById('modalConfirm').textContent = confirmLabel;
+    backdrop.classList.add('open');
+    setTimeout(() => inp.focus(), 100);
+    modalResolve = (val) => { backdrop.classList.remove('open'); modalResolve = null; resolve(val); };
+  });
+}
+document.getElementById('modalCancel').addEventListener('click', () => { if (modalResolve) modalResolve(null); });
+document.getElementById('modalConfirm').addEventListener('click', () => {
+  const val = document.getElementById('modalInput').value.trim();
+  if (modalResolve) modalResolve(val || null);
+});
+document.getElementById('modalInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('modalConfirm').click();
+  if (e.key === 'Escape') document.getElementById('modalCancel').click();
+});
+document.getElementById('modalBackdrop').addEventListener('click', e => {
+  if (e.target.id === 'modalBackdrop' && modalResolve) modalResolve(null);
+});
+
+/* =========================================================================
    THEME
-   ------------------------------------------------------------------------- */
+   ========================================================================= */
 function initTheme() {
   const saved = localStorage.getItem('mbpb_theme');
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const theme = saved || (prefersDark ? 'dark' : 'light');
-  document.documentElement.setAttribute('data-theme', theme);
+  document.documentElement.setAttribute('data-theme', saved || (prefersDark ? 'dark' : 'light'));
 }
 function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme');
-  const next = current === 'dark' ? 'light' : 'dark';
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', next);
   localStorage.setItem('mbpb_theme', next);
 }
 document.getElementById('btnThemeToggle').addEventListener('click', toggleTheme);
 initTheme();
 
-/* -------------------------------------------------------------------------
-   STEPPER
-   ------------------------------------------------------------------------- */
+/* =========================================================================
+   STEPPER + NAV
+   ========================================================================= */
 const STEP_LABELS = ['Camera', 'Layout', 'Design', 'Chroma', 'Capture', 'Result'];
 function renderStepper(activeStep) {
   const container = document.getElementById('stepper');
@@ -1444,9 +941,7 @@ function renderStepper(activeStep) {
   STEP_LABELS.forEach((label, i) => {
     const stepNum = i + 1;
     const chip = document.createElement('button');
-    chip.className = 'step-chip';
-    if (stepNum === activeStep) chip.classList.add('active');
-    else if (stepNum < activeStep) chip.classList.add('done');
+    chip.className = 'step-chip' + (stepNum === activeStep ? ' active' : (stepNum < activeStep ? ' done' : ''));
     chip.innerHTML = `<span class="step-num">${stepNum}</span><span>${label}</span>`;
     chip.addEventListener('click', () => {
       if (stepNum === 2 && !cameraReady) { toast('Start the camera first', 'error'); return; }
@@ -1454,34 +949,24 @@ function renderStepper(activeStep) {
     });
     container.appendChild(chip);
   });
-  // Scroll active chip into view
   const active = container.querySelector('.step-chip.active');
   if (active) active.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
 }
 
-/* -------------------------------------------------------------------------
-   NAVIGATION
-   ------------------------------------------------------------------------- */
 function goToStep(step) {
   document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
   const target = document.getElementById('step' + step);
   if (target) target.classList.add('active');
   renderStepper(step);
-
   stopLivePreview();
 
-  // Pause videos that are not in the active screen
   previewVideos.forEach(v => {
-    const inActive = target && target.contains(v);
-    if (!inActive && v) { try { v.pause(); } catch (e) {} }
+    if (!target || !target.contains(v)) { try { v.pause(); } catch (e) {} }
   });
-
-  // Resume active screen's video
   if (target && state.stream) {
     target.querySelectorAll('video.preview-video').forEach(v => {
       if (v.srcObject !== state.stream) v.srcObject = state.stream;
-      const p = v.play();
-      if (p && p.catch) p.catch(() => {});
+      const p = v.play(); if (p && p.catch) p.catch(() => {});
     });
   }
 
@@ -1502,9 +987,9 @@ function tryGoToStep2() {
   goToStep(2);
 }
 
-/* -------------------------------------------------------------------------
+/* =========================================================================
    CAMERA
-   ------------------------------------------------------------------------- */
+   ========================================================================= */
 function setStatus(text, cls) {
   const pill = document.getElementById('camStatusPill');
   const txt = document.getElementById('camStatusText');
@@ -1515,25 +1000,9 @@ function setStatus(text, cls) {
 }
 
 function checkCameraSupport() {
-  if (!window.isSecureContext) {
-    toast('Camera needs HTTPS. Open via https:// or localhost.', 'error');
-    return false;
-  }
-  if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
-    toast('This browser does not support camera access', 'error');
-    return false;
-  }
+  if (!window.isSecureContext) { toast('Camera needs HTTPS. Open via https:// or localhost.', 'error'); return false; }
+  if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') { toast('This browser does not support camera access', 'error'); return false; }
   return true;
-}
-
-function stopCamera() {
-  cameraReady = false;
-  if (state.stream) {
-    try { state.stream.getTracks().forEach(t => t.stop()); } catch (e) {}
-    state.stream = null;
-  }
-  previewVideos.forEach(v => { try { v.srcObject = null; } catch (e) {} });
-  setStatus('Not started');
 }
 
 function waitForMetadata(video, timeoutMs = 15000) {
@@ -1551,73 +1020,47 @@ function waitForMetadata(video, timeoutMs = 15000) {
 async function startCamera() {
   if (cameraStarting) return false;
   if (!checkCameraSupport()) return false;
-
   cameraStarting = true;
   setStatus('Starting…');
 
   try {
-    if (state.stream) {
-      try { state.stream.getTracks().forEach(t => t.stop()); } catch (e) {}
-      state.stream = null;
-    }
-
+    if (state.stream) { try { state.stream.getTracks().forEach(t => t.stop()); } catch (e) {} state.stream = null; }
     const deviceId = document.getElementById('camDevice').value;
     const facing = document.getElementById('camFacing').value;
     const baseVideo = { width: { ideal: 1280 }, height: { ideal: 720 } };
-
     let stream = null;
+
     if (deviceId) {
       try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: Object.assign({}, baseVideo, { deviceId: { exact: deviceId } }),
-          audio: false
-        });
+        stream = await navigator.mediaDevices.getUserMedia({ video: Object.assign({}, baseVideo, { deviceId: { exact: deviceId } }), audio: false });
       } catch (e) { stream = null; }
     }
     if (!stream) {
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: Object.assign({}, baseVideo, { facingMode: { ideal: facing } }),
-        audio: false
-      });
+      stream = await navigator.mediaDevices.getUserMedia({ video: Object.assign({}, baseVideo, { facingMode: { ideal: facing } }), audio: false });
     }
-
     state.stream = stream;
     previewVideos.forEach(v => { if (v) v.srcObject = stream; });
-
     const activeVideo = getActiveVideo() || previewVideos[0];
-    const p = activeVideo.play();
-    if (p && p.catch) p.catch(() => {});
-
-    stream.getVideoTracks().forEach(track => {
-      track.onended = () => { cameraReady = false; setStatus('Camera stopped'); };
-    });
-
+    const p = activeVideo.play(); if (p && p.catch) p.catch(() => {});
+    stream.getVideoTracks().forEach(track => { track.onended = () => { cameraReady = false; setStatus('Camera stopped'); }; });
     await waitForMetadata(activeVideo);
-
-    try { await activeVideo.play(); }
-    catch (err) { throw new Error("Stream acquired but playback failed."); }
-
+    try { await activeVideo.play(); } catch (err) { throw new Error("Stream acquired but playback failed."); }
     if (!activeVideo.videoWidth || !activeVideo.videoHeight) {
       await new Promise(r => setTimeout(r, 300));
       if (!activeVideo.videoWidth) throw new Error("No video frames received.");
     }
-
     cameraReady = true;
     setStatus('Camera ready', 'ready');
     toast('Camera ready', 'success');
-
     await initDevices();
     document.getElementById('camDevice').disabled = false;
     return true;
-
   } catch (e) {
     cameraReady = false;
     setStatus('Camera error', 'error');
     toast(e.message || String(e), 'error');
     return false;
-  } finally {
-    cameraStarting = false;
-  }
+  } finally { cameraStarting = false; }
 }
 
 async function initDevices() {
@@ -1639,10 +1082,7 @@ async function initDevices() {
 }
 
 document.getElementById('btnStartCamera').addEventListener('click', startCamera);
-document.getElementById('camFacing').addEventListener('change', () => {
-  document.getElementById('camDevice').value = '';
-  if (cameraReady || state.stream) startCamera();
-});
+document.getElementById('camFacing').addEventListener('change', () => { document.getElementById('camDevice').value = ''; if (cameraReady || state.stream) startCamera(); });
 document.getElementById('btnSwitchCamLive').addEventListener('click', async () => {
   const sel = document.getElementById('camFacing');
   sel.value = sel.value === 'user' ? 'environment' : 'user';
@@ -1650,9 +1090,9 @@ document.getElementById('btnSwitchCamLive').addEventListener('click', async () =
   await startCamera();
 });
 
-/* -------------------------------------------------------------------------
+/* =========================================================================
    VIDEO HELPERS
-   ------------------------------------------------------------------------- */
+   ========================================================================= */
 function getActiveVideo() {
   if (!activePreviewCanvasId) return null;
   const canvas = document.getElementById(activePreviewCanvasId);
@@ -1660,9 +1100,9 @@ function getActiveVideo() {
   return canvas.parentElement.querySelector('video.preview-video');
 }
 
-/* -------------------------------------------------------------------------
+/* =========================================================================
    LIVE PREVIEW
-   ------------------------------------------------------------------------- */
+   ========================================================================= */
 function drawChecker(ctx, w, h) {
   const size = 20;
   for (let y = 0; y < h; y += size) {
@@ -1672,71 +1112,46 @@ function drawChecker(ctx, w, h) {
     }
   }
 }
-
 function drawWaiting(ctx, canvas, theme) {
   if (!canvas.width) canvas.width = 640;
   if (!canvas.height) canvas.height = 480;
   const dark = theme === 'dark';
   ctx.fillStyle = dark ? '#131a2b' : '#e2e8f0';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-
-  // Camera icon
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillStyle = dark ? '#475569' : '#94a3b8';
   ctx.font = 'bold 52px system-ui, sans-serif';
   ctx.fillText('📷', canvas.width / 2, canvas.height / 2 - 30);
-
   ctx.fillStyle = dark ? '#cbd5e1' : '#475569';
   ctx.font = 'bold 22px system-ui, sans-serif';
   ctx.fillText('Camera not started', canvas.width / 2, canvas.height / 2 + 25);
-
   ctx.fillStyle = dark ? '#64748b' : '#94a3b8';
   ctx.font = '14px system-ui, sans-serif';
   ctx.fillText('Go to Step 1 and tap "Start Camera"', canvas.width / 2, canvas.height / 2 + 52);
 }
-
 function stopLivePreview() {
   if (livePreviewRAF) { cancelAnimationFrame(livePreviewRAF); livePreviewRAF = null; }
   activePreviewCanvasId = null;
 }
-
 function startLivePreview(canvasId, useChroma) {
   stopLivePreview();
   activePreviewCanvasId = canvasId;
-
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
-
-  const CHROMA_INTERVAL_MS = 1000 / 12; // ~12fps for chroma preview
+  const CHROMA_INTERVAL_MS = 1000 / 12;
   let lastChromaTime = 0;
 
   function loop(ts) {
     if (activePreviewCanvasId !== canvasId) return;
-
     const theme = document.documentElement.getAttribute('data-theme');
-
-    if (!cameraReady || !state.stream) {
-      drawWaiting(ctx, canvas, theme);
-      livePreviewRAF = requestAnimationFrame(loop);
-      return;
-    }
-
+    if (!cameraReady || !state.stream) { drawWaiting(ctx, canvas, theme); livePreviewRAF = requestAnimationFrame(loop); return; }
     const video = getActiveVideo();
-    if (!video || video.readyState < 2 || !video.videoWidth) {
-      drawWaiting(ctx, canvas, theme);
-      livePreviewRAF = requestAnimationFrame(loop);
-      return;
-    }
-
+    if (!video || video.readyState < 2 || !video.videoWidth) { drawWaiting(ctx, canvas, theme); livePreviewRAF = requestAnimationFrame(loop); return; }
     const previewW = useChroma ? 320 : 640;
     const targetW = previewW;
     const targetH = Math.round(previewW * (video.videoHeight / video.videoWidth));
-    if (canvas.width !== targetW || canvas.height !== targetH) {
-      canvas.width = targetW;
-      canvas.height = targetH;
-    }
+    if (canvas.width !== targetW || canvas.height !== targetH) { canvas.width = targetW; canvas.height = targetH; }
 
     if (!useChroma || !state.chromaEnabled) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1744,49 +1159,37 @@ function startLivePreview(canvasId, useChroma) {
       const now = ts || performance.now();
       if (now - lastChromaTime >= CHROMA_INTERVAL_MS) {
         lastChromaTime = now;
-
         let bgImg = null;
         if (state.chromaMode === 'single') bgImg = state.chromaSingleImg;
         else if (state.chromaMode === 'unique') bgImg = state.chromaUniqueImgs[currentShotIdx];
         else if (state.chromaMode === 'transparent') bgImg = state.bgImg;
-
         if (bgImg) drawCover(ctx, bgImg, 0, 0, canvas.width, canvas.height, false);
         else drawChecker(ctx, canvas.width, canvas.height);
-
         const bgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-
-        processCanvas.width = canvas.width;
-        processCanvas.height = canvas.height;
+        processCanvas.width = canvas.width; processCanvas.height = canvas.height;
         drawCover(pCtx, video, 0, 0, processCanvas.width, processCanvas.height, false);
         const fg = pCtx.getImageData(0, 0, processCanvas.width, processCanvas.height);
-
         const key = hexToRgb(document.getElementById('chromaColor').value);
         const th = Number(document.getElementById('chromaIntensity').value);
         const th2 = th * th;
-
-        const fgD = fg.data;
-        const kr = key.r, kg = key.g, kb = key.b;
+        const fgD = fg.data; const kr = key.r, kg = key.g, kb = key.b;
         for (let i = 0; i < fgD.length; i += 4) {
           const dr = fgD[i] - kr, dg = fgD[i+1] - kg, db = fgD[i+2] - kb;
           if ((dr*dr + dg*dg + db*db) < th2) {
-            fgD[i] = bgData[i];
-            fgD[i+1] = bgData[i+1];
-            fgD[i+2] = bgData[i+2];
-            fgD[i+3] = bgData[i+3];
+            fgD[i] = bgData[i]; fgD[i+1] = bgData[i+1]; fgD[i+2] = bgData[i+2]; fgD[i+3] = bgData[i+3];
           }
         }
         ctx.putImageData(fg, 0, 0);
       }
     }
-
     livePreviewRAF = requestAnimationFrame(loop);
   }
   livePreviewRAF = requestAnimationFrame(loop);
 }
 
-/* -------------------------------------------------------------------------
+/* =========================================================================
    LAYOUT
-   ------------------------------------------------------------------------- */
+   ========================================================================= */
 function renderPresetGrid() {
   const grid = document.getElementById('presetGrid');
   grid.innerHTML = '';
@@ -1799,56 +1202,35 @@ function renderPresetGrid() {
     grid.appendChild(btn);
   });
 }
-
 function applyPreset(type) {
   if (!LAYOUT_PRESETS[type]) return;
   state.currentPreset = type;
-  document.querySelectorAll('.preset-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.preset === type);
-  });
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.toggle('active', b.dataset.preset === type));
   state.layoutBoxes = LAYOUT_PRESETS[type].boxes.map(b => ({ ...b }));
   state.shotsTotal = state.layoutBoxes.length;
-
   while (state.chromaUniqueImgs.length < state.shotsTotal) state.chromaUniqueImgs.push(null);
   state.chromaUniqueImgs = state.chromaUniqueImgs.slice(0, state.shotsTotal);
-
   drawLayout();
 }
-
 function drawLayout() {
-  lCtx.fillStyle = '#ffffff';
-  lCtx.fillRect(0, 0, W, H);
-
-  // Draw a subtle print border
-  lCtx.strokeStyle = '#e2e8f0';
-  lCtx.lineWidth = 2;
+  lCtx.fillStyle = '#ffffff'; lCtx.fillRect(0, 0, W, H);
+  lCtx.strokeStyle = '#e2e8f0'; lCtx.lineWidth = 2;
   lCtx.strokeRect(30, 30, W - 60, H - 60);
-
   state.layoutBoxes.forEach((b, i) => {
-    // Gradient fill
     const grad = lCtx.createLinearGradient(b.x, b.y, b.x, b.y + b.h);
-    grad.addColorStop(0, '#334155');
-    grad.addColorStop(1, '#1e293b');
+    grad.addColorStop(0, '#334155'); grad.addColorStop(1, '#1e293b');
     lCtx.fillStyle = grad;
-
-    // Rounded rect
-    roundRect(lCtx, b.x, b.y, b.w, b.h, 12);
-    lCtx.fill();
-
-    // Number
+    roundRect(lCtx, b.x, b.y, b.w, b.h, 12); lCtx.fill();
     lCtx.fillStyle = '#ffffff';
     lCtx.font = `bold ${Math.min(b.w, b.h) * 0.3}px 'Inter', sans-serif`;
-    lCtx.textAlign = 'center';
-    lCtx.textBaseline = 'middle';
+    lCtx.textAlign = 'center'; lCtx.textBaseline = 'middle';
     lCtx.fillText(i + 1, b.x + b.w / 2, b.y + b.h / 2);
   });
 }
-
 function roundRect(ctx, x, y, w, h, r) {
   r = Math.min(r, w / 2, h / 2);
   ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
+  ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y);
   ctx.quadraticCurveTo(x + w, y, x + w, y + r);
   ctx.lineTo(x + w, y + h - r);
   ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
@@ -1876,18 +1258,14 @@ layoutCanvas.addEventListener('pointermove', e => {
 layoutCanvas.addEventListener('pointerup', () => draggingBox = -1);
 layoutCanvas.addEventListener('pointercancel', () => draggingBox = -1);
 
-/* -------------------------------------------------------------------------
-   DESIGN ENGINE
-   ------------------------------------------------------------------------- */
+/* =========================================================================
+   IMAGE LOADING + SOURCE TRACKING
+   ========================================================================= */
 function getCanvasPos(evt, canvas) {
   const rect = canvas.getBoundingClientRect();
-  return {
-    x: (evt.clientX - rect.left) * (W / rect.width),
-    y: (evt.clientY - rect.top) * (H / rect.height)
-  };
+  return { x: (evt.clientX - rect.left) * (W / rect.width), y: (evt.clientY - rect.top) * (H / rect.height) };
 }
 
-/* --- HEIC support (lazy-loaded) --- */
 let heicLibPromise = null;
 function ensureHeicLib() {
   if (window.heic2any) return Promise.resolve(window.heic2any);
@@ -1901,46 +1279,29 @@ function ensureHeicLib() {
   });
   return heicLibPromise;
 }
+function isHeic(file) { return /\.(heic|heif)$/i.test(file.name) || file.type === 'image/heic' || file.type === 'image/heif'; }
 
-function isHeic(file) {
-  return /\.(heic|heif)$/i.test(file.name) || file.type === 'image/heic' || file.type === 'image/heif';
-}
-
-async function loadFileAsImage(file) {
-  // Accepts File or Blob or URL string. Returns an HTMLImageElement.
-  let url;
-  let revoke = null;
-
-  if (typeof file === 'string') {
-    url = file;
-  } else if (isHeic(file) && !window.heic2any) {
-    // Try decoding HEIC via CDN library
+async function loadFileAsImage(fileOrUrl) {
+  let url, revoke = null;
+  if (typeof fileOrUrl === 'string') {
+    url = fileOrUrl;
+  } else if (isHeic(fileOrUrl) && !window.heic2any) {
     try {
       const heic2any = await ensureHeicLib();
-      const blob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 });
+      const blob = await heic2any({ blob: fileOrUrl, toType: 'image/jpeg', quality: 0.92 });
       url = URL.createObjectURL(Array.isArray(blob) ? blob[0] : blob);
       revoke = url;
-    } catch (e) {
-      throw new Error('HEIC file could not be decoded in this browser.');
-    }
-  } else if (typeof file === 'object' && file instanceof Blob) {
-    url = URL.createObjectURL(file);
+    } catch (e) { throw new Error('HEIC file could not be decoded in this browser.'); }
+  } else if (fileOrUrl instanceof Blob) {
+    url = URL.createObjectURL(fileOrUrl);
     revoke = url;
-  } else {
-    throw new Error('Unsupported file');
-  }
+  } else throw new Error('Unsupported file');
 
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      if (revoke) URL.revokeObjectURL(revoke);
-      resolve(img);
-    };
-    img.onerror = () => {
-      if (revoke) URL.revokeObjectURL(revoke);
-      reject(new Error('Could not load image'));
-    };
+    img.onload = () => { if (revoke) URL.revokeObjectURL(revoke); resolve(img); };
+    img.onerror = () => { if (revoke) URL.revokeObjectURL(revoke); reject(new Error('Could not load image')); };
     img.src = url;
   });
 }
@@ -1950,71 +1311,52 @@ async function loadImgInput(inputEl, callback) {
   if (!file) return;
   try {
     const img = await loadFileAsImage(file);
-    callback(img);
-  } catch (e) {
-    toast(e.message || 'Could not load image', 'error');
-  } finally {
-    inputEl.value = '';
-  }
+    img._src = 'file:' + file.name;
+    callback(img, file);
+  } catch (e) { toast(e.message || 'Could not load image', 'error'); }
+  finally { inputEl.value = ''; }
 }
 
-/* --- File inputs --- */
+/* =========================================================================
+   FILE INPUTS
+   ========================================================================= */
 document.getElementById('fileBg').addEventListener('change', e =>
   loadImgInput(e.target, img => { state.bgImg = img; drawDesign(); toast('Background applied', 'success'); }));
-
 document.getElementById('fileOverlay').addEventListener('change', e =>
   loadImgInput(e.target, img => { state.overlayImg = img; drawDesign(); toast('Overlay applied', 'success'); }));
-
 document.getElementById('fileSticker').addEventListener('change', e =>
   loadImgInput(e.target, img => {
-    state.items.push({
-      type: 'sticker', img, x: W / 2, y: H / 2,
-      size: 1, rotation: 0, flipX: false, w: img.width, h: img.height
-    });
-    drawDesign();
-    toast('Sticker added', 'success');
+    state.items.push({ type: 'sticker', img, x: W / 2, y: H / 2, size: 1, rotation: 0, flipX: false, w: img.width, h: img.height });
+    drawDesign(); toast('Sticker added', 'success');
   }));
 
-/* --- Folder loading --- */
-function attachFolderLoader(inputId, kind, onLoaded) {
+/* =========================================================================
+   FOLDER / MANIFEST LOADING
+   ========================================================================= */
+function attachFolderLoader(inputId, kind) {
   const el = document.getElementById(inputId);
   if (!el) return;
-  el.addEventListener('change', async e => {
+  el.addEventListener('change', e => {
     const files = Array.from(e.target.files || []);
     const images = files.filter(f => /\.(png|jpe?g|webp|gif|heic|heif)$/i.test(f.name));
     if (!images.length) { toast('No images found in that folder', 'error'); return; }
-
     const items = images.map(f => ({
       name: f.name,
-      url: URL.createObjectURL(f), // Blob URL for local folder
-      file: f
+      url: URL.createObjectURL(f),
+      file: f,
+      src: 'file:' + f.name
     }));
     state.library[kind] = items;
     renderGallery(kind);
     toast(`Loaded ${items.length} ${kind} image${items.length > 1 ? 's' : ''}`, 'success');
-    if (onLoaded) onLoaded(items);
   });
 }
-
 attachFolderLoader('fileBgFolder', 'background');
 attachFolderLoader('fileOverlayFolder', 'overlay');
 attachFolderLoader('fileStickerFolder', 'stickers');
 
-/* --- Manifest auto-load ---
-   When the app is served over HTTP, it will try to fetch
-   `background/manifest.json`, `overlay/manifest.json` and
-   `stickers/manifest.json`. If found, they populate the library.
-
-   Manifest format:
-     { "files": ["wall1.jpg", "wall2.png", ...] }
-   or plain array:
-     [ "wall1.jpg", "wall2.png" ]
---- */
 async function tryLoadManifest(kind) {
-  const candidates = [
-    `${kind}/manifest.json`,
-    `${kind}/index.json`
-  ];
+  const candidates = [`${kind}/manifest.json`, `${kind}/index.json`];
   for (const path of candidates) {
     try {
       const res = await fetch(path, { cache: 'no-cache' });
@@ -2022,40 +1364,33 @@ async function tryLoadManifest(kind) {
       const data = await res.json();
       const list = Array.isArray(data) ? data : (data.files || data.images || []);
       if (!Array.isArray(list) || !list.length) continue;
-
       state.library[kind] = list.map(name => ({
         name,
-        url: `${kind}/${encodeURIComponent(name)}`
+        url: `${kind}/${encodeURIComponent(name)}`,
+        src: `${kind}/${encodeURIComponent(name)}`
       }));
       renderGallery(kind);
       return true;
-    } catch (e) { /* try next */ }
+    } catch (e) {}
   }
   return false;
 }
 
-/* --- Gallery rendering --- */
 function renderGallery(kind) {
   const map = {
     background: { gallery: 'bgGallery', empty: 'bgGalleryEmpty' },
-    overlay:    { gallery: 'overlayGallery', empty: 'overlayGalleryEmpty' },
-    stickers:   { gallery: 'stickerGallery', empty: 'stickerGalleryEmpty' }
+    overlay: { gallery: 'overlayGallery', empty: 'overlayGalleryEmpty' },
+    stickers: { gallery: 'stickerGallery', empty: 'stickerGalleryEmpty' }
   };
-  const ids = map[kind];
-  if (!ids) return;
-
+  const ids = map[kind]; if (!ids) return;
   const gallery = document.getElementById(ids.gallery);
   const emptyState = document.getElementById(ids.empty);
   const items = state.library[kind] || [];
-
   gallery.innerHTML = '';
-  if (!items.length) {
-    if (emptyState) emptyState.style.display = 'block';
-    return;
-  }
+  if (!items.length) { if (emptyState) emptyState.style.display = 'block'; return; }
   if (emptyState) emptyState.style.display = 'none';
 
-  items.forEach((item, i) => {
+  items.forEach(item => {
     const thumb = document.createElement('div');
     thumb.className = 'asset-thumb';
     thumb.dataset.name = item.name;
@@ -2067,46 +1402,28 @@ function renderGallery(kind) {
 
 async function applyLibraryItem(kind, item, thumb) {
   try {
-    let img;
-    if (item.file) {
-      img = await loadFileAsImage(item.file);
-    } else {
-      img = await loadFileAsImage(item.url);
-    }
-
-    // Mark selected
+    const img = await loadFileAsImage(item.file || item.url);
+    img._src = item.src || item.url || ('file:' + item.name);
     const siblings = thumb.parentElement.querySelectorAll('.asset-thumb');
     siblings.forEach(s => s.classList.remove('selected'));
     thumb.classList.add('selected');
-
-    if (kind === 'background') {
-      state.bgImg = img;
-      drawDesign();
-      toast('Background applied', 'success');
-    } else if (kind === 'overlay') {
-      state.overlayImg = img;
-      drawDesign();
-      toast('Overlay applied', 'success');
-    } else if (kind === 'stickers') {
-      state.items.push({
-        type: 'sticker', img, x: W / 2, y: H / 2,
-        size: 1, rotation: 0, flipX: false, w: img.width, h: img.height
-      });
-      drawDesign();
-      toast('Sticker added', 'success');
+    if (kind === 'background') { state.bgImg = img; drawDesign(); toast('Background applied', 'success'); }
+    else if (kind === 'overlay') { state.overlayImg = img; drawDesign(); toast('Overlay applied', 'success'); }
+    else if (kind === 'stickers') {
+      state.items.push({ type: 'sticker', img, x: W / 2, y: H / 2, size: 1, rotation: 0, flipX: false, w: img.width, h: img.height });
+      drawDesign(); toast('Sticker added', 'success');
     }
-  } catch (e) {
-    toast('Could not load image', 'error');
-  }
+  } catch (e) { toast('Could not load image', 'error'); }
 }
 
-/* --- Clear / Toggles --- */
 function clearBg() { state.bgImg = null; drawDesign(); toast('Background cleared'); }
 function clearOverlay() { state.overlayImg = null; drawDesign(); toast('Overlay cleared'); }
 function toggleFlipBg() { state.bgFlip = document.getElementById('chkFlipBg').checked; drawDesign(); }
 function toggleFlipOverlay() { state.overlayFlip = document.getElementById('chkFlipOverlay').checked; drawDesign(); }
 
-/* --- Text --- */
+/* =========================================================================
+   TEXT
+   ========================================================================= */
 function buildFontSelect() {
   const sel = document.getElementById('textFont');
   sel.innerHTML = '';
@@ -2115,33 +1432,30 @@ function buildFontSelect() {
     og.label = group.label;
     group.fonts.forEach(f => {
       const opt = document.createElement('option');
-      opt.value = f;
-      opt.textContent = f;
+      opt.value = f; opt.textContent = f;
       opt.style.fontFamily = `'${f}', sans-serif`;
       og.appendChild(opt);
     });
     sel.appendChild(og);
   });
 }
-
 function addText() {
   const txt = document.getElementById('textInput').value.trim();
   if (!txt) { toast('Enter some text first', 'error'); return; }
   state.items.push({
-    type: 'text', text: txt, x: W / 2, y: H / 2,
-    size: 1, rotation: 0, flipX: false,
+    type: 'text', text: txt, x: W / 2, y: H / 2, size: 1, rotation: 0, flipX: false,
     color: document.getElementById('textColor').value,
     font: document.getElementById('textFont').value
   });
   document.getElementById('textInput').value = '';
-  drawDesign();
-  toast('Text added', 'success');
+  drawDesign(); toast('Text added', 'success');
 }
 
-/* --- Design rendering --- */
+/* =========================================================================
+   DESIGN RENDERER
+   ========================================================================= */
 function drawDesign(ctx = dCtx, isFinal = false) {
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
   if (state.bgImg) drawCover(ctx, state.bgImg, 0, 0, W, H, state.bgFlip);
 
   state.layoutBoxes.forEach((b, i) => {
@@ -2150,12 +1464,10 @@ function drawDesign(ctx = dCtx, isFinal = false) {
       drawCover(ctx, state.captures[i], b.x, b.y, b.w, b.h, false);
     } else {
       ctx.fillStyle = '#e2e8f0';
-      roundRect(ctx, b.x, b.y, b.w, b.h, 12);
-      ctx.fill();
+      roundRect(ctx, b.x, b.y, b.w, b.h, 12); ctx.fill();
       ctx.fillStyle = '#94a3b8';
       ctx.font = `bold ${Math.min(b.w, b.h) * 0.12}px 'Inter', sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText('Photo ' + (i + 1), b.x + b.w / 2, b.y + b.h / 2);
     }
     ctx.restore();
@@ -2168,7 +1480,6 @@ function drawDesign(ctx = dCtx, isFinal = false) {
     ctx.translate(it.x, it.y);
     if (it.rotation) ctx.rotate(it.rotation * Math.PI / 180);
     if (it.flipX) ctx.scale(-1, 1);
-
     if (it.type === 'sticker') {
       const dw = it.w * it.size, dh = it.h * it.size;
       ctx.drawImage(it.img, -dw / 2, -dh / 2, dw, dh);
@@ -2179,10 +1490,8 @@ function drawDesign(ctx = dCtx, isFinal = false) {
       ctx.fillStyle = it.color;
       ctx.strokeStyle = 'rgba(0,0,0,0.55)';
       ctx.lineWidth = Math.max(4, 4 * it.size);
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.strokeText(it.text, 0, 0);
-      ctx.fillText(it.text, 0, 0);
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.strokeText(it.text, 0, 0); ctx.fillText(it.text, 0, 0);
       if (!isFinal && i === state.selectedItemIndex) {
         const met = ctx.measureText(it.text);
         drawDashedBox(ctx, -met.width / 2 - 10, -fSize / 2 - 10, met.width + 20, fSize + 20);
@@ -2191,7 +1500,6 @@ function drawDesign(ctx = dCtx, isFinal = false) {
     ctx.restore();
   });
 }
-
 function drawCover(ctx, src, x, y, w, h, flip) {
   const iw = src.videoWidth || src.naturalWidth || src.width;
   const ih = src.videoHeight || src.naturalHeight || src.height;
@@ -2199,27 +1507,19 @@ function drawCover(ctx, src, x, y, w, h, flip) {
   ctx.save();
   const r = Math.max(w / iw, h / ih);
   const nw = iw * r, nh = ih * r;
-  if (flip) {
-    ctx.translate(x + w, y);
-    ctx.scale(-1, 1);
-    ctx.drawImage(src, (w - nw) / 2, (h - nh) / 2, nw, nh);
-  } else {
-    ctx.drawImage(src, x + (w - nw) / 2, y + (h - nh) / 2, nw, nh);
-  }
+  if (flip) { ctx.translate(x + w, y); ctx.scale(-1, 1); ctx.drawImage(src, (w - nw) / 2, (h - nh) / 2, nw, nh); }
+  else { ctx.drawImage(src, x + (w - nw) / 2, y + (h - nh) / 2, nw, nh); }
   ctx.restore();
 }
-
 function drawDashedBox(ctx, x, y, w, h) {
-  ctx.strokeStyle = '#6366f1';
-  ctx.lineWidth = 4;
-  ctx.setLineDash([14, 14]);
-  ctx.strokeRect(x, y, w, h);
-  ctx.setLineDash([]);
+  ctx.strokeStyle = '#6366f1'; ctx.lineWidth = 4; ctx.setLineDash([14, 14]);
+  ctx.strokeRect(x, y, w, h); ctx.setLineDash([]);
 }
 
-/* --- Item interactions --- */
+/* =========================================================================
+   ITEM INTERACTIONS
+   ========================================================================= */
 let dragItem = -1, itemOffset = { x: 0, y: 0 };
-
 designCanvas.addEventListener('pointerdown', e => {
   const p = getCanvasPos(e, designCanvas);
   for (let i = state.items.length - 1; i >= 0; i--) {
@@ -2228,7 +1528,6 @@ designCanvas.addEventListener('pointerdown', e => {
     const lx = p.x - it.x, ly = p.y - it.y;
     const rx = lx * Math.cos(rad) - ly * Math.sin(rad);
     const ry = lx * Math.sin(rad) + ly * Math.cos(rad);
-
     let hit = false;
     if (it.type === 'sticker') {
       const w2 = (it.w * it.size) / 2, h2 = (it.h * it.size) / 2;
@@ -2242,13 +1541,11 @@ designCanvas.addEventListener('pointerdown', e => {
     if (hit) {
       dragItem = i;
       itemOffset = { x: p.x - it.x, y: p.y - it.y };
-      selectItem(i);
-      return;
+      selectItem(i); return;
     }
   }
   selectItem(-1);
 });
-
 designCanvas.addEventListener('pointermove', e => {
   if (dragItem > -1) {
     const p = getCanvasPos(e, designCanvas);
@@ -2277,45 +1574,24 @@ function selectItem(idx) {
   }
   drawDesign();
 }
-
 function closeEditMenu() { document.getElementById('editMenu').style.display = 'none'; }
 
-document.getElementById('editSize').addEventListener('input', e => {
-  if (state.selectedItemIndex > -1) { state.items[state.selectedItemIndex].size = parseFloat(e.target.value); drawDesign(); }
-});
-document.getElementById('editRotation').addEventListener('input', e => {
-  if (state.selectedItemIndex > -1) { state.items[state.selectedItemIndex].rotation = parseInt(e.target.value); drawDesign(); }
-});
-document.getElementById('btnFlipItem').addEventListener('click', () => {
-  if (state.selectedItemIndex > -1) {
-    state.items[state.selectedItemIndex].flipX = !state.items[state.selectedItemIndex].flipX;
-    drawDesign();
-  }
-});
-document.getElementById('editColor').addEventListener('input', e => {
-  if (state.selectedItemIndex > -1) { state.items[state.selectedItemIndex].color = e.target.value; drawDesign(); }
-});
+document.getElementById('editSize').addEventListener('input', e => { if (state.selectedItemIndex > -1) { state.items[state.selectedItemIndex].size = parseFloat(e.target.value); drawDesign(); } });
+document.getElementById('editRotation').addEventListener('input', e => { if (state.selectedItemIndex > -1) { state.items[state.selectedItemIndex].rotation = parseInt(e.target.value); drawDesign(); } });
+document.getElementById('btnFlipItem').addEventListener('click', () => { if (state.selectedItemIndex > -1) { state.items[state.selectedItemIndex].flipX = !state.items[state.selectedItemIndex].flipX; drawDesign(); } });
+document.getElementById('editColor').addEventListener('input', e => { if (state.selectedItemIndex > -1) { state.items[state.selectedItemIndex].color = e.target.value; drawDesign(); } });
 document.getElementById('btnDuplicateItem').addEventListener('click', () => {
-  const i = state.selectedItemIndex;
-  if (i < 0) return;
-  const clone = { ...state.items[i] };
-  clone.x += 40;
-  clone.y += 40;
-  state.items.push(clone);
-  selectItem(state.items.length - 1);
-  toast('Duplicated', 'success');
+  const i = state.selectedItemIndex; if (i < 0) return;
+  const clone = { ...state.items[i] }; clone.x += 40; clone.y += 40;
+  state.items.push(clone); selectItem(state.items.length - 1); toast('Duplicated', 'success');
 });
 document.getElementById('btnDeleteItem').addEventListener('click', () => {
-  if (state.selectedItemIndex > -1) {
-    state.items.splice(state.selectedItemIndex, 1);
-    selectItem(-1);
-    toast('Deleted');
-  }
+  if (state.selectedItemIndex > -1) { state.items.splice(state.selectedItemIndex, 1); selectItem(-1); toast('Deleted'); }
 });
 
-/* -------------------------------------------------------------------------
+/* =========================================================================
    CHROMA UI
-   ------------------------------------------------------------------------- */
+   ========================================================================= */
 function toggleChromaUI() {
   state.chromaEnabled = document.getElementById('chkChroma').checked;
   document.getElementById('chromaSettings').style.display = state.chromaEnabled ? 'block' : 'none';
@@ -2330,95 +1606,320 @@ function renderChromaUI() {
   container.innerHTML = '';
   while (state.chromaUniqueImgs.length < state.shotsTotal) state.chromaUniqueImgs.push(null);
   state.chromaUniqueImgs = state.chromaUniqueImgs.slice(0, state.shotsTotal);
-
   for (let i = 0; i < state.shotsTotal; i++) {
     const box = document.createElement('div');
     box.style.cssText = 'background: var(--bg-subtle); padding:10px; border-radius:10px; margin-bottom:8px; border:1px dashed var(--border-strong);';
-    box.innerHTML = `<label class="field-label" style="margin-bottom:6px;">Shot ${i + 1}</label>
-                     <input type="file" accept="image/*,.heic,.heif,.webp,.gif,.jpg,.jpeg,.png" id="uniqueChromaFile_${i}" style="margin:0;">`;
+    box.innerHTML = `<label class="field-label" style="margin-bottom:6px;">Shot ${i + 1}</label><input type="file" accept="image/*,.heic,.heif,.webp,.gif,.jpg,.jpeg,.png" id="uniqueChromaFile_${i}" style="margin:0;">`;
     container.appendChild(box);
     document.getElementById(`uniqueChromaFile_${i}`).addEventListener('change', async e => {
-      const f = e.target.files[0];
-      if (!f) return;
-      try {
-        const img = await loadFileAsImage(f);
-        state.chromaUniqueImgs[i] = img;
-        toast(`Shot ${i + 1} background set`, 'success');
-      } catch (err) { toast(err.message, 'error'); }
+      const f = e.target.files[0]; if (!f) return;
+      try { const img = await loadFileAsImage(f); img._src = 'file:' + f.name; state.chromaUniqueImgs[i] = img; toast(`Shot ${i + 1} background set`, 'success'); }
+      catch (err) { toast(err.message, 'error'); }
       e.target.value = '';
     });
   }
 }
 document.getElementById('fileChromaSingle').addEventListener('change', async e => {
-  const f = e.target.files[0];
-  if (!f) return;
-  try {
-    const img = await loadFileAsImage(f);
-    state.chromaSingleImg = img;
-    toast('Chroma background set', 'success');
-  } catch (err) { toast(err.message, 'error'); }
+  const f = e.target.files[0]; if (!f) return;
+  try { const img = await loadFileAsImage(f); img._src = 'file:' + f.name; state.chromaSingleImg = img; toast('Chroma background set', 'success'); }
+  catch (err) { toast(err.message, 'error'); }
   e.target.value = '';
 });
 
-/* -------------------------------------------------------------------------
+/* =========================================================================
+   PRESET SAVE / LOAD
+   ========================================================================= */
+const PRESET_APP = 'MediaBoxPhotoBoothPro';
+const PRESET_VERSION = 4;
+const LOCAL_STORAGE_KEY = 'mbpb_saved_presets_v4';
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+}
+function getSrc(img) { return img && img._src ? img._src : null; }
+
+function buildPreset(name) {
+  return {
+    app: PRESET_APP,
+    version: PRESET_VERSION,
+    name: name || 'Untitled',
+    savedAt: new Date().toISOString(),
+    layout: state.currentPreset,
+    layoutBoxes: state.layoutBoxes.map(b => ({ ...b })),
+    background: state.bgImg ? { src: getSrc(state.bgImg), flip: state.bgFlip } : null,
+    overlay: state.overlayImg ? { src: getSrc(state.overlayImg), flip: state.overlayFlip } : null,
+    items: state.items.map(it => {
+      const base = { type: it.type, x: it.x, y: it.y, size: it.size, rotation: it.rotation || 0, flipX: !!it.flipX };
+      if (it.type === 'sticker') { base.src = getSrc(it.img); base.w = it.w; base.h = it.h; }
+      else { base.text = it.text; base.color = it.color; base.font = it.font; }
+      return base;
+    }),
+    chroma: {
+      enabled: state.chromaEnabled,
+      mode: state.chromaMode,
+      color: document.getElementById('chromaColor').value,
+      intensity: Number(document.getElementById('chromaIntensity').value),
+      single: state.chromaSingleImg ? getSrc(state.chromaSingleImg) : null,
+      unique: state.chromaUniqueImgs.map(img => img ? getSrc(img) : null)
+    }
+  };
+}
+
+async function downloadPreset() {
+  const name = await showModal({
+    title: 'Save preset',
+    desc: 'Give this design a name. The preset file (.mbpb.json) will be downloaded to your device.',
+    placeholder: "e.g. Maria's 30th Birthday",
+    defaultValue: 'my-template',
+    confirmLabel: 'Download'
+  });
+  if (!name) return;
+
+  const preset = buildPreset(name);
+  const safe = name.replace(/[^a-z0-9_-]/gi, '_');
+  const json = JSON.stringify(preset, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.download = `${safe}.mbpb.json`;
+  a.href = URL.createObjectURL(blob);
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  toast('Preset saved to file', 'success');
+}
+
+async function quickSavePreset() {
+  const name = await showModal({
+    title: 'Quick save',
+    desc: 'Save this design on this device. It will appear in the Design Presets list on Step 3.',
+    placeholder: "e.g. Christmas Party",
+    defaultValue: 'Quick save',
+    confirmLabel: 'Save'
+  });
+  if (!name) return;
+
+  const preset = buildPreset(name);
+  let arr = [];
+  try { arr = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]'); } catch (e) { arr = []; }
+  const idx = arr.findIndex(p => p.name === name);
+  if (idx >= 0) arr[idx] = preset; else arr.push(preset);
+  try {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(arr));
+    toast('Saved to this device', 'success');
+    renderPresetList();
+  } catch (e) { toast('Storage full — try file save instead', 'error'); }
+}
+
+function renderPresetList() {
+  const wrap = document.getElementById('presetListWrap');
+  const list = document.getElementById('presetList');
+  let arr = [];
+  try { arr = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]'); } catch (e) { arr = []; }
+  if (!arr.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  list.innerHTML = '';
+  arr.forEach((p, i) => {
+    const item = document.createElement('div');
+    item.className = 'preset-list-item';
+    const date = p.savedAt ? new Date(p.savedAt).toLocaleDateString() : '';
+    item.innerHTML = `
+      <div class="info">
+        <p class="t">${escapeHtml(p.name || 'Untitled')}</p>
+        <p class="d">${escapeHtml(p.layout || '')} &middot; ${(p.items || []).length} item${(p.items || []).length === 1 ? '' : 's'} &middot; ${date}</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary btn-sm" data-load="${i}">Load</button>
+        <button class="btn btn-ghost btn-sm" data-del="${i}" title="Delete" aria-label="Delete">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+        </button>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+  list.querySelectorAll('[data-load]').forEach(b => b.addEventListener('click', () => {
+    const i = parseInt(b.dataset.load);
+    applyPresetObject(arr[i]);
+  }));
+  list.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', () => {
+    const i = parseInt(b.dataset.del);
+    if (!confirm(`Delete preset "${arr[i].name}"?`)) return;
+    arr.splice(i, 1);
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(arr));
+    renderPresetList();
+    toast('Preset deleted');
+  }));
+}
+
+async function resolveSrc(src, kind) {
+  if (!src) return null;
+  if (!src.startsWith('file:')) {
+    try { const img = await loadFileAsImage(src); img._src = src; return img; } catch (e) {}
+  }
+  const fileName = src.replace(/^file:/, '').split('/').pop();
+  const lib = state.library[kind] || [];
+  const match = lib.find(it => it.name === fileName || it.name.endsWith(fileName));
+  if (match) {
+    try { const img = await loadFileAsImage(match.file || match.url); img._src = match.src || match.url; return img; } catch (e) {}
+  }
+  return null;
+}
+
+async function applyPresetObject(preset) {
+  if (!preset || preset.app !== PRESET_APP) { toast('Not a valid MediaBox preset', 'error'); return; }
+  const missing = [];
+
+  if (preset.layout && LAYOUT_PRESETS[preset.layout]) {
+    state.currentPreset = preset.layout;
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.toggle('active', b.dataset.preset === preset.layout));
+  }
+  if (Array.isArray(preset.layoutBoxes) && preset.layoutBoxes.length) {
+    state.layoutBoxes = preset.layoutBoxes.map(b => ({ ...b }));
+    state.shotsTotal = state.layoutBoxes.length;
+  } else if (preset.layout && LAYOUT_PRESETS[preset.layout]) {
+    state.layoutBoxes = LAYOUT_PRESETS[preset.layout].boxes.map(b => ({ ...b }));
+    state.shotsTotal = state.layoutBoxes.length;
+  }
+
+  state.bgImg = null; state.bgFlip = false;
+  if (preset.background && preset.background.src) {
+    const img = await resolveSrc(preset.background.src, 'background');
+    if (img) { state.bgImg = img; state.bgFlip = !!preset.background.flip; }
+    else missing.push(preset.background.src);
+  }
+  document.getElementById('chkFlipBg').checked = state.bgFlip;
+
+  state.overlayImg = null; state.overlayFlip = false;
+  if (preset.overlay && preset.overlay.src) {
+    const img = await resolveSrc(preset.overlay.src, 'overlay');
+    if (img) { state.overlayImg = img; state.overlayFlip = !!preset.overlay.flip; }
+    else missing.push(preset.overlay.src);
+  }
+  document.getElementById('chkFlipOverlay').checked = state.overlayFlip;
+
+  state.items = [];
+  for (const it of (preset.items || [])) {
+    if (it.type === 'sticker') {
+      const img = await resolveSrc(it.src, 'stickers');
+      if (img) {
+        state.items.push({ type: 'sticker', img, x: it.x, y: it.y, size: it.size, rotation: it.rotation || 0, flipX: !!it.flipX, w: it.w || img.width, h: it.h || img.height });
+      } else { missing.push(it.src); }
+    } else if (it.type === 'text') {
+      state.items.push({ type: 'text', text: it.text, x: it.x, y: it.y, size: it.size, rotation: it.rotation || 0, flipX: !!it.flipX, color: it.color, font: it.font });
+    }
+  }
+
+  if (preset.chroma) {
+    state.chromaEnabled = !!preset.chroma.enabled;
+    state.chromaMode = preset.chroma.mode || 'transparent';
+    document.getElementById('chkChroma').checked = state.chromaEnabled;
+    document.getElementById('chromaSettings').style.display = state.chromaEnabled ? 'block' : 'none';
+    if (preset.chroma.color) document.getElementById('chromaColor').value = preset.chroma.color;
+    if (preset.chroma.intensity != null) document.getElementById('chromaIntensity').value = preset.chroma.intensity;
+    document.querySelectorAll('input[name="chromaMode"]').forEach(r => { r.checked = r.value === state.chromaMode; });
+    updateChromaMode();
+
+    state.chromaSingleImg = null;
+    if (preset.chroma.single) {
+      const img = await resolveSrc(preset.chroma.single, 'background');
+      if (img) state.chromaSingleImg = img; else missing.push(preset.chroma.single);
+    }
+    state.chromaUniqueImgs = [];
+    if (Array.isArray(preset.chroma.unique)) {
+      for (const s of preset.chroma.unique) {
+        if (s) {
+          const img = await resolveSrc(s, 'background');
+          if (img) state.chromaUniqueImgs.push(img); else { state.chromaUniqueImgs.push(null); missing.push(s); }
+        } else state.chromaUniqueImgs.push(null);
+      }
+    }
+  }
+
+  drawLayout(); drawDesign();
+  state.selectedItemIndex = -1; closeEditMenu();
+
+  if (missing.length) {
+    toast(`Loaded — ${missing.length} file(s) missing. Re-select them from the cards below.`, 'error');
+  } else {
+    toast('Preset loaded successfully', 'success');
+  }
+  goToStep(3);
+}
+
+document.getElementById('btnSavePreset').addEventListener('click', downloadPreset);
+document.getElementById('btnLoadPreset').addEventListener('click', () => document.getElementById('presetFileInput').click());
+document.getElementById('btnQuickSavePreset').addEventListener('click', quickSavePreset);
+document.getElementById('presetFileInput').addEventListener('change', async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try {
+    const text = await f.text();
+    const preset = JSON.parse(text);
+    await applyPresetObject(preset);
+  } catch (err) { toast('Invalid preset file', 'error'); }
+  e.target.value = '';
+});
+
+/* Presets topbar menu */
+const presetsMenu = document.getElementById('presetsMenu');
+document.getElementById('btnPresetsMenu').addEventListener('click', e => {
+  e.stopPropagation();
+  presetsMenu.classList.toggle('open');
+});
+document.addEventListener('click', e => {
+  const btn = document.getElementById('btnPresetsMenu');
+  if (!presetsMenu.contains(e.target) && !btn.contains(e.target)) {
+    presetsMenu.classList.remove('open');
+  }
+});
+document.getElementById('menuSavePreset').addEventListener('click', () => { presetsMenu.classList.remove('open'); downloadPreset(); });
+document.getElementById('menuLoadPreset').addEventListener('click', () => { presetsMenu.classList.remove('open'); document.getElementById('presetFileInput').click(); });
+document.getElementById('menuQuickSave').addEventListener('click', () => { presetsMenu.classList.remove('open'); quickSavePreset(); });
+document.getElementById('menuClearSaved').addEventListener('click', () => {
+  presetsMenu.classList.remove('open');
+  if (!confirm('Clear all quick-saved presets on this device?')) return;
+  localStorage.removeItem(LOCAL_STORAGE_KEY);
+  renderPresetList();
+  toast('Cleared saved presets');
+});
+
+/* =========================================================================
    CAPTURE
-   ------------------------------------------------------------------------- */
+   ========================================================================= */
 function hexToRgb(hex) {
   const m = hex.replace('#', '');
-  return {
-    r: parseInt(m.substring(0, 2), 16),
-    g: parseInt(m.substring(2, 4), 16),
-    b: parseInt(m.substring(4, 6), 16)
-  };
+  return { r: parseInt(m.substring(0, 2), 16), g: parseInt(m.substring(2, 4), 16), b: parseInt(m.substring(4, 6), 16) };
 }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 async function captureFinalFrame(shotIndex) {
   const video = getActiveVideo() || previewVideos.find(v => v.videoWidth > 0);
   if (!video || !video.videoWidth) return null;
-
-  processCanvas.width = video.videoWidth;
-  processCanvas.height = video.videoHeight;
+  processCanvas.width = video.videoWidth; processCanvas.height = video.videoHeight;
   pCtx.drawImage(video, 0, 0, processCanvas.width, processCanvas.height);
 
   if (state.chromaEnabled) {
     let bgImg = null;
     if (state.chromaMode === 'single') bgImg = state.chromaSingleImg;
     else if (state.chromaMode === 'unique') bgImg = state.chromaUniqueImgs[shotIndex];
-
     let customBgData = null;
     if (bgImg) {
       const tCanvas = document.createElement('canvas');
-      tCanvas.width = processCanvas.width;
-      tCanvas.height = processCanvas.height;
+      tCanvas.width = processCanvas.width; tCanvas.height = processCanvas.height;
       const tCtx = tCanvas.getContext('2d');
       drawCover(tCtx, bgImg, 0, 0, tCanvas.width, tCanvas.height, false);
       customBgData = tCtx.getImageData(0, 0, tCanvas.width, tCanvas.height).data;
     }
-
     const fg = pCtx.getImageData(0, 0, processCanvas.width, processCanvas.height);
     const key = hexToRgb(document.getElementById('chromaColor').value);
     const th = Number(document.getElementById('chromaIntensity').value);
-    const th2 = th * th;
-    const fgD = fg.data;
-    const kr = key.r, kg = key.g, kb = key.b;
-
+    const th2 = th * th; const fgD = fg.data; const kr = key.r, kg = key.g, kb = key.b;
     for (let i = 0; i < fgD.length; i += 4) {
       const dr = fgD[i] - kr, dg = fgD[i+1] - kg, db = fgD[i+2] - kb;
       if ((dr*dr + dg*dg + db*db) < th2) {
-        if (state.chromaMode === 'transparent' || !customBgData) {
-          fgD[i+3] = 0;
-        } else {
-          fgD[i] = customBgData[i];
-          fgD[i+1] = customBgData[i+1];
-          fgD[i+2] = customBgData[i+2];
-          fgD[i+3] = customBgData[i+3];
-        }
+        if (state.chromaMode === 'transparent' || !customBgData) { fgD[i+3] = 0; }
+        else { fgD[i] = customBgData[i]; fgD[i+1] = customBgData[i+1]; fgD[i+2] = customBgData[i+2]; fgD[i+3] = customBgData[i+3]; }
       }
     }
     pCtx.putImageData(fg, 0, 0);
   }
-
   const img = new Image();
   img.src = processCanvas.toDataURL('image/png');
   await new Promise(r => { img.onload = r; });
@@ -2427,51 +1928,37 @@ async function captureFinalFrame(shotIndex) {
 
 document.getElementById('btnStartSession').addEventListener('click', async () => {
   if (!cameraReady) { toast('Camera not ready', 'error'); return; }
-
   state.captures = [];
   const btnBack = document.getElementById('btnBackToChroma');
   const btnStart = document.getElementById('btnStartSession');
   const btnSwitch = document.getElementById('btnSwitchCamLive');
-  btnBack.style.display = 'none';
-  btnStart.style.display = 'none';
-  btnSwitch.style.display = 'none';
-
+  btnBack.style.display = 'none'; btnStart.style.display = 'none'; btnSwitch.style.display = 'none';
   const delay = parseInt(document.getElementById('countdownSecs').value) || 3;
   const status = document.getElementById('captureStatus');
 
   for (let i = 0; i < state.shotsTotal; i++) {
     currentShotIdx = i;
     status.innerText = `Taking photo ${i + 1} of ${state.shotsTotal}…`;
-
     document.getElementById('countdownOverlay').style.display = 'flex';
-    for (let s = delay; s > 0; s--) {
-      document.getElementById('countdownOverlay').innerText = s;
-      await sleep(1000);
-    }
+    for (let s = delay; s > 0; s--) { document.getElementById('countdownOverlay').innerText = s; await sleep(1000); }
     document.getElementById('countdownOverlay').style.display = 'none';
-
     const flash = document.getElementById('flashOverlay');
     flash.style.opacity = '1';
     setTimeout(() => flash.style.opacity = '0', 110);
-
     const img = await captureFinalFrame(i);
     if (img) state.captures.push(img);
     await sleep(450);
   }
-
-  btnBack.style.display = 'flex';
-  btnStart.style.display = 'flex';
-  btnSwitch.style.display = 'flex';
+  btnBack.style.display = 'flex'; btnStart.style.display = 'flex'; btnSwitch.style.display = 'flex';
   status.innerText = 'Session complete';
   toast('All shots captured', 'success');
   goToStep(6);
 });
 
-/* -------------------------------------------------------------------------
+/* =========================================================================
    RESULT
-   ------------------------------------------------------------------------- */
+   ========================================================================= */
 function renderFinalResult() { drawDesign(rCtx, true); }
-
 function exportFinalImage() {
   const a = document.createElement('a');
   a.download = `mediabox_booth_${Date.now()}.jpg`;
@@ -2486,47 +1973,106 @@ document.getElementById('btnShareImage').addEventListener('click', async () => {
     const file = new File([blob], 'mediabox_booth.jpg', { type: 'image/jpeg' });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       await navigator.share({ files: [file], title: 'My PhotoBooth' });
-    } else {
-      toast('Sharing not supported — try downloading', 'error');
-    }
-  } catch (e) { /* user cancelled */ }
+    } else { toast('Sharing not supported — try downloading', 'error'); }
+  } catch (e) {}
 });
 
 document.getElementById('btnPrintImage').addEventListener('click', () => {
   const dataUrl = resultCanvas.toDataURL('image/jpeg', 0.95);
   const win = window.open('', '_blank');
   if (!win) { toast('Pop-up blocked', 'error'); return; }
-  win.document.write(`
-    <html><head><title>Print</title>
-    <style>
-      @page { size: 4in 6in; margin: 0; }
-      body { margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; height: 100vh; background: white; }
-      img { max-width: 100%; max-height: 100%; display: block; }
-    </style></head>
-    <body><img src="${dataUrl}" onload="window.print(); window.close();"></body></html>
-  `);
+  win.document.write(`<html><head><title>Print</title><style>@page { size: 4in 6in; margin: 0; } body { margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; height: 100vh; background: white; } img { max-width: 100%; max-height: 100%; display: block; }</style></head><body><img src="${dataUrl}" onload="window.print(); window.close();"></body></html>`);
   win.document.close();
 });
 
-/* -------------------------------------------------------------------------
+/* =========================================================================
+   DEVELOPER PAGE
+   ========================================================================= */
+const devPage = document.getElementById('developerPage');
+function openDeveloperPage() {
+  devPage.classList.add('open');
+  loadQRCodeLibrary();
+}
+document.getElementById('btnDeveloper').addEventListener('click', openDeveloperPage);
+document.getElementById('devClose').addEventListener('click', () => devPage.classList.remove('open'));
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && devPage.classList.contains('open')) devPage.classList.remove('open');
+});
+
+async function loadQRCodeLibrary() {
+  const grid = document.getElementById('qrGrid');
+  grid.innerHTML = '';
+
+  let codes = DEFAULT_QR_CODES;
+  try {
+    const res = await fetch('dbank/manifest.json', { cache: 'no-cache' });
+    if (res.ok) {
+      const data = await res.json();
+      const list = Array.isArray(data) ? data : (data.qrcodes || data.files || []);
+      if (Array.isArray(list) && list.length) {
+        codes = list.map(item => {
+          if (typeof item === 'string') {
+            const base = item.replace(/\.[^.]+$/, '');
+            return { name: base.replace(/[_-]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase()), file: item, color: '#3498db', sub: '' };
+          }
+          return {
+            name: item.name || item.label || 'QR',
+            file: item.file || item.filename || item.src,
+            color: item.color || '#3498db',
+            sub: item.sub || item.description || ''
+          };
+        });
+      }
+    }
+  } catch (e) {}
+
+  for (const qr of codes) {
+    const card = document.createElement('div');
+    card.className = 'dev-qr-card';
+    card.style.setProperty('--qr-color', qr.color);
+
+    const imgWrap = document.createElement('div');
+    imgWrap.className = 'dev-qr-image';
+    const img = new Image();
+    img.alt = qr.name;
+    img.onerror = () => {
+      imgWrap.innerHTML = `<div class="qr-placeholder">QR not found<br><small style="opacity:.6">dbank/${escapeHtml(qr.file)}</small></div>`;
+    };
+    img.src = 'dbank/' + qr.file;
+    imgWrap.appendChild(img);
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'dev-qr-name';
+    nameEl.innerHTML = `<span class="dot"></span>${escapeHtml(qr.name)}`;
+
+    card.appendChild(imgWrap);
+    card.appendChild(nameEl);
+    if (qr.sub) {
+      const subEl = document.createElement('div');
+      subEl.className = 'dev-qr-sub';
+      subEl.textContent = qr.sub;
+      card.appendChild(subEl);
+    }
+    grid.appendChild(card);
+  }
+}
+
+document.getElementById('devYear').textContent = new Date().getFullYear();
+
+/* =========================================================================
    BOOT
-   ------------------------------------------------------------------------- */
+   ========================================================================= */
 async function boot() {
   renderPresetGrid();
   buildFontSelect();
   applyPreset('4-grid');
   goToStep(1);
   setStatus('Not started');
-
-  // Auto-load any asset manifests (silent if not present)
+  renderPresetList();
   tryLoadManifest('background');
   tryLoadManifest('overlay');
   tryLoadManifest('stickers');
-
-  // Ensure empty state shows if library empty
-  setTimeout(() => {
-    ['background', 'overlay', 'stickers'].forEach(k => renderGallery(k));
-  }, 100);
+  setTimeout(() => { ['background', 'overlay', 'stickers'].forEach(k => renderGallery(k)); }, 100);
 }
 boot();
 </script>
