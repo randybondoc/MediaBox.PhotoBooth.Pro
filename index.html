@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <title>MediaBox PhotoBooth v2.0</title>
+  <title>MediaBox PhotoBooth v2.2</title>
   <style>
     :root {
       --primary: #2563eb; --primary-hover: #1d4ed8;
@@ -14,60 +14,48 @@
     * { box-sizing: border-box; }
     body { font-family: system-ui, -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
     
-    /* Wizard Screens */
     .screen { display: none; flex-direction: column; height: 100%; overflow-y: auto; padding-bottom: 80px; }
     .screen.active { display: flex; }
     
-    /* Header */
     header { padding: 16px; background: var(--card); border-bottom: 1px solid var(--border); text-align: center; flex-shrink: 0; }
     header h1 { margin: 0; font-size: 1.25rem; }
     header p { margin: 4px 0 0; font-size: 0.875rem; color: #64748b; }
 
-    /* Content Area */
     .content { padding: 16px; max-width: 600px; margin: 0 auto; width: 100%; flex: 1; }
-    
-    /* Bottom Action Bar */
     .action-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); padding: 16px; border-top: 1px solid var(--border); display: flex; justify-content: center; gap: 12px; z-index: 100; box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.05); }
     
-    /* Buttons */
     button { padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: opacity 0.2s; }
     button:active { opacity: 0.8; }
     .btn-primary { background: var(--primary); color: white; width: 100%; max-width: 300px; }
     .btn-success { background: var(--success); color: white; width: 100%; max-width: 300px; }
     .btn-secondary { background: #e2e8f0; color: #334155; }
     .btn-danger { background: var(--danger); color: white; }
-    .btn-hero { font-size: 1.25rem; padding: 16px 32px; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4); animation: pulse 2s infinite; }
     
-    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
-
-    /* Forms & Controls */
     .card { background: var(--card); padding: 16px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 16px; }
     .card-title { font-weight: 600; margin-bottom: 12px; font-size: 1.1rem; }
     label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 4px; color: #475569; }
+    .radio-label { display: flex; align-items: center; gap: 8px; font-weight: normal; margin-bottom: 8px; cursor: pointer; font-size: 0.95rem; }
     select, input[type="text"], input[type="number"], input[type="range"] { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 12px; font-size: 1rem; }
     .flex-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
     .hint { font-size: 0.75rem; color: #64748b; margin-top: -8px; margin-bottom: 12px; display: block; }
     
-    /* Layout Presets */
     .preset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
     .preset-btn { border: 2px solid var(--border); background: transparent; padding: 8px; border-radius: 8px; color: var(--text); }
     .preset-btn.active { border-color: var(--primary); background: #eff6ff; }
 
-    /* Canvas Areas */
     .canvas-container { position: relative; width: 100%; max-width: 400px; margin: 0 auto 16px; aspect-ratio: 2/3; background: #e2e8f0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
-    canvas { width: 100%; height: 100%; display: block; touch-action: none; } /* touch-action none prevents scrolling while dragging */
-    video { width: 100%; height: 100%; object-fit: cover; background: #000; }
+    canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+    video { width: 100%; height: 100%; object-fit: cover; background: #000; display: block; }
     
-    /* Edit Menu (pops up when an item is selected) */
     #editMenu { display: none; background: #f8fafc; border: 1px solid var(--border); padding: 12px; border-radius: 8px; margin-bottom: 16px; }
     
-    /* Overlays */
     #flashOverlay { position: absolute; inset: 0; background: white; opacity: 0; pointer-events: none; transition: opacity 0.1s; z-index: 50; }
     #countdownOverlay { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; font-size: 8rem; color: white; background: rgba(0,0,0,0.4); z-index: 40; font-weight: bold; text-shadow: 0 4px 12px rgba(0,0,0,0.5); }
     
-    /* File input wrapper */
     .file-input-wrapper { display: flex; gap: 8px; margin-bottom: 12px; }
     .file-input-wrapper input[type="file"] { flex: 1; padding: 6px; border: 1px solid var(--border); border-radius: 6px; }
+    
+    .unique-upload-box { background: #f1f5f9; padding: 10px; border-radius: 6px; margin-bottom: 8px; border: 1px dashed #cbd5e1; }
   </style>
 </head>
 <body>
@@ -109,7 +97,6 @@
           <button class="preset-btn" onclick="applyPreset('8-grid')">8 (2x4 Strip)</button>
         </div>
         <span class="hint">Tip: You can drag the black boxes below to custom positions!</span>
-        <button onclick="exportTemplateMap()" class="btn-secondary" style="width:100%; font-size:0.875rem;">Download Layout Map (For Canva/PS)</button>
       </div>
       <div class="canvas-container">
         <canvas id="layoutCanvas" width="1200" height="1800"></canvas>
@@ -123,32 +110,38 @@
 
   <!-- STEP 3: DESIGN SETUP -->
   <div id="step3" class="screen">
-    <header><h1>Step 3: Design & Decor</h1><p>Layer: Background > Photos > Overlay > Text</p></header>
+    <header><h1>Step 3: Design & Decor</h1><p>Customize your output</p></header>
     <div class="content">
       
-      <!-- Interactive Preview -->
       <div class="canvas-container">
         <canvas id="designCanvas" width="1200" height="1800"></canvas>
       </div>
 
-      <!-- Editor Context Menu (Shows when text/sticker is clicked) -->
       <div id="editMenu">
-        <div class="card-title" id="editTitle">Edit Item</div>
+        <div class="card-title" id="editTitle" style="color:var(--primary)">Edit Selected Item</div>
         <label>Size</label>
         <input type="range" id="editSize" min="0.1" max="5" step="0.1" value="1">
+        <label>Rotate (Degrees)</label>
+        <input type="range" id="editRotation" min="0" max="360" value="0">
         <div id="editColorWrap">
           <label>Color</label>
-          <input type="color" id="editColor" style="height:40px">
+          <input type="color" id="editColor" style="height:40px; margin-bottom:12px;">
         </div>
-        <button id="btnDeleteItem" class="btn-danger" style="width:100%; margin-top:8px;">Delete Selected Item</button>
+        <div style="display:flex; gap:8px;">
+          <button id="btnFlipItem" class="btn-secondary" style="flex:1;">Mirror (Flip)</button>
+          <button id="btnDeleteItem" class="btn-danger" style="flex:1;">Delete</button>
+        </div>
       </div>
 
       <div class="card">
         <div class="card-title">1. Background Image</div>
-        <span class="hint">Sits at the very back (optional).</span>
+        <span class="hint">Sits at the very back of the entire 4x6 print.</span>
         <div class="file-input-wrapper">
           <input type="file" id="fileBg" accept="image/*">
           <button class="btn-secondary" onclick="clearBg()">Clear</button>
+        </div>
+        <div class="flex-row">
+            <input type="checkbox" id="chkFlipBg" onchange="toggleFlipBg()"> <label>Mirror Background Image</label>
         </div>
       </div>
 
@@ -159,17 +152,19 @@
           <input type="file" id="fileOverlay" accept="image/png">
           <button class="btn-secondary" onclick="clearOverlay()">Clear</button>
         </div>
+        <div class="flex-row">
+            <input type="checkbox" id="chkFlipOverlay" onchange="toggleFlipOverlay()"> <label>Mirror Overlay Image</label>
+        </div>
       </div>
 
       <div class="card">
         <div class="card-title">3. Stickers & Graphics</div>
-        <span class="hint">Upload a transparent image and drag it around.</span>
+        <span class="hint">Upload a transparent image, then click it on canvas to edit.</span>
         <input type="file" id="fileSticker" accept="image/*">
       </div>
 
       <div class="card">
         <div class="card-title">4. Add Text</div>
-        <span class="hint">Add text, then click it on the canvas above to resize/edit.</span>
         <input type="text" id="textInput" placeholder="Enter text here...">
         <div class="flex-row">
           <select id="textFont" style="margin:0; flex:1;">
@@ -183,31 +178,92 @@
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-title">5. Chroma Key (Green Screen)</div>
-        <div class="flex-row"><input type="checkbox" id="chkChroma"> <label>Enable Chroma Key</label></div>
-        <div class="flex-row">
-          <input type="color" id="chromaColor" value="#00ff00" style="height:40px; width:50px;">
-          <input type="range" id="chromaIntensity" min="0" max="200" value="60" style="flex:1;">
+    </div>
+    <div class="action-bar">
+      <button class="btn-secondary" onclick="goToStep(2)">Back</button>
+      <button class="btn-primary" onclick="goToStep(4)">Next: Green Screen</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: CHROMA KEY (NEW DEDICATED PAGE) -->
+  <div id="step4" class="screen">
+    <header><h1>Step 4: Green Screen Setup</h1><p>Replace background of taken photos</p></header>
+    <div class="content">
+      
+      <div class="card" style="border: 2px solid #16a34a;">
+        <div class="flex-row" style="margin-bottom:0;">
+            <input type="checkbox" id="chkChroma" style="width:20px; height:20px;" onchange="toggleChromaUI()"> 
+            <label style="font-weight:bold; font-size:1.1rem; color:#16a34a; margin:0;">Enable Green Screen</label>
         </div>
+      </div>
+
+      <div id="chromaSettings" style="display:none;">
+          <div class="card">
+            <div class="card-title">Key Color & Intensity</div>
+            <span class="hint">Select the color of your physical background (usually bright green).</span>
+            <div class="flex-row">
+              <input type="color" id="chromaColor" value="#00ff00" style="height:50px; width:60px;">
+              <input type="range" id="chromaIntensity" min="0" max="200" value="80" style="flex:1;">
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Background Replacement Mode</div>
+            <span class="hint">What should replace the green screen?</span>
+            
+            <label class="radio-label">
+                <input type="radio" name="chromaMode" value="transparent" checked onchange="updateChromaMode()"> 
+                1. Show Main Background (Transparent)
+            </label>
+            <label class="radio-label">
+                <input type="radio" name="chromaMode" value="single" onchange="updateChromaMode()"> 
+                2. Single Custom Image (Applies to all shots)
+            </label>
+            <label class="radio-label">
+                <input type="radio" name="chromaMode" value="unique" onchange="updateChromaMode()"> 
+                3. Unique Custom Image (Per shot)
+            </label>
+
+            <!-- Mode 2: Single Image Input -->
+            <div id="chromaSingleWrap" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
+                <label>Upload Single Background</label>
+                <input type="file" id="fileChromaSingle" accept="image/*">
+            </div>
+
+            <!-- Mode 3: Unique Images Input -->
+            <div id="chromaUniqueWrap" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
+                <label>Upload Background Per Shot</label>
+                <div id="uniqueInputsContainer"></div>
+            </div>
+
+          </div>
       </div>
 
     </div>
     <div class="action-bar">
-      <button class="btn-secondary" onclick="goToStep(2)">Back</button>
-      <button class="btn-primary" onclick="goToStep(4)">Next: Capture</button>
+      <button class="btn-secondary" onclick="goToStep(3)">Back</button>
+      <button class="btn-primary" onclick="goToStep(5)">Next: Capture</button>
     </div>
   </div>
 
-  <!-- STEP 4: CAPTURE -->
-  <div id="step4" class="screen">
-    <header><h1>Step 4: Photo Session</h1><p>Get ready!</p></header>
+
+  <!-- STEP 5: CAPTURE -->
+  <div id="step5" class="screen">
+    <header><h1>Step 5: Photo Session</h1><p>Get ready!</p></header>
     <div class="content" style="display:flex; flex-direction:column; justify-content:center;">
       
-      <div class="canvas-container" style="max-width: 100%; aspect-ratio: 4/3; margin-bottom: 24px;">
+      <div class="canvas-container" style="max-width: 100%; aspect-ratio: 4/3; margin-bottom: 16px;">
         <video id="captureVideo" autoplay playsinline muted></video>
         <div id="countdownOverlay">3</div>
         <div id="flashOverlay"></div>
+      </div>
+
+      <div class="card" style="display: flex; justify-content: space-between; align-items: center; padding: 12px;">
+        <div>
+            <label style="margin:0">Camera Feed</label>
+            <span class="hint" style="margin:0">Wrong lens? Swap it here.</span>
+        </div>
+        <button id="btnSwitchCamLive" class="btn-secondary" style="padding: 8px 16px;">Switch Camera</button>
       </div>
 
       <div class="card">
@@ -218,51 +274,53 @@
 
     </div>
     <div class="action-bar">
-      <button class="btn-secondary" id="btnBackToDesign" onclick="goToStep(3)">Back</button>
+      <button class="btn-secondary" id="btnBackToChroma" onclick="goToStep(4)">Back</button>
       <button class="btn-primary" id="btnStartSession" style="background:var(--danger)">Start Session</button>
     </div>
   </div>
 
-  <!-- STEP 5: RESULT & EXPORT -->
-  <div id="step5" class="screen">
-    <header><h1>Step 5: Your Masterpiece</h1><p>Save and Share</p></header>
+  <!-- STEP 6: RESULT & EXPORT -->
+  <div id="step6" class="screen">
+    <header><h1>Step 6: Your Masterpiece</h1><p>Save and Share</p></header>
     <div class="content">
       <div class="canvas-container">
         <canvas id="resultCanvas" width="1200" height="1800"></canvas>
       </div>
       
       <div style="display:flex; gap:12px; margin-bottom: 16px;">
-        <button class="btn-secondary" onclick="goToStep(4)" style="flex:1">Reshoot</button>
-        <button class="btn-secondary" id="btnShare" style="flex:1; display:none;">Share To App</button>
+        <button class="btn-secondary" onclick="goToStep(5)" style="flex:1">Reshoot</button>
       </div>
 
     </div>
     <div class="action-bar" style="padding: 24px 16px;">
-      <button class="btn-success btn-hero" onclick="exportFinalImage()">Download High-Res 4x6</button>
+      <button class="btn-success" style="font-size: 1.1rem; padding: 16px;" onclick="exportFinalImage()">Download 4x6</button>
     </div>
   </div>
 
-  <!-- Hidden processing canvas for capturing camera frames and chroma -->
   <canvas id="processCanvas" style="display:none;"></canvas>
 
 <script>
 /**
- * MediaBox PhotoBooth v2.0
- * State & Engine
+ * MediaBox PhotoBooth v2.2
  */
-const W = 1200, H = 1800; // Final 4x6 output resolution
+const W = 1200, H = 1800; 
 const state = {
   stream: null,
   shotsTotal: 4,
-  layoutBoxes: [], // array of {x, y, w, h}
-  bgImg: null,
-  overlayImg: null,
-  items: [], // combined array of texts and stickers for Z-index rendering. {type: 'text'|'sticker', x, y, size, obj, ...}
-  captures: [], // base64 images taken during session
-  selectedItemIndex: -1
+  layoutBoxes: [], 
+  bgImg: null, bgFlip: false,
+  overlayImg: null, overlayFlip: false,
+  items: [], 
+  captures: [], 
+  selectedItemIndex: -1,
+  
+  // NEW: Chroma State
+  chromaEnabled: false,
+  chromaMode: 'transparent',
+  chromaSingleImg: null,
+  chromaUniqueImgs: []
 };
 
-// Elements
 const previewVideo = document.getElementById('previewVideo');
 const captureVideo = document.getElementById('captureVideo');
 const layoutCanvas = document.getElementById('layoutCanvas');
@@ -273,25 +331,22 @@ const resultCanvas = document.getElementById('resultCanvas');
 const rCtx = resultCanvas.getContext('2d');
 const processCanvas = document.getElementById('processCanvas');
 const pCtx = processCanvas.getContext('2d');
-const countdownOverlay = document.getElementById('countdownOverlay');
-const flashOverlay = document.getElementById('flashOverlay');
 
-// Navigation
 function goToStep(step) {
   document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
   document.getElementById('step' + step).classList.add('active');
   
   if(step === 2) { drawLayout(); }
   if(step === 3) { state.selectedItemIndex = -1; closeEditMenu(); drawDesign(); }
-  if(step === 4) { 
+  if(step === 4) { renderChromaUI(); } // Refresh UI based on layout selection
+  if(step === 5) { 
     document.getElementById('lblShotCount').innerText = state.layoutBoxes.length;
-    // ensure camera is mapped to the big view
     if(state.stream) captureVideo.srcObject = state.stream;
   }
-  if(step === 5) { renderFinalResult(); }
+  if(step === 6) { renderFinalResult(); }
 }
 
-// --- STEP 1: CAMERA ---
+// --- CAMERA ---
 async function initDevices() {
   try {
     const devices = await navigator.mediaDevices.enumerateDevices();
@@ -301,7 +356,7 @@ async function initDevices() {
     videoDevs.forEach((d, i) => {
       sel.innerHTML += `<option value="${d.deviceId}">${d.label || 'Camera ' + (i+1)}</option>`;
     });
-  } catch(e) { console.warn('Could not enumerate devices'); }
+  } catch(e) { console.warn('Device enum failed'); }
 }
 
 async function startCamera() {
@@ -310,56 +365,37 @@ async function startCamera() {
   const facing = document.getElementById('camFacing').value;
   
   let constraints = { video: { width: { ideal: 1280 }, height: { ideal: 720 } } };
-  
-  // If specific device selected, use it. Otherwise rely on facing mode.
-  if (deviceId) {
-    constraints.video.deviceId = { exact: deviceId };
-  } else {
-    constraints.video.facingMode = { ideal: facing };
-  }
+  if (deviceId) constraints.video.deviceId = { exact: deviceId };
+  else constraints.video.facingMode = { ideal: facing };
 
   try {
     state.stream = await navigator.mediaDevices.getUserMedia(constraints);
     previewVideo.srcObject = state.stream;
-    initDevices(); // re-init to get real labels if permissions just granted
-  } catch(e) {
-    alert("Camera error: " + e.message);
-  }
+    captureVideo.srcObject = state.stream;
+    initDevices(); 
+  } catch(e) { alert("Camera error: " + e.message); }
 }
 document.getElementById('btnStartCamera').addEventListener('click', startCamera);
-document.getElementById('camFacing').addEventListener('change', () => {
-    document.getElementById('camDevice').value = ""; // clear specific device to allow facing swap
-    startCamera();
+document.getElementById('camFacing').addEventListener('change', () => { document.getElementById('camDevice').value = ""; startCamera(); });
+document.getElementById('btnSwitchCamLive').addEventListener('click', async () => {
+    const facingSel = document.getElementById('camFacing');
+    facingSel.value = facingSel.value === 'user' ? 'environment' : 'user';
+    document.getElementById('camDevice').value = "";
+    await startCamera();
 });
 
-// --- STEP 2: LAYOUT ---
+
+// --- LAYOUT ---
 function applyPreset(type) {
   document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
   event.target.classList.add('active');
-  
   state.layoutBoxes = [];
-  if(type === '1') {
-    state.layoutBoxes.push({x: 100, y: 150, w: 1000, h: 1500});
-  } else if(type === '4-grid') {
-    state.layoutBoxes = [
-      {x: 60, y: 60, w: 510, h: 810}, {x: 630, y: 60, w: 510, h: 810},
-      {x: 60, y: 930, w: 510, h: 810}, {x: 630, y: 930, w: 510, h: 810}
-    ];
-  } else if(type === '3-strip') {
-    state.layoutBoxes = [
-      {x: 100, y: 100, w: 1000, h: 500}, {x: 100, y: 650, w: 1000, h: 500}, {x: 100, y: 1200, w: 1000, h: 500}
-    ];
-  } else if(type === '4-strip') {
-    state.layoutBoxes = [
-      {x: 100, y: 80, w: 1000, h: 380}, {x: 100, y: 500, w: 1000, h: 380},
-      {x: 100, y: 920, w: 1000, h: 380}, {x: 100, y: 1340, w: 1000, h: 380}
-    ];
-  } else if(type === '8-grid') {
-    for(let r=0; r<4; r++) {
-      for(let c=0; c<2; c++) {
-        state.layoutBoxes.push({x: c*550 + 60, y: r*420 + 60, w: 490, h: 380});
-      }
-    }
+  if(type === '1') state.layoutBoxes.push({x: 100, y: 150, w: 1000, h: 1500});
+  else if(type === '4-grid') state.layoutBoxes = [{x: 60, y: 60, w: 510, h: 810}, {x: 630, y: 60, w: 510, h: 810}, {x: 60, y: 930, w: 510, h: 810}, {x: 630, y: 930, w: 510, h: 810}];
+  else if(type === '3-strip') state.layoutBoxes = [{x: 100, y: 100, w: 1000, h: 500}, {x: 100, y: 650, w: 1000, h: 500}, {x: 100, y: 1200, w: 1000, h: 500}];
+  else if(type === '4-strip') state.layoutBoxes = [{x: 100, y: 80, w: 1000, h: 380}, {x: 100, y: 500, w: 1000, h: 380}, {x: 100, y: 920, w: 1000, h: 380}, {x: 100, y: 1340, w: 1000, h: 380}];
+  else if(type === '8-grid') {
+    for(let r=0; r<4; r++) for(let c=0; c<2; c++) state.layoutBoxes.push({x: c*550 + 60, y: r*420 + 60, w: 490, h: 380});
   }
   state.shotsTotal = state.layoutBoxes.length;
   drawLayout();
@@ -376,83 +412,68 @@ function drawLayout() {
   });
 }
 
-function exportTemplateMap() {
-  const link = document.createElement('a');
-  link.download = 'mediabox_layout_map_1200x1800.png';
-  link.href = layoutCanvas.toDataURL();
-  link.click();
-}
-
-// Layout Box Dragging logic
-let draggingBox = -1;
-let dragBoxOffset = {x:0, y:0};
+// Drag layout boxes
+let draggingBox = -1, dragBoxOffset = {x:0, y:0};
 layoutCanvas.addEventListener('pointerdown', e => {
-  const pos = getCanvasPos(e, layoutCanvas);
-  draggingBox = state.layoutBoxes.findIndex(b => pos.x >= b.x && pos.x <= b.x+b.w && pos.y >= b.y && pos.y <= b.y+b.h);
-  if(draggingBox > -1) {
-    dragBoxOffset = { x: pos.x - state.layoutBoxes[draggingBox].x, y: pos.y - state.layoutBoxes[draggingBox].y };
-  }
+  const p = getCanvasPos(e, layoutCanvas);
+  draggingBox = state.layoutBoxes.findIndex(b => p.x >= b.x && p.x <= b.x+b.w && p.y >= b.y && p.y <= b.y+b.h);
+  if(draggingBox > -1) dragBoxOffset = { x: p.x - state.layoutBoxes[draggingBox].x, y: p.y - state.layoutBoxes[draggingBox].y };
 });
 layoutCanvas.addEventListener('pointermove', e => {
   if(draggingBox > -1) {
-    const pos = getCanvasPos(e, layoutCanvas);
-    state.layoutBoxes[draggingBox].x = pos.x - dragBoxOffset.x;
-    state.layoutBoxes[draggingBox].y = pos.y - dragBoxOffset.y;
+    const p = getCanvasPos(e, layoutCanvas);
+    state.layoutBoxes[draggingBox].x = p.x - dragBoxOffset.x;
+    state.layoutBoxes[draggingBox].y = p.y - dragBoxOffset.y;
     drawLayout();
   }
 });
-layoutCanvas.addEventListener('pointerup', () => { draggingBox = -1; });
+layoutCanvas.addEventListener('pointerup', () => draggingBox = -1);
 
 
-// --- STEP 3: DESIGN ENGINE ---
+// --- DESIGN ENGINE ---
 function getCanvasPos(evt, canvas) {
   const rect = canvas.getBoundingClientRect();
-  const scaleX = W / rect.width; const scaleY = H / rect.height;
-  return { x: (evt.clientX - rect.left) * scaleX, y: (evt.clientY - rect.top) * scaleY };
+  return { x: (evt.clientX - rect.left) * (W / rect.width), y: (evt.clientY - rect.top) * (H / rect.height) };
 }
 
 function loadImg(file, callback) {
   if(!file) return;
-  const url = URL.createObjectURL(file);
   const img = new Image();
   img.onload = () => callback(img);
-  img.src = url;
+  img.src = URL.createObjectURL(file);
 }
 
 document.getElementById('fileBg').addEventListener('change', e => loadImg(e.target.files[0], img => { state.bgImg = img; drawDesign(); }));
 document.getElementById('fileOverlay').addEventListener('change', e => loadImg(e.target.files[0], img => { state.overlayImg = img; drawDesign(); }));
 document.getElementById('fileSticker').addEventListener('change', e => loadImg(e.target.files[0], img => { 
-  state.items.push({ type: 'sticker', img: img, x: W/2, y: H/2, size: 1, w: img.width, h: img.height });
-  e.target.value = ""; // reset
-  drawDesign(); 
+  state.items.push({ type: 'sticker', img: img, x: W/2, y: H/2, size: 1, rotation: 0, flipX: false, w: img.width, h: img.height });
+  e.target.value = ""; drawDesign(); 
 }));
 
 function clearBg() { state.bgImg = null; document.getElementById('fileBg').value=""; drawDesign(); }
 function clearOverlay() { state.overlayImg = null; document.getElementById('fileOverlay').value=""; drawDesign(); }
+function toggleFlipBg() { state.bgFlip = document.getElementById('chkFlipBg').checked; drawDesign(); }
+function toggleFlipOverlay() { state.overlayFlip = document.getElementById('chkFlipOverlay').checked; drawDesign(); }
 
 function addText() {
   const txt = document.getElementById('textInput').value.trim();
   if(!txt) return;
   state.items.push({
-    type: 'text', text: txt, x: W/2, y: H/2, size: 1, 
+    type: 'text', text: txt, x: W/2, y: H/2, size: 1, rotation: 0, flipX: false,
     color: document.getElementById('textColor').value, 
     font: document.getElementById('textFont').value
   });
-  document.getElementById('textInput').value = "";
-  drawDesign();
+  document.getElementById('textInput').value = ""; drawDesign();
 }
 
 function drawDesign(ctx = dCtx, isFinal = false) {
   ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,W,H);
+  if(state.bgImg) drawCover(ctx, state.bgImg, 0, 0, W, H, state.bgFlip);
   
-  // 1. Background
-  if(state.bgImg) drawCover(ctx, state.bgImg, 0, 0, W, H);
-  
-  // 2. Photo Boxes / Actual Captures
   state.layoutBoxes.forEach((b, i) => {
     ctx.save();
     if(isFinal && state.captures[i]) {
-       drawCover(ctx, state.captures[i], b.x, b.y, b.w, b.h);
+       drawCover(ctx, state.captures[i], b.x, b.y, b.w, b.h, false);
     } else {
        ctx.fillStyle = '#cbd5e1'; ctx.fillRect(b.x, b.y, b.w, b.h);
        ctx.fillStyle = '#ffffff'; ctx.font = "bold 60px Arial"; ctx.textAlign = "center";
@@ -461,139 +482,184 @@ function drawDesign(ctx = dCtx, isFinal = false) {
     ctx.restore();
   });
 
-  // 3. Overlay
-  if(state.overlayImg) drawCover(ctx, state.overlayImg, 0, 0, W, H);
+  if(state.overlayImg) drawCover(ctx, state.overlayImg, 0, 0, W, H, state.overlayFlip);
 
-  // 4 & 5. Items (Stickers and Texts)
   state.items.forEach((it, i) => {
     ctx.save();
+    ctx.translate(it.x, it.y);
+    if(it.rotation) ctx.rotate(it.rotation * Math.PI / 180);
+    if(it.flipX) ctx.scale(-1, 1);
+    
     if(it.type === 'sticker') {
-      const dw = it.w * it.size; const dh = it.h * it.size;
-      ctx.drawImage(it.img, it.x - dw/2, it.y - dh/2, dw, dh);
-      if(!isFinal && i === state.selectedItemIndex) drawDashedBox(ctx, it.x - dw/2, it.y - dh/2, dw, dh);
-    } 
-    else if(it.type === 'text') {
+      const dw = it.w * it.size, dh = it.h * it.size;
+      ctx.drawImage(it.img, -dw/2, -dh/2, dw, dh);
+      if(!isFinal && i === state.selectedItemIndex) drawDashedBox(ctx, -dw/2, -dh/2, dw, dh);
+    } else if(it.type === 'text') {
       const fSize = 80 * it.size;
       ctx.font = `bold ${fSize}px ${it.font}`;
-      ctx.fillStyle = it.color;
-      ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+      ctx.fillStyle = it.color; ctx.strokeStyle = 'rgba(0,0,0,0.5)';
       ctx.lineWidth = Math.max(4, 4 * it.size);
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.strokeText(it.text, it.x, it.y);
-      ctx.fillText(it.text, it.x, it.y);
-      
+      ctx.strokeText(it.text, 0, 0); ctx.fillText(it.text, 0, 0);
       if(!isFinal && i === state.selectedItemIndex) {
-        const metrics = ctx.measureText(it.text);
-        drawDashedBox(ctx, it.x - metrics.width/2 - 10, it.y - fSize/2 - 10, metrics.width + 20, fSize + 20);
+        const met = ctx.measureText(it.text);
+        drawDashedBox(ctx, -met.width/2 - 10, -fSize/2 - 10, met.width + 20, fSize + 20);
       }
     }
     ctx.restore();
   });
 }
 
-function drawCover(ctx, img, x, y, w, h) {
+function drawCover(ctx, img, x, y, w, h, flip) {
+  ctx.save();
   const r = Math.max(w/img.width, h/img.height);
   const nw = img.width*r, nh = img.height*r;
-  ctx.drawImage(img, x + (w-nw)/2, y + (h-nh)/2, nw, nh);
+  const cx = x + (w-nw)/2, cy = y + (h-nh)/2;
+  if (flip) { ctx.translate(x + w, y); ctx.scale(-1, 1); ctx.drawImage(img, (w-nw)/2, (h-nh)/2, nw, nh); } 
+  else { ctx.drawImage(img, cx, cy, nw, nh); }
+  ctx.restore();
 }
+
 function drawDashedBox(ctx, x, y, w, h) {
   ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 4; ctx.setLineDash([15, 15]); ctx.strokeRect(x,y,w,h);
 }
 
-// Editor Interactions (Drag/Select)
+// Editor Interaction
 let dragItem = -1, itemOffset = {x:0, y:0};
 designCanvas.addEventListener('pointerdown', e => {
   const p = getCanvasPos(e, designCanvas);
-  // check backwards for topmost
   for(let i = state.items.length - 1; i >= 0; i--) {
     const it = state.items[i];
+    const rad = -(it.rotation || 0) * Math.PI / 180;
+    const lx = p.x - it.x, ly = p.y - it.y;
+    const rx = lx * Math.cos(rad) - ly * Math.sin(rad);
+    const ry = lx * Math.sin(rad) + ly * Math.cos(rad);
+    
     let hit = false;
     if(it.type === 'sticker') {
-      const dw = it.w * it.size, dh = it.h * it.size;
-      hit = (p.x >= it.x - dw/2 && p.x <= it.x + dw/2 && p.y >= it.y - dh/2 && p.y <= it.y + dh/2);
+      const w2 = (it.w * it.size)/2, h2 = (it.h * it.size)/2;
+      hit = (rx >= -w2 && rx <= w2 && ry >= -h2 && ry <= h2);
     } else {
       dCtx.font = `bold ${80 * it.size}px ${it.font}`;
-      const w = dCtx.measureText(it.text).width;
-      const h = 80 * it.size;
-      hit = (p.x >= it.x - w/2 && p.x <= it.x + w/2 && p.y >= it.y - h/2 && p.y <= it.y + h/2);
+      const w2 = dCtx.measureText(it.text).width / 2, h2 = (80 * it.size) / 2;
+      hit = (rx >= -w2 && rx <= w2 && ry >= -h2 && ry <= h2);
     }
-    if(hit) {
-      dragItem = i; itemOffset = { x: p.x - it.x, y: p.y - it.y };
-      selectItem(i);
-      return;
-    }
+    
+    if(hit) { dragItem = i; itemOffset = { x: p.x - it.x, y: p.y - it.y }; selectItem(i); return; }
   }
-  selectItem(-1); // clicked empty space
+  selectItem(-1); 
 });
-
 designCanvas.addEventListener('pointermove', e => {
   if(dragItem > -1) {
     const p = getCanvasPos(e, designCanvas);
-    state.items[dragItem].x = p.x - itemOffset.x;
-    state.items[dragItem].y = p.y - itemOffset.y;
-    drawDesign();
+    state.items[dragItem].x = p.x - itemOffset.x; state.items[dragItem].y = p.y - itemOffset.y; drawDesign();
   }
 });
-designCanvas.addEventListener('pointerup', () => { dragItem = -1; });
+designCanvas.addEventListener('pointerup', () => dragItem = -1);
 
 function selectItem(idx) {
   state.selectedItemIndex = idx;
   const menu = document.getElementById('editMenu');
   if(idx === -1) { menu.style.display = 'none'; drawDesign(); return; }
-  
   const it = state.items[idx];
   menu.style.display = 'block';
   document.getElementById('editTitle').innerText = it.type === 'text' ? 'Edit Text' : 'Edit Sticker';
-  document.getElementById('editSize').value = it.size;
-  if(it.type === 'text') {
-    document.getElementById('editColorWrap').style.display = 'block';
-    document.getElementById('editColor').value = it.color;
-  } else {
-    document.getElementById('editColorWrap').style.display = 'none';
-  }
+  document.getElementById('editSize').value = it.size; document.getElementById('editRotation').value = it.rotation || 0;
+  if(it.type === 'text') { document.getElementById('editColorWrap').style.display = 'block'; document.getElementById('editColor').value = it.color; } 
+  else { document.getElementById('editColorWrap').style.display = 'none'; }
   drawDesign();
 }
-
 function closeEditMenu() { document.getElementById('editMenu').style.display = 'none'; }
-
-// Editor Menu Actions
-document.getElementById('editSize').addEventListener('input', e => {
-  if(state.selectedItemIndex > -1) { state.items[state.selectedItemIndex].size = parseFloat(e.target.value); drawDesign(); }
-});
-document.getElementById('editColor').addEventListener('input', e => {
-  if(state.selectedItemIndex > -1) { state.items[state.selectedItemIndex].color = e.target.value; drawDesign(); }
-});
-document.getElementById('btnDeleteItem').addEventListener('click', () => {
-  if(state.selectedItemIndex > -1) {
-    state.items.splice(state.selectedItemIndex, 1);
-    selectItem(-1);
-  }
-});
+document.getElementById('editSize').addEventListener('input', e => { if(state.selectedItemIndex > -1) { state.items[state.selectedItemIndex].size = parseFloat(e.target.value); drawDesign(); }});
+document.getElementById('editRotation').addEventListener('input', e => { if(state.selectedItemIndex > -1) { state.items[state.selectedItemIndex].rotation = parseInt(e.target.value); drawDesign(); }});
+document.getElementById('btnFlipItem').addEventListener('click', () => { if(state.selectedItemIndex > -1) { state.items[state.selectedItemIndex].flipX = !state.items[state.selectedItemIndex].flipX; drawDesign(); }});
+document.getElementById('editColor').addEventListener('input', e => { if(state.selectedItemIndex > -1) { state.items[state.selectedItemIndex].color = e.target.value; drawDesign(); }});
+document.getElementById('btnDeleteItem').addEventListener('click', () => { if(state.selectedItemIndex > -1) { state.items.splice(state.selectedItemIndex, 1); selectItem(-1); }});
 
 
-// --- STEP 4: CAPTURE & CHROMA ---
+// --- NEW: CHROMA KEY SETUP ---
+function toggleChromaUI() {
+    state.chromaEnabled = document.getElementById('chkChroma').checked;
+    document.getElementById('chromaSettings').style.display = state.chromaEnabled ? 'block' : 'none';
+}
+
+function updateChromaMode() {
+    state.chromaMode = document.querySelector('input[name="chromaMode"]:checked').value;
+    document.getElementById('chromaSingleWrap').style.display = (state.chromaMode === 'single') ? 'block' : 'none';
+    document.getElementById('chromaUniqueWrap').style.display = (state.chromaMode === 'unique') ? 'block' : 'none';
+}
+
+function renderChromaUI() {
+    const container = document.getElementById('uniqueInputsContainer');
+    container.innerHTML = '';
+    
+    // Ensure array is right size
+    while(state.chromaUniqueImgs.length < state.shotsTotal) state.chromaUniqueImgs.push(null);
+    state.chromaUniqueImgs = state.chromaUniqueImgs.slice(0, state.shotsTotal);
+
+    for(let i=0; i<state.shotsTotal; i++) {
+        const box = document.createElement('div');
+        box.className = 'unique-upload-box';
+        box.innerHTML = `<label style="margin-bottom:4px">Background for Shot ${i+1}</label>
+                         <input type="file" accept="image/*" id="uniqueChromaFile_${i}">`;
+        container.appendChild(box);
+        
+        document.getElementById(`uniqueChromaFile_${i}`).addEventListener('change', e => {
+            loadImg(e.target.files[0], img => { state.chromaUniqueImgs[i] = img; });
+        });
+    }
+}
+
+document.getElementById('fileChromaSingle').addEventListener('change', e => {
+    loadImg(e.target.files[0], img => { state.chromaSingleImg = img; });
+});
+
+
+// --- CAPTURE ALGORITHM ---
 function hexToRgb(hex){ const m=hex.replace('#',''); return {r:parseInt(m.substring(0,2),16), g:parseInt(m.substring(2,4),16), b:parseInt(m.substring(4,6),16)}; }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-async function captureFrame() {
+async function captureFrame(shotIndex) {
   const vid = document.getElementById('captureVideo');
   if(!vid.videoWidth) return null;
   processCanvas.width = vid.videoWidth; processCanvas.height = vid.videoHeight;
   pCtx.drawImage(vid, 0, 0, processCanvas.width, processCanvas.height);
   
-  if(document.getElementById('chkChroma').checked && state.bgImg) {
-    const temp = document.createElement('canvas'); temp.width = processCanvas.width; temp.height = processCanvas.height;
-    drawCover(temp.getContext('2d'), state.bgImg, 0, 0, temp.width, temp.height);
-    
+  if(state.chromaEnabled) {
     const fg = pCtx.getImageData(0,0,processCanvas.width, processCanvas.height);
-    const bg = temp.getContext('2d').getImageData(0,0,processCanvas.width, processCanvas.height);
     const key = hexToRgb(document.getElementById('chromaColor').value);
     const th = Number(document.getElementById('chromaIntensity').value);
     
+    // Optional: Prepare replacement background data
+    let bgData = null;
+    if (state.chromaMode !== 'transparent') {
+        const temp = document.createElement('canvas');
+        temp.width = processCanvas.width; temp.height = processCanvas.height;
+        const tCtx = temp.getContext('2d');
+        
+        let customBg = null;
+        if(state.chromaMode === 'single') customBg = state.chromaSingleImg;
+        if(state.chromaMode === 'unique') customBg = state.chromaUniqueImgs[shotIndex];
+        
+        if (customBg) {
+            drawCover(tCtx, customBg, 0, 0, temp.width, temp.height, false);
+            bgData = tCtx.getImageData(0,0,temp.width, temp.height).data;
+        }
+    }
+
+    // Process Pixels
     for(let i=0; i<fg.data.length; i+=4){
       const r=fg.data[i], g=fg.data[i+1], b=fg.data[i+2];
       if(Math.sqrt((r-key.r)**2+(g-key.g)**2+(b-key.b)**2) < th) {
-        fg.data[i]=bg.data[i]; fg.data[i+1]=bg.data[i+1]; fg.data[i+2]=bg.data[i+2];
+        if (state.chromaMode === 'transparent' || !bgData) {
+            fg.data[i+3] = 0; // Turn alpha to 0
+        } else {
+            // Replace with custom background pixel
+            fg.data[i] = bgData[i];
+            fg.data[i+1] = bgData[i+1];
+            fg.data[i+2] = bgData[i+2];
+            fg.data[i+3] = bgData[i+3];
+        }
       }
     }
     pCtx.putImageData(fg,0,0);
@@ -607,47 +673,37 @@ async function captureFrame() {
 
 document.getElementById('btnStartSession').addEventListener('click', async () => {
   state.captures = [];
-  document.getElementById('btnBackToDesign').style.display = 'none';
+  document.getElementById('btnBackToChroma').style.display = 'none';
   document.getElementById('btnStartSession').style.display = 'none';
+  document.getElementById('btnSwitchCamLive').style.display = 'none';
+  
   const delay = parseInt(document.getElementById('countdownSecs').value) || 3;
   const status = document.getElementById('captureStatus');
 
   for(let i=0; i<state.shotsTotal; i++) {
     status.innerText = `Taking photo ${i+1} of ${state.shotsTotal}...`;
+    document.getElementById('countdownOverlay').style.display = 'flex';
+    for(let s=delay; s>0; s--) { document.getElementById('countdownOverlay').innerText = s; await sleep(1000); }
+    document.getElementById('countdownOverlay').style.display = 'none';
     
-    // Countdown
-    countdownOverlay.style.display = 'flex';
-    for(let s=delay; s>0; s--) {
-      countdownOverlay.innerText = s;
-      await sleep(1000);
-    }
-    countdownOverlay.style.display = 'none';
+    document.getElementById('flashOverlay').style.opacity = '1';
+    setTimeout(() => document.getElementById('flashOverlay').style.opacity = '0', 100);
     
-    // Flash & Capture
-    flashOverlay.style.opacity = '1';
-    setTimeout(() => flashOverlay.style.opacity = '0', 100);
-    const img = await captureFrame();
+    // Pass the shot index to captureFrame to handle unique chroma backgrounds
+    const img = await captureFrame(i);
     if(img) state.captures.push(img);
-    await sleep(500); // pause between shots
+    await sleep(500); 
   }
   
-  document.getElementById('btnBackToDesign').style.display = 'block';
+  document.getElementById('btnBackToChroma').style.display = 'block';
   document.getElementById('btnStartSession').style.display = 'block';
+  document.getElementById('btnSwitchCamLive').style.display = 'block';
   status.innerText = "Session Complete!";
-  goToStep(5);
+  goToStep(6);
 });
 
-
-// --- STEP 5: FINAL RESULT & SHARE ---
-function renderFinalResult() {
-  drawDesign(rCtx, true); // true = draw with actual photos
-  
-  // Enable Native Web Share if supported
-  if(navigator.share) {
-    document.getElementById('btnShare').style.display = 'block';
-  }
-}
-
+// --- RESULT ---
+function renderFinalResult() { drawDesign(rCtx, true); }
 function exportFinalImage() {
   const a = document.createElement('a');
   a.download = 'mediabox_booth_final.jpg';
@@ -655,22 +711,8 @@ function exportFinalImage() {
   a.click();
 }
 
-document.getElementById('btnShare').addEventListener('click', async () => {
-  try {
-    const dataUrl = resultCanvas.toDataURL('image/jpeg', 0.95);
-    const blob = await (await fetch(dataUrl)).blob();
-    const file = new File([blob], 'photobooth.jpg', { type: 'image/jpeg' });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ title: 'My Photobooth Pic', files: [file] });
-    } else {
-        alert("Your browser/device doesn't support direct file sharing.");
-    }
-  } catch(e) { console.log('Share canceled or failed', e); }
-});
-
-// Run initialization
 initDevices();
-applyPreset('4-grid'); // default layout
+applyPreset('4-grid');
 </script>
 </body>
 </html>
